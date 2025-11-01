@@ -14,10 +14,8 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
  * This ensures frontend always gets proper JSON with status codes
  */
 #[AsEventListener(event: 'kernel.exception', priority: 10)]
-class ApiExceptionListener
-{
-    public function __invoke(ExceptionEvent $event): void
-    {
+class ApiExceptionListener {
+    public function __invoke(ExceptionEvent $event): void {
         $request = $event->getRequest();
 
         // Only handle API routes (starting with /api)
