@@ -2,6 +2,14 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    
+    # Role hierarchy
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_MANAGER, ROLE_TECHNICIAN, ROLE_REPORTER, ROLE_USER]
+        ROLE_MANAGER: [ROLE_TECHNICIAN, ROLE_REPORTER, ROLE_USER]
+        ROLE_TECHNICIAN: [ROLE_REPORTER, ROLE_USER]
+        ROLE_REPORTER: [ROLE_USER]
+    
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         app_user_provider:
@@ -23,9 +31,23 @@ security:
             jwt: ~
 
     access_control:
+        # Public endpoints
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
-        # - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        
+        # User management
+        - { path: ^/api/users$, roles: IS_AUTHENTICATED_FULLY, methods: [GET] }      # List - all authenticated
+        - { path: ^/api/users/\d+$, roles: IS_AUTHENTICATED_FULLY, methods: [GET] }  # Show - all authenticated
+        - { path: ^/api/users$, roles: ROLE_MANAGER, methods: [POST] }               # Create - manager+ (Voter checks role level)
+        - { path: ^/api/users/\d+$, roles: ROLE_MANAGER, methods: [PUT] }            # Update - manager+
+        - { path: ^/api/users/\d+$, roles: ROLE_MANAGER, methods: [DELETE] }         # Delete - manager+ (Voter checks role level)
+        
+        # Role management
+        - { path: ^/api/roles/select$, roles: ROLE_MANAGER }                         # Select list for forms - manager+
+        - { path: ^/api/roles, roles: ROLE_ADMIN }                                   # Full CRUD - admin only
+        
+        # All other API routes require authentication
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
