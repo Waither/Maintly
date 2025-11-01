@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Backend - PHP 8.4 + Symfony
+  backend:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: maintly-backend
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      DATABASE_URL: "mysql://maintly:secret@mysql:3306/maintly?serverVersion=8.0"
+      APP_ENV: "dev"
+    depends_on:
+      - mysql
+    networks:
+      - maintly-network
+
+  # Nginx - Reverse Proxy
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    container_name: maintly-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend/public:/var/www/html/public:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+    networks:
+      - maintly-network
+
+  # MySQL 8.0
+  mysql:
+    image: mysql:8.0
+    container_name: maintly-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: maintly
+      MYSQL_USER: maintly
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - maintly-network
+
+volumes:
+  mysql-data:
+
+networks:
+  maintly-network:
+    driver: bridge

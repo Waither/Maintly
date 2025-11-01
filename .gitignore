@@ -1,0 +1,38 @@
+###> Symfony ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< Symfony ###
+
+###> JWT ###
+/config/jwt/*.pem
+###< JWT ###
+
+###> IDEs ###
+/.vscode/
+/.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+###< IDEs ###
+
+###> Docker ###
+/docker/mysql/data/
+###< Docker ###
+
+###> Logs & Cache ###
+*.log
+/var/log/
+/var/cache/
+###< Logs & Cache ###
+
+###> Node ###
+/node_modules/
+/frontend/node_modules/
+/frontend/dist/
+###< Node ###
