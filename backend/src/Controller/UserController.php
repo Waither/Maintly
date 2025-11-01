@@ -81,15 +81,15 @@ class UserController extends AbstractController {
 
             // Basic validation
             if (empty($data['email']) || !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                return $this->errorResponse('Valid email is required', 400);
+                return $this->errorResponse('validation.email_required', 400);
             }
 
             if (empty($data['password']) || strlen($data['password']) < 8) {
-                return $this->errorResponse('Password must be at least 8 characters', 400);
+                return $this->errorResponse('validation.password_min_length', 400);
             }
 
             if (empty($data['firstName']) || empty($data['lastName'])) {
-                return $this->errorResponse('First name and last name are required', 400);
+                return $this->errorResponse('validation.name_required', 400);
             }
 
             // Check permission: can current user create user with this role?
@@ -97,7 +97,7 @@ class UserController extends AbstractController {
             if ($roleId) {
                 $targetRole = $this->roleRepository->find($roleId);
                 if (!$targetRole) {
-                    return $this->errorResponse('Invalid role ID', 400);
+                    return $this->errorResponse('validation.invalid_role', 400);
                 }
 
                 // Voter check: USER_CREATE permission
@@ -122,16 +122,16 @@ class UserController extends AbstractController {
                 'lastName' => $user->getLastName(),
                 'role' => $user->getUserRole()->getName(),
                 'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s')
-            ], 'User created successfully');
+            ], 'user.created');
         }
         catch (AccessDeniedException $e) {
-            return $this->forbiddenResponse('You are not allowed to create users with this role');
+            return $this->forbiddenResponse('permission.create_user_denied');
         }
         catch (\InvalidArgumentException $e) {
             return $this->errorResponse($e->getMessage(), 400);
         }
         catch (\Exception $e) {
-            return $this->serverErrorResponse('Failed to create user: ' . $e->getMessage());
+            return $this->serverErrorResponse('error.create_user_failed');
         }
     }
 
@@ -148,7 +148,7 @@ class UserController extends AbstractController {
             $user = $envelope->last(HandledStamp::class)->getResult();
 
             if (!$user) {
-                return $this->notFoundResponse('User not found');
+                return $this->notFoundResponse('user.not_found');
             }
 
             $role = $user->getUserRole();
@@ -167,7 +167,7 @@ class UserController extends AbstractController {
             ]);
         }
         catch (\Exception $e) {
-            return $this->serverErrorResponse('Failed to fetch user: ' . $e->getMessage());
+            return $this->serverErrorResponse('error.fetch_user_failed');
         }
     }
 
@@ -182,12 +182,12 @@ class UserController extends AbstractController {
 
             // Validate email if provided
             if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                return $this->errorResponse('Invalid email format', 400);
+                return $this->errorResponse('validation.email_invalid', 400);
             }
 
             // Validate password length if provided
             if (isset($data['password']) && strlen($data['password']) < 8) {
-                return $this->errorResponse('Password must be at least 8 characters', 400);
+                return $this->errorResponse('validation.password_min_length', 400);
             }
 
             $command = new UpdateUserCommand(
@@ -209,13 +209,13 @@ class UserController extends AbstractController {
                 'lastName' => $user->getLastName(),
                 'role' => $user->getUserRole()->getName(),
                 'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s')
-            ], 200, 'User updated successfully');
+            ], 200, 'user.updated');
         }
         catch (\InvalidArgumentException $e) {
-            return $this->notFoundResponse($e->getMessage());
+            return $this->notFoundResponse('user.not_found');
         }
         catch (\Exception $e) {
-            return $this->serverErrorResponse('Failed to update user: ' . $e->getMessage());
+            return $this->serverErrorResponse('error.update_user_failed');
         }
     }
 
@@ -229,7 +229,7 @@ class UserController extends AbstractController {
             // Get user to check permissions
             $user = $this->userRepository->find($id);
             if (!$user) {
-                return $this->notFoundResponse('User not found');
+                return $this->notFoundResponse('user.not_found');
             }
 
             // Voter check: USER_DELETE permission
@@ -239,16 +239,16 @@ class UserController extends AbstractController {
             
             $this->commandBus->dispatch($command);
 
-            return $this->successResponse(null, 200, 'User deleted successfully');
+            return $this->successResponse(null, 200, 'user.deleted');
         }
         catch (AccessDeniedException $e) {
-            return $this->forbiddenResponse('You are not allowed to delete users with this role');
+            return $this->forbiddenResponse('permission.delete_user_denied');
         }
         catch (\InvalidArgumentException $e) {
-            return $this->notFoundResponse($e->getMessage());
+            return $this->notFoundResponse('user.not_found');
         }
         catch (\Exception $e) {
-            return $this->serverErrorResponse('Failed to delete user: ' . $e->getMessage());
+            return $this->serverErrorResponse('error.delete_user_failed');
         }
     }
 }

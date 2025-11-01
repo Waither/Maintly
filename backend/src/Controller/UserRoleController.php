@@ -50,10 +50,12 @@ class UserRoleController extends AbstractController {
                 'data' => $data
             ]);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch roles: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.fetch_roles_failed'
             ], 500);
         }
     }
@@ -84,10 +86,12 @@ class UserRoleController extends AbstractController {
                 'data' => $data
             ]);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch roles: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.fetch_roles_failed'
             ], 500);
         }
     }
@@ -104,7 +108,8 @@ class UserRoleController extends AbstractController {
             if (empty($data['name'])) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Role name is required'
+                    'code' => 400,
+                    'message' => 'validation.role_name_required'
                 ], 400);
             }
 
@@ -118,7 +123,8 @@ class UserRoleController extends AbstractController {
 
             return $this->json([
                 'status' => 'success',
-                'message' => 'Role created successfully',
+                'code' => 201,
+                'message' => 'role.created',
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
@@ -126,15 +132,19 @@ class UserRoleController extends AbstractController {
                 ]
             ], 201);
 
-        } catch (\InvalidArgumentException $e) {
+        }
+        catch (\InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
+                'code' => 400,
                 'message' => $e->getMessage()
             ], 400);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to create role: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.create_role_failed'
             ], 500);
         }
     }
@@ -154,7 +164,8 @@ class UserRoleController extends AbstractController {
             if (!$role) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Role not found'
+                    'code' => 404,
+                    'message' => 'role.not_found'
                 ], 404);
             }
 
@@ -168,10 +179,12 @@ class UserRoleController extends AbstractController {
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch role: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.fetch_role_failed'
             ], 500);
         }
     }
@@ -196,7 +209,8 @@ class UserRoleController extends AbstractController {
 
             return $this->json([
                 'status' => 'success',
-                'message' => 'Role updated successfully',
+                'code' => 200,
+                'message' => 'role.updated',
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
@@ -204,15 +218,19 @@ class UserRoleController extends AbstractController {
                 ]
             ]);
 
-        } catch (\InvalidArgumentException $e) {
+        }
+        catch (\InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'code' => 404,
+                'message' => 'role.not_found'
             ], 404);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to update role: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.update_role_failed'
             ], 500);
         }
     }
@@ -230,18 +248,23 @@ class UserRoleController extends AbstractController {
 
             return $this->json([
                 'status' => 'success',
-                'message' => 'Role deleted successfully'
+                'code' => 200,
+                'message' => 'role.deleted'
             ]);
 
-        } catch (\InvalidArgumentException $e) {
+        }
+        catch (\InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
+                'code' => 400,
                 'message' => $e->getMessage()
             ], 400);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to delete role: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.delete_role_failed'
             ], 500);
         }
     }

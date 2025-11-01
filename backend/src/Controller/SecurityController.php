@@ -34,7 +34,8 @@ class SecurityController extends AbstractController {
                 empty($data['firstName']) || empty($data['lastName'])) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Missing required fields: email, password, firstName, lastName'
+                    'code' => 400,
+                    'message' => 'validation.missing_fields'
                 ], 400);
             }
 
@@ -42,7 +43,8 @@ class SecurityController extends AbstractController {
             if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Invalid email format'
+                    'code' => 400,
+                    'message' => 'validation.email_invalid'
                 ], 400);
             }
 
@@ -50,7 +52,8 @@ class SecurityController extends AbstractController {
             if (strlen($data['password']) < 8) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Password must be at least 8 characters'
+                    'code' => 400,
+                    'message' => 'validation.password_min_length'
                 ], 400);
             }
 
@@ -59,7 +62,8 @@ class SecurityController extends AbstractController {
             if ($existingUser) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Email already exists'
+                    'code' => 409,
+                    'message' => 'user.email_exists'
                 ], 409);
             }
 
@@ -77,7 +81,8 @@ class SecurityController extends AbstractController {
 
             return $this->json([
                 'status' => 'success',
-                'message' => 'User registered successfully',
+                'code' => 201,
+                'message' => 'user.registered',
                 'data' => [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
@@ -87,15 +92,19 @@ class SecurityController extends AbstractController {
                 ]
             ], 201);
 
-        } catch (\InvalidArgumentException $e) {
+        }
+        catch (\InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
+                'code' => 400,
                 'message' => $e->getMessage()
             ], 400);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to register user: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.register_user_failed'
             ], 500);
         }
     }
@@ -127,7 +136,8 @@ class SecurityController extends AbstractController {
             if (!$user instanceof User) {
                 return $this->json([
                     'status' => 'error',
-                    'message' => 'Not authenticated'
+                    'code' => 401,
+                    'message' => 'permission.not_authenticated'
                 ], 401);
             }
 
@@ -143,10 +153,12 @@ class SecurityController extends AbstractController {
                 ]
             ]);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return $this->json([
                 'status' => 'error',
-                'message' => 'Failed to fetch user info: ' . $e->getMessage()
+                'code' => 500,
+                'message' => 'error.fetch_user_info_failed'
             ], 500);
         }
     }
