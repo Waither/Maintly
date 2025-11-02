@@ -1,12 +1,15 @@
-# Quick cache clear for Maintly backend
+# Quick cache clear for Maintly backend (dev + test environments)
 # Usage: .\cc.ps1
 
-Write-Host "🗑️  Clearing Symfony cache..." -ForegroundColor Yellow
+Write-Host "Clearing Symfony cache (dev + test)..." -ForegroundColor Yellow
 
 # Hard delete cache in container
 docker exec maintly-backend rm -rf var/cache/* var/log/* 2>$null
 
-# Clear cache via Symfony
-docker exec maintly-backend php bin/console cache:clear --no-warmup
+# Clear dev cache
+docker exec maintly-backend php bin/console cache:clear --no-warmup --env=dev
 
-Write-Host "✅ Cache cleared!" -ForegroundColor Green
+# Clear test cache
+docker exec maintly-backend php bin/console cache:clear --no-warmup --env=test
+
+Write-Host "Cache cleared (dev + test)!" -ForegroundColor Green

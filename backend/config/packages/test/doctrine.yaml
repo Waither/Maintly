@@ -1,0 +1,5 @@
+doctrine:
+    dbal:
+        # Disable automatic database name suffix for test environment
+        # We use the same database as dev with DAMA bundle transaction rollback
+        dbname_suffix: ''

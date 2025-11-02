@@ -1,0 +1,3 @@
+services:
+    # Disable rate limiter listener in test environment to avoid 429 errors during tests
+    App\EventListener\LoginRateLimiterListener: ~

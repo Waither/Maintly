@@ -1,0 +1,9 @@
+dama_doctrine_test:
+    # Enables static connection wrapping for database transaction rollback
+    # This ensures each test runs in a transaction that's rolled back after test completion
+    enable_static_connection: true
+    
+    # Automatically enables static meta data cache and static query cache
+    # This improves test performance by reusing metadata across tests
+    enable_static_meta_data_cache: true
+    enable_static_query_cache: true

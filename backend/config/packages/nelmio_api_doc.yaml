@@ -1,0 +1,37 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Maintly CMMS API
+            description: |
+                RESTful API for Computerized Maintenance Management System.
+                
+                **Features:**
+                - JWT Authentication
+                - User & Role Management
+                - Work Order Management
+                - Equipment Tracking
+                - Inventory Management
+                - Dashboard Statistics
+            version: 1.0.0
+            contact:
+                name: Maintly Team
+                email: admin@maintly.com
+        
+        servers:
+            - url: http://localhost:8000
+              description: Local development
+        
+        security:
+            - Bearer: []
+        
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: JWT
+                    description: 'Enter JWT token from /api/login endpoint'
+    
+    areas:
+        path_patterns:
+            - ^/api(?!/doc$) # Wszystkie /api/* EXCEPT /api/doc
