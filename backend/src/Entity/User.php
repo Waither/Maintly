@@ -121,5 +121,3 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this->createdAt;
     }
 }
-
-// Test hook
