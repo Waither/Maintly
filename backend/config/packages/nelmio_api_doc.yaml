@@ -33,5 +33,6 @@ nelmio_api_doc:
                     description: 'Enter JWT token from /api/login endpoint'
     
     areas:
-        path_patterns:
-            - ^/api(?!/doc$) # Wszystkie /api/* EXCEPT /api/doc
+        default:
+            path_patterns:
+                - ^/api(?!/doc$) # All /api/* EXCEPT /api/doc

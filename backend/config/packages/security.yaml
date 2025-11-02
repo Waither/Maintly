@@ -36,6 +36,7 @@ security:
         # Public endpoints
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }                                  # Swagger UI - public access
         - { path: ^/api/translations, roles: PUBLIC_ACCESS }                         # Translations - public access
         
         # User management

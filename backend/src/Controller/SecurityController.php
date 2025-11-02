@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Attributes as OA;
 
 #[Route('/api', name: 'api_security_')]
 class SecurityController extends AbstractController {
@@ -117,10 +118,37 @@ class SecurityController extends AbstractController {
      * is handled by Lexik JWT Bundle through security.yaml configuration.
      *
      * POST /api/login
-     * Body: {"username": "email@example.com", "password": "password123"}
+     * Body: {"email": "email@example.com", "password": "password123"}
      * Returns: {"token": "JWT_TOKEN_HERE"}
      */
     #[Route('/login', name: 'login', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/login',
+        summary: 'Login with email and password',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password'],
+                properties: [
+                    new OA\Property(property: 'email', type: 'string', example: 'admin@example.com'),
+                    new OA\Property(property: 'password', type: 'string', example: 'password123'),
+                ]
+            )
+        ),
+        tags: ['Authentication'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Login successful',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'token', type: 'string', example: 'eyJ0eXAiOiJKV1QiLCJhbGc...'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 401, description: 'Invalid credentials'),
+        ]
+    )]
     public function login(): never {
         // This code is never executed - security.yaml intercepts the request
         // and Lexik JWT Bundle handles authentication
