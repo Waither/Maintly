@@ -23,6 +23,7 @@ class SecurityController extends AbstractController {
     /**
      * Register new user
      * Command: CreateUserCommand (default role: reporter)
+     * NOTE: In production, this endpoint should be restricted to admin/manager only
      */
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function register(Request $request): JsonResponse {

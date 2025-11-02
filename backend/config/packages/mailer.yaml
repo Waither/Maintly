@@ -1,0 +1,11 @@
+framework:
+    mailer:
+        # Default DSN (null:// = emails not sent, only logged)
+        # See .env for MAILER_DSN configuration
+        dsn: '%env(MAILER_DSN)%'
+
+# Production examples (configure in .env):
+# MAILER_DSN=gmail+smtp://username:password@default
+# MAILER_DSN=sendgrid+api://YOUR_KEY@default
+# MAILER_DSN=mailgun+https://KEY:DOMAIN@default
+# MAILER_DSN=smtp://user:pass@smtp.example.com:587

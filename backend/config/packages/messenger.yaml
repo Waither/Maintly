@@ -19,12 +19,12 @@ framework:
             failed: 'doctrine://default?queue_name=failed'
 
         routing:
-            # All Commands and Queries go to sync transport (no async needed)
+            # CQRS - Synchronous=
             'App\Application\Command\*': sync
             'App\Application\Query\*': sync
-            
-            # Background jobs will go to async transport (later)
-            # 'App\Message\*': async
+
+            # Background jobs - Asynchronous
+            'App\Message\*': async
 
         default_bus: command.bus
         buses:
