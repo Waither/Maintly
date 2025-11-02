@@ -112,7 +112,6 @@ class UserRoleController extends AbstractController {
 
             $command = new CreateUserRoleCommand(
                 name: $data['name'],
-                description: $data['description'] ?? null,
             );
 
             $envelope = $this->commandBus->dispatch($command);
@@ -194,7 +193,6 @@ class UserRoleController extends AbstractController {
             $command = new UpdateUserRoleCommand(
                 id: $id,
                 name: $data['name'] ?? null,
-                description: $data['description'] ?? null,
             );
 
             $envelope = $this->commandBus->dispatch($command);

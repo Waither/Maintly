@@ -8,6 +8,5 @@ namespace App\Application\Command\UserRole;
 readonly class CreateUserRoleCommand {
     public function __construct(
         public string $name,
-        public ?string $description = null,
     ) {}
 }

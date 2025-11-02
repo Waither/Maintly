@@ -9,8 +9,8 @@ use InvalidArgumentException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
- * Handler for UpdateUserRoleCommand
- * Updates user role data (name, description).
+ * Handler for UpdateUserRoleCommand.
+ * Updates user role data (name).
  */
 #[AsMessageHandler(bus: 'command.bus')]
 class UpdateUserRoleHandler {
@@ -38,11 +38,6 @@ class UpdateUserRoleHandler {
             }
 
             $role->setName($command->name);
-        }
-
-        // Update description if provided
-        if ($command->description !== null) {
-            $role->setDescription($command->description);
         }
 
         $this->em->flush();

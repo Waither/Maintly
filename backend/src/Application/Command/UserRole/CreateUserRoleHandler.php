@@ -34,10 +34,6 @@ class CreateUserRoleHandler {
         $role = new UserRole();
         $role->setName($command->name);
 
-        if ($command->description !== null) {
-            $role->setDescription($command->description);
-        }
-
         $this->em->persist($role);
         $this->em->flush();
 
