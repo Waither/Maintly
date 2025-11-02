@@ -16,8 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * - Manager can manage users with role: technician, reporter (NOT admin, NOT manager)
  * - Technician/Reporter cannot manage users
  */
-class UserManagementVoter extends Voter
-{
+class UserManagementVoter extends Voter {
     const CREATE_USER = 'USER_CREATE';
     const UPDATE_USER = 'USER_UPDATE';
     const DELETE_USER = 'USER_DELETE';
@@ -30,14 +29,12 @@ class UserManagementVoter extends Voter
         'reporter' => 4,
     ];
 
-    protected function supports(string $attribute, mixed $subject): bool
-    {
+    protected function supports(string $attribute, mixed $subject): bool {
         // Support only our custom attributes
         return in_array($attribute, [self::CREATE_USER, self::UPDATE_USER, self::DELETE_USER]);
     }
 
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
-    {
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool {
         $currentUser = $token->getUser();
 
         // User must be logged in

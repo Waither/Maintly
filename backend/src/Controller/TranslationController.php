@@ -8,8 +8,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api/translations')]
-class TranslationController extends AbstractController
-{
+class TranslationController extends AbstractController {
     public function __construct(
         private readonly TranslationRepository $translationRepository
     ) {}
