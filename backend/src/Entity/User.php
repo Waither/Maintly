@@ -61,10 +61,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     }
 
     /**
-     * Symfony wymaga tej metody - konwertujemy UserRole na stringi.
+     * Symfony requires this method - convert UserRole to strings.
      */
     public function getRoles(): array {
-        $roles = ['ROLE_USER']; // Minimalna rola dla każdego
+        $roles = ['ROLE_USER']; // Minimum role for everyone
 
         if ($this->userRole) {
             $roles[] = 'ROLE_' . strtoupper($this->userRole->getName());
@@ -94,7 +94,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     }
 
     public function eraseCredentials(): void {
-        // Czyść tymczasowe dane
+        // Clear temporary sensitive data
     }
 
     public function getFirstName(): ?string {

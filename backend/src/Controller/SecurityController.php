@@ -24,11 +24,96 @@ class SecurityController extends AbstractController {
     ) {}
 
     /**
-     * Register new user
+     * Register new user (Manager/Admin only)
      * Command: CreateUserCommand (default role: reporter)
-     * NOTE: In production, this endpoint should be restricted to admin/manager only.
+     * Only managers and admins can create new user accounts.
      */
     #[Route('/register', name: 'register', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/register',
+        summary: 'Register a new user (Manager+ only)',
+        description: 'Creates a new user account with default reporter role. Requires ROLE_MANAGER or ROLE_ADMIN.',
+        security: [['bearerAuth' => []]],
+        tags: ['Manager+'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['email', 'password', 'firstName', 'lastName'],
+                properties: [
+                    new OA\Property(
+                        property: 'email',
+                        type: 'string',
+                        format: 'email',
+                        example: 'john.doe@example.com'
+                    ),
+                    new OA\Property(
+                        property: 'password',
+                        type: 'string',
+                        format: 'password',
+                        minLength: 8,
+                        example: 'SecurePass123'
+                    ),
+                    new OA\Property(
+                        property: 'firstName',
+                        type: 'string',
+                        example: 'John'
+                    ),
+                    new OA\Property(
+                        property: 'lastName',
+                        type: 'string',
+                        example: 'Doe'
+                    ),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'User registered successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'code', type: 'integer', example: 201),
+                        new OA\Property(property: 'message', type: 'string', example: 'user.registered'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'email', type: 'string', example: 'john.doe@example.com'),
+                                new OA\Property(property: 'firstName', type: 'string', example: 'John'),
+                                new OA\Property(property: 'lastName', type: 'string', example: 'Doe'),
+                                new OA\Property(property: 'role', type: 'string', example: 'reporter'),
+                            ]
+                        ),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Validation error',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(property: 'code', type: 'integer', example: 400),
+                        new OA\Property(property: 'message', type: 'string', example: 'validation.missing_fields'),
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 409,
+                description: 'Email already exists',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'error'),
+                        new OA\Property(property: 'code', type: 'integer', example: 409),
+                        new OA\Property(property: 'message', type: 'string', example: 'user.email_exists'),
+                    ]
+                )
+            ),
+            new OA\Response(response: 500, description: 'Internal server error'),
+        ]
+    )]
     public function register(Request $request): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
@@ -130,12 +215,12 @@ class SecurityController extends AbstractController {
             content: new OA\JsonContent(
                 required: ['email', 'password'],
                 properties: [
-                    new OA\Property(property: 'email', type: 'string', example: 'admin@example.com'),
-                    new OA\Property(property: 'password', type: 'string', example: 'password123'),
+                    new OA\Property(property: 'email', type: 'string', example: 'admin@maintly.com'),
+                    new OA\Property(property: 'password', type: 'string', example: 'MaintlyAdmin!@#'),
                 ],
             ),
         ),
-        tags: ['Authentication'],
+        tags: ['Public'],
         responses: [
             new OA\Response(
                 response: 200,
@@ -159,6 +244,34 @@ class SecurityController extends AbstractController {
      * Get current authenticated user info.
      */
     #[Route('/me', name: 'me', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/me',
+        summary: 'Get current authenticated user info',
+        tags: ['Authenticated'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User info retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'data', type: 'object',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
+                                new OA\Property(property: 'firstName', type: 'string', example: 'John'),
+                                new OA\Property(property: 'lastName', type: 'string', example: 'Doe'),
+                                new OA\Property(property: 'role', type: 'string', example: 'ROLE_USER'),
+                                new OA\Property(property: 'createdAt', type: 'string', example: '2023-01-01 12:00:00'),
+                            ],
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 401, description: 'Invalid credentials'),
+            new OA\Response(response: 500, description: 'Internal server error'),
+        ],
+    )]
     public function me(): JsonResponse {
         try {
             $user = $this->getUser();
