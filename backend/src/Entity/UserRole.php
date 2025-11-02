@@ -21,9 +21,6 @@ class UserRole {
     #[ORM\Column(length: 50, unique: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $description = null;
-
     /**
      * @var Collection<int, User>
      */
@@ -44,16 +41,6 @@ class UserRole {
 
     public function setName(string $name): self {
         $this->name = $name;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string {
-        return $this->description;
-    }
-
-    public function setDescription(?string $description): self {
-        $this->description = $description;
 
         return $this;
     }

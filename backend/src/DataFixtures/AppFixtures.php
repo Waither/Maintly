@@ -19,25 +19,21 @@ class AppFixtures extends Fixture {
         // 1. ADMIN - full system access
         $adminRole = new UserRole();
         $adminRole->setName('admin');
-        $adminRole->setDescription('Administrator systemu');
         $manager->persist($adminRole);
 
         // 2. MANAGER - maintenance manager
         $managerRole = new UserRole();
         $managerRole->setName('manager');
-        $managerRole->setDescription('Menedżer utrzymania ruchu');
         $manager->persist($managerRole);
 
         // 3. TECHNICIAN - electrician/mechanic
         $technicianRole = new UserRole();
         $technicianRole->setName('technician');
-        $technicianRole->setDescription('Technik serwisowy');
         $manager->persist($technicianRole);
 
         // 4. REPORTER - production worker (can report failures)
         $reporterRole = new UserRole();
         $reporterRole->setName('reporter');
-        $reporterRole->setDescription('Pracownik produkcyjny');
         $manager->persist($reporterRole);
 
         // Flush roles to database (so they have IDs before creating users)
