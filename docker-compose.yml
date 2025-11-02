@@ -9,6 +9,9 @@ services:
     container_name: maintly-backend
     volumes:
       - ./backend:/var/www/html
+      # Cache/logs in container volume (not synced with Windows)
+      - backend-cache:/var/www/html/var/cache
+      - backend-logs:/var/www/html/var/log
     environment:
       DATABASE_URL: "mysql://maintly:secret@mysql:3306/maintly?serverVersion=8.0"
       APP_ENV: "dev"
@@ -51,6 +54,8 @@ services:
 
 volumes:
   mysql-data:
+  backend-cache:  # Symfony cache - isolated from Windows
+  backend-logs:   # Symfony logs - isolated from Windows
 
 networks:
   maintly-network:
