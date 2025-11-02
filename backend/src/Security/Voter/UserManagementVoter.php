@@ -15,6 +15,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * - Admin can manage ALL users (create, update, delete any role)
  * - Manager can manage users with role: technician, reporter (NOT admin, NOT manager)
  * - Technician/Reporter cannot manage users
+ *
+ * @extends Voter<string, User|UserRole|null>
  */
 class UserManagementVoter extends Voter {
     public const CREATE_USER = 'USER_CREATE';

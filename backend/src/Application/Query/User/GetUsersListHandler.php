@@ -15,6 +15,9 @@ final readonly class GetUsersListHandler {
         private UserRepository $userRepository,
     ) {}
 
+    /**
+     * @return array{users: \App\Entity\User[], pagination: array{total: int, page: int, limit: int, pages: int}}
+     */
     public function __invoke(GetUsersListQuery $query): array {
         $qb = $this->userRepository->createQueryBuilder('u')
             ->leftJoin('u.userRole', 'r')

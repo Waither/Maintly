@@ -15,6 +15,9 @@ class GetUserRolesListHandler {
         private UserRoleRepository $roleRepository,
     ) {}
 
+    /**
+     * @return \App\Entity\UserRole[]
+     */
     public function __invoke(GetUserRolesListQuery $query): array {
         return $this->roleRepository->createQueryBuilder('r')
             ->leftJoin('r.users', 'u')

@@ -32,6 +32,8 @@ trait ApiResponseTrait {
 
     /**
      * Error response with message.
+     *
+     * @param array<string, mixed>|null $errors
      */
     protected function errorResponse(string $message, int $code = 400, ?array $errors = null): JsonResponse {
         $response = [
@@ -77,6 +79,8 @@ trait ApiResponseTrait {
 
     /**
      * Validation error response (422).
+     *
+     * @param array<string, mixed> $errors
      */
     protected function validationErrorResponse(string $message, array $errors): JsonResponse {
         return $this->errorResponse($message, 422, $errors);

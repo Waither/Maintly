@@ -9,6 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'translations')]
 #[ORM\UniqueConstraint(name: 'unique_key_locale', columns: ['message_key', 'locale'])]
 class Translation {
+    /**
+     * @var int|null Database assigns int after persist, null before
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]

@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserRoleRepository::class)]
 #[ORM\Table(name: 'user_roles')]
 class UserRole {
+    /**
+     * @var int|null Database assigns int after persist, null before
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -21,6 +24,9 @@ class UserRole {
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $description = null;
 
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'userRole')]
     private Collection $users;
 

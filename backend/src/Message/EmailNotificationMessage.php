@@ -7,6 +7,9 @@ namespace App\Message;
  * Will be processed by EmailNotificationHandler in background worker.
  */
 final readonly class EmailNotificationMessage {
+    /**
+     * @param array<string, mixed> $context
+     */
     public function __construct(
         public string $to,
         public string $subject,
