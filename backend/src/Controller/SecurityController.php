@@ -8,13 +8,13 @@ use App\Repository\UserRepository;
 use Exception;
 use InvalidArgumentException;
 use LogicException;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Annotation\Route;
-use OpenApi\Attributes as OA;
 
 #[Route('/api', name: 'api_security_')]
 class SecurityController extends AbstractController {
@@ -132,8 +132,8 @@ class SecurityController extends AbstractController {
                 properties: [
                     new OA\Property(property: 'email', type: 'string', example: 'admin@example.com'),
                     new OA\Property(property: 'password', type: 'string', example: 'password123'),
-                ]
-            )
+                ],
+            ),
         ),
         tags: ['Authentication'],
         responses: [
@@ -143,11 +143,11 @@ class SecurityController extends AbstractController {
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: 'token', type: 'string', example: 'eyJ0eXAiOiJKV1QiLCJhbGc...'),
-                    ]
-                )
+                    ],
+                ),
             ),
             new OA\Response(response: 401, description: 'Invalid credentials'),
-        ]
+        ],
     )]
     public function login(): never {
         // This code is never executed - security.yaml intercepts the request
