@@ -42,7 +42,6 @@ class UserRoleController extends AbstractController {
                 return [
                     'value' => $role->getId(),
                     'label' => $role->getName(),
-                    'description' => $role->getDescription(),
                 ];
             }, $roles);
 
@@ -76,7 +75,6 @@ class UserRoleController extends AbstractController {
                 return [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription(),
                     'usersCount' => $role->getUsers()->count(),
                 ];
             }, $roles);
@@ -127,7 +125,6 @@ class UserRoleController extends AbstractController {
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription(),
                 ],
             ], 201);
         }
@@ -172,7 +169,6 @@ class UserRoleController extends AbstractController {
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription(),
                     'usersCount' => $role->getUsers()->count(),
                 ],
             ]);
@@ -211,7 +207,6 @@ class UserRoleController extends AbstractController {
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription(),
                 ],
             ]);
         }

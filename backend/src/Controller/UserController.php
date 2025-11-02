@@ -162,7 +162,6 @@ class UserController extends AbstractController {
                 'role' => $role ? [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription(),
                 ] : null,
                 'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
             ]);
