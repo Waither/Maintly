@@ -35,9 +35,11 @@ security:
     access_control:
         # Public endpoints
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }                                  # Swagger UI - public access
         - { path: ^/api/translations, roles: PUBLIC_ACCESS }                         # Translations - public access
+        
+        # User registration - only manager+ can create users
+        - { path: ^/api/register, roles: ROLE_MANAGER }
         
         # User management
         - { path: ^/api/users$, roles: IS_AUTHENTICATED_FULLY, methods: [GET] }      # List - all authenticated
