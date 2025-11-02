@@ -13,9 +13,10 @@ class TranslationRepository extends ServiceEntityRepository {
 
     /**
      * Get all translations for a specific locale as associative array
-     * Falls back to English if translation not found
-     * 
+     * Falls back to English if translation not found.
+     *
      * @param string $locale Target locale (e.g., 'pl', 'en')
+     *
      * @return array<string, string> ['message_key' => 'translated text']
      */
     public function getAllForLocale(string $locale): array {

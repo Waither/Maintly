@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -28,14 +29,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     private ?string $lastName = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $createdAt = null;
+    private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: UserRole::class, inversedBy: 'users')]
     #[ORM\JoinColumn(name: 'user_role_id', referencedColumnName: 'id', nullable: false)]
     private ?UserRole $userRole = null;
 
     public function __construct() {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int {
@@ -48,6 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
     public function setEmail(string $email): self {
         $this->email = $email;
+
         return $this;
     }
 
@@ -56,11 +58,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     }
 
     /**
-     * Symfony wymaga tej metody - konwertujemy UserRole na stringi
+     * Symfony wymaga tej metody - konwertujemy UserRole na stringi.
      */
     public function getRoles(): array {
         $roles = ['ROLE_USER']; // Minimalna rola dla każdego
-        
+
         if ($this->userRole) {
             $roles[] = 'ROLE_' . strtoupper($this->userRole->getName());
         }
@@ -74,6 +76,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
     public function setUserRole(?UserRole $userRole): self {
         $this->userRole = $userRole;
+
         return $this;
     }
 
@@ -83,6 +86,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
     public function setPassword(string $password): self {
         $this->password = $password;
+
         return $this;
     }
 
@@ -96,6 +100,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
     public function setFirstName(string $firstName): self {
         $this->firstName = $firstName;
+
         return $this;
     }
 
@@ -105,10 +110,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
     public function setLastName(string $lastName): self {
         $this->lastName = $lastName;
+
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeImmutable {
+    public function getCreatedAt(): ?DateTimeImmutable {
         return $this->createdAt;
     }
 }

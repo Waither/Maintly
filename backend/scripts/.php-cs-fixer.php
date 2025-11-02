@@ -25,6 +25,13 @@ return (new PhpCsFixer\Config())
         '@PSR12' => true,
         '@Symfony' => true,
         
+        // Wyłącz Yoda style (normalne porównania)
+        'yoda_style' => [
+            'equal' => false,            // $x === 'value' zamiast 'value' === $x
+            'identical' => false,        // $x !== 'value' zamiast 'value' !== $x
+            'less_and_greater' => false, // $x > 5 zamiast 5 < $x
+        ],
+        
         // ==========================================
         // NAWIASY - TWÓJ STYL (na końcu linii)
         // ==========================================

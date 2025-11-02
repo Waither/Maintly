@@ -3,11 +3,13 @@
 namespace App\Controller;
 
 use App\Application\Command\UserRole\CreateUserRoleCommand;
-use App\Application\Command\UserRole\UpdateUserRoleCommand;
 use App\Application\Command\UserRole\DeleteUserRoleCommand;
+use App\Application\Command\UserRole\UpdateUserRoleCommand;
 use App\Application\Query\UserRole\GetUserRoleQuery;
 use App\Application\Query\UserRole\GetUserRolesListQuery;
 use App\Entity\UserRole;
+use Exception;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,88 +19,85 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/roles', name: 'roles_')]
 class UserRoleController extends AbstractController {
-    
     public function __construct(
         private MessageBusInterface $commandBus,
-        private MessageBusInterface $queryBus
+        private MessageBusInterface $queryBus,
     ) {}
 
     /**
      * Get simple roles list for select/dropdown (manager+)
      * Used in frontend forms when creating/editing users
-     * Query: GetUserRolesListQuery
+     * Query: GetUserRolesListQuery.
      */
     #[Route('/select', name: 'select', methods: ['GET'])]
     public function select(): JsonResponse {
         try {
             $query = new GetUserRolesListQuery();
-            
+
             $envelope = $this->queryBus->dispatch($query);
             $roles = $envelope->last(HandledStamp::class)->getResult();
-            
+
             // Simple format for <select> or dropdown
-            $data = array_map(function(UserRole $role) {
+            $data = array_map(function (UserRole $role) {
                 return [
                     'value' => $role->getId(),
                     'label' => $role->getName(),
-                    'description' => $role->getDescription()
+                    'description' => $role->getDescription(),
                 ];
             }, $roles);
 
             return $this->json([
                 'status' => 'success',
-                'data' => $data
+                'data' => $data,
             ]);
-
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 500,
-                'message' => 'error.fetch_roles_failed'
+                'message' => 'error.fetch_roles_failed',
             ], 500);
         }
     }
 
     /**
      * Get full list of all roles with details (admin only)
-     * Query: GetUserRolesListQuery
+     * Query: GetUserRolesListQuery.
      */
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(): JsonResponse {
         try {
             $query = new GetUserRolesListQuery();
-            
+
             $envelope = $this->queryBus->dispatch($query);
             $roles = $envelope->last(HandledStamp::class)->getResult();
-            
-            $data = array_map(function(UserRole $role) {
+
+            $data = array_map(function (UserRole $role) {
                 return [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
                     'description' => $role->getDescription(),
-                    'usersCount' => $role->getUsers()->count()
+                    'usersCount' => $role->getUsers()->count(),
                 ];
             }, $roles);
 
             return $this->json([
                 'status' => 'success',
-                'data' => $data
+                'data' => $data,
             ]);
-
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 500,
-                'message' => 'error.fetch_roles_failed'
+                'message' => 'error.fetch_roles_failed',
             ], 500);
         }
     }
 
     /**
      * Create new role
-     * Command: CreateUserRoleCommand
+     * Command: CreateUserRoleCommand.
      */
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(Request $request): JsonResponse {
@@ -109,15 +108,15 @@ class UserRoleController extends AbstractController {
                 return $this->json([
                     'status' => 'error',
                     'code' => 400,
-                    'message' => 'validation.role_name_required'
+                    'message' => 'validation.role_name_required',
                 ], 400);
             }
 
             $command = new CreateUserRoleCommand(
                 name: $data['name'],
-                description: $data['description'] ?? null
+                description: $data['description'] ?? null,
             );
-            
+
             $envelope = $this->commandBus->dispatch($command);
             $role = $envelope->last(HandledStamp::class)->getResult();
 
@@ -128,36 +127,35 @@ class UserRoleController extends AbstractController {
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription()
-                ]
+                    'description' => $role->getDescription(),
+                ],
             ], 201);
-
         }
-        catch (\InvalidArgumentException $e) {
+        catch (InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 400,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 500,
-                'message' => 'error.create_role_failed'
+                'message' => 'error.create_role_failed',
             ], 500);
         }
     }
 
     /**
      * Get single role by ID
-     * Query: GetUserRoleQuery
+     * Query: GetUserRoleQuery.
      */
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id): JsonResponse {
         try {
             $query = new GetUserRoleQuery(id: $id);
-            
+
             $envelope = $this->queryBus->dispatch($query);
             $role = $envelope->last(HandledStamp::class)->getResult();
 
@@ -165,7 +163,7 @@ class UserRoleController extends AbstractController {
                 return $this->json([
                     'status' => 'error',
                     'code' => 404,
-                    'message' => 'role.not_found'
+                    'message' => 'role.not_found',
                 ], 404);
             }
 
@@ -175,23 +173,22 @@ class UserRoleController extends AbstractController {
                     'id' => $role->getId(),
                     'name' => $role->getName(),
                     'description' => $role->getDescription(),
-                    'usersCount' => $role->getUsers()->count()
-                ]
+                    'usersCount' => $role->getUsers()->count(),
+                ],
             ]);
-
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 500,
-                'message' => 'error.fetch_role_failed'
+                'message' => 'error.fetch_role_failed',
             ], 500);
         }
     }
 
     /**
      * Update role
-     * Command: UpdateUserRoleCommand
+     * Command: UpdateUserRoleCommand.
      */
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
     public function update(int $id, Request $request): JsonResponse {
@@ -201,9 +198,9 @@ class UserRoleController extends AbstractController {
             $command = new UpdateUserRoleCommand(
                 id: $id,
                 name: $data['name'] ?? null,
-                description: $data['description'] ?? null
+                description: $data['description'] ?? null,
             );
-            
+
             $envelope = $this->commandBus->dispatch($command);
             $role = $envelope->last(HandledStamp::class)->getResult();
 
@@ -214,57 +211,55 @@ class UserRoleController extends AbstractController {
                 'data' => [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription()
-                ]
+                    'description' => $role->getDescription(),
+                ],
             ]);
-
         }
-        catch (\InvalidArgumentException $e) {
+        catch (InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 404,
-                'message' => 'role.not_found'
+                'message' => 'role.not_found',
             ], 404);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 500,
-                'message' => 'error.update_role_failed'
+                'message' => 'error.update_role_failed',
             ], 500);
         }
     }
 
     /**
      * Delete role
-     * Command: DeleteUserRoleCommand
+     * Command: DeleteUserRoleCommand.
      */
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse {
         try {
             $command = new DeleteUserRoleCommand(id: $id);
-            
+
             $this->commandBus->dispatch($command);
 
             return $this->json([
                 'status' => 'success',
                 'code' => 200,
-                'message' => 'role.deleted'
+                'message' => 'role.deleted',
             ]);
-
         }
-        catch (\InvalidArgumentException $e) {
+        catch (InvalidArgumentException $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 400,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 400);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->json([
                 'status' => 'error',
                 'code' => 500,
-                'message' => 'error.delete_role_failed'
+                'message' => 'error.delete_role_failed',
             ], 500);
         }
     }

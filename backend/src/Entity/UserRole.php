@@ -38,6 +38,7 @@ class UserRole {
 
     public function setName(string $name): self {
         $this->name = $name;
+
         return $this;
     }
 
@@ -47,6 +48,7 @@ class UserRole {
 
     public function setDescription(?string $description): self {
         $this->description = $description;
+
         return $this;
     }
 
@@ -62,6 +64,7 @@ class UserRole {
             $this->users->add($user);
             $user->setUserRole($this);
         }
+
         return $this;
     }
 
@@ -71,6 +74,7 @@ class UserRole {
                 $user->setUserRole(null);
             }
         }
+
         return $this;
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Application\Command\User;
 
 /**
- * Command to create a new user
+ * Command to create a new user.
  */
 final readonly class CreateUserCommand {
     public function __construct(
@@ -11,6 +11,6 @@ final readonly class CreateUserCommand {
         public string $password,
         public string $firstName,
         public string $lastName,
-        public ?int $roleId = null
+        public ?int $roleId = null,
     ) {}
 }

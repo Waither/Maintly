@@ -9,17 +9,17 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
- * Voter for User management permissions
- * 
+ * Voter for User management permissions.
+ *
  * Rules:
  * - Admin can manage ALL users (create, update, delete any role)
  * - Manager can manage users with role: technician, reporter (NOT admin, NOT manager)
  * - Technician/Reporter cannot manage users
  */
 class UserManagementVoter extends Voter {
-    const CREATE_USER = 'USER_CREATE';
-    const UPDATE_USER = 'USER_UPDATE';
-    const DELETE_USER = 'USER_DELETE';
+    public const CREATE_USER = 'USER_CREATE';
+    public const UPDATE_USER = 'USER_UPDATE';
+    public const DELETE_USER = 'USER_DELETE';
 
     // Role hierarchy levels (lower = more powerful)
     private const ROLE_LEVELS = [
@@ -58,7 +58,7 @@ class UserManagementVoter extends Voter {
 
         // For CREATE/UPDATE: $subject is target UserRole (the role being assigned)
         // For DELETE: $subject is target User (the user being deleted)
-        
+
         switch ($attribute) {
             case self::CREATE_USER:
             case self::UPDATE_USER:
@@ -67,7 +67,7 @@ class UserManagementVoter extends Voter {
                 if (!$targetRole) {
                     return false;
                 }
-                
+
                 $targetRoleName = $targetRole->getName();
                 $targetRoleLevel = self::ROLE_LEVELS[$targetRoleName] ?? 999;
 

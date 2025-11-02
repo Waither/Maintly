@@ -3,7 +3,7 @@
 namespace App\Application\Command\User;
 
 /**
- * Command to update an existing user
+ * Command to update an existing user.
  */
 final readonly class UpdateUserCommand {
     public function __construct(
@@ -12,6 +12,6 @@ final readonly class UpdateUserCommand {
         public ?string $password = null,
         public ?string $firstName = null,
         public ?string $lastName = null,
-        public ?int $roleId = null
+        public ?int $roleId = null,
     ) {}
 }

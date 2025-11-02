@@ -3,13 +3,15 @@
 namespace App\Controller;
 
 use App\Application\Command\User\CreateUserCommand;
-use App\Application\Command\User\UpdateUserCommand;
 use App\Application\Command\User\DeleteUserCommand;
+use App\Application\Command\User\UpdateUserCommand;
 use App\Application\Query\User\GetUserQuery;
 use App\Application\Query\User\GetUsersListQuery;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\UserRoleRepository;
+use Exception;
+use InvalidArgumentException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,19 +22,18 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 #[Route('/api/users', name: 'users_')]
 class UserController extends AbstractController {
-    
     use ApiResponseTrait;
-    
+
     public function __construct(
         private MessageBusInterface $commandBus,
         private MessageBusInterface $queryBus,
         private UserRoleRepository $roleRepository,
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
     ) {}
 
     /**
      * Get paginated list of users
-     * Query: GetUsersListQuery
+     * Query: GetUsersListQuery.
      */
     #[Route('', name: 'list', methods: ['GET'])]
     public function list(Request $request): JsonResponse {
@@ -42,37 +43,37 @@ class UserController extends AbstractController {
 
             $query = new GetUsersListQuery(
                 page: $page,
-                limit: $limit
+                limit: $limit,
             );
-            
+
             $envelope = $this->queryBus->dispatch($query);
             $result = $envelope->last(HandledStamp::class)->getResult();
-            
+
             // Transform users to array
-            $data = array_map(function(User $user) {
+            $data = array_map(function (User $user) {
                 return [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
                     'firstName' => $user->getFirstName(),
                     'lastName' => $user->getLastName(),
                     'role' => $user->getUserRole()?->getName(),
-                    'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s')
+                    'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
                 ];
             }, $result['users']);
 
             return $this->successResponse([
                 'users' => $data,
-                'pagination' => $result['pagination']
+                'pagination' => $result['pagination'],
             ]);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->serverErrorResponse('Failed to fetch users: ' . $e->getMessage());
         }
     }
 
     /**
      * Create new user
-     * Command: CreateUserCommand
+     * Command: CreateUserCommand.
      */
     #[Route('', name: 'create', methods: ['POST'])]
     public function create(Request $request): JsonResponse {
@@ -109,9 +110,9 @@ class UserController extends AbstractController {
                 password: $data['password'],
                 firstName: $data['firstName'],
                 lastName: $data['lastName'],
-                roleId: $roleId
+                roleId: $roleId,
             );
-            
+
             $envelope = $this->commandBus->dispatch($command);
             $user = $envelope->last(HandledStamp::class)->getResult();
 
@@ -121,29 +122,29 @@ class UserController extends AbstractController {
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
                 'role' => $user->getUserRole()->getName(),
-                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s')
+                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
             ], 'user.created');
         }
         catch (AccessDeniedException $e) {
             return $this->forbiddenResponse('permission.create_user_denied');
         }
-        catch (\InvalidArgumentException $e) {
+        catch (InvalidArgumentException $e) {
             return $this->errorResponse($e->getMessage(), 400);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->serverErrorResponse('error.create_user_failed');
         }
     }
 
     /**
      * Get single user by ID
-     * Query: GetUserQuery
+     * Query: GetUserQuery.
      */
     #[Route('/{id}', name: 'show', methods: ['GET'])]
     public function show(int $id): JsonResponse {
         try {
             $query = new GetUserQuery(id: $id);
-            
+
             $envelope = $this->queryBus->dispatch($query);
             $user = $envelope->last(HandledStamp::class)->getResult();
 
@@ -161,19 +162,19 @@ class UserController extends AbstractController {
                 'role' => $role ? [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
-                    'description' => $role->getDescription()
+                    'description' => $role->getDescription(),
                 ] : null,
-                'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s')
+                'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
             ]);
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->serverErrorResponse('error.fetch_user_failed');
         }
     }
 
     /**
      * Update user
-     * Command: UpdateUserCommand
+     * Command: UpdateUserCommand.
      */
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
     public function update(int $id, Request $request): JsonResponse {
@@ -196,9 +197,9 @@ class UserController extends AbstractController {
                 password: $data['password'] ?? null,
                 firstName: $data['firstName'] ?? null,
                 lastName: $data['lastName'] ?? null,
-                roleId: $data['roleId'] ?? null
+                roleId: $data['roleId'] ?? null,
             );
-            
+
             $envelope = $this->commandBus->dispatch($command);
             $user = $envelope->last(HandledStamp::class)->getResult();
 
@@ -208,20 +209,20 @@ class UserController extends AbstractController {
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
                 'role' => $user->getUserRole()->getName(),
-                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s')
+                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
             ], 200, 'user.updated');
         }
-        catch (\InvalidArgumentException $e) {
+        catch (InvalidArgumentException $e) {
             return $this->notFoundResponse('user.not_found');
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->serverErrorResponse('error.update_user_failed');
         }
     }
 
     /**
      * Delete user
-     * Command: DeleteUserCommand
+     * Command: DeleteUserCommand.
      */
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse {
@@ -236,7 +237,7 @@ class UserController extends AbstractController {
             $this->denyAccessUnlessGranted('USER_DELETE', $user);
 
             $command = new DeleteUserCommand(id: $id);
-            
+
             $this->commandBus->dispatch($command);
 
             return $this->successResponse(null, 200, 'user.deleted');
@@ -244,10 +245,10 @@ class UserController extends AbstractController {
         catch (AccessDeniedException $e) {
             return $this->forbiddenResponse('permission.delete_user_denied');
         }
-        catch (\InvalidArgumentException $e) {
+        catch (InvalidArgumentException $e) {
             return $this->notFoundResponse('user.not_found');
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
             return $this->serverErrorResponse('error.delete_user_failed');
         }
     }

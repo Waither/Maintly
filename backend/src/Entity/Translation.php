@@ -33,6 +33,7 @@ class Translation {
 
     public function setMessageKey(string $messageKey): self {
         $this->messageKey = $messageKey;
+
         return $this;
     }
 
@@ -42,6 +43,7 @@ class Translation {
 
     public function setLocale(string $locale): self {
         $this->locale = $locale;
+
         return $this;
     }
 
@@ -51,6 +53,7 @@ class Translation {
 
     public function setText(string $text): self {
         $this->text = $text;
+
         return $this;
     }
 }

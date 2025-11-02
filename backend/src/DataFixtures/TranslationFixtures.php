@@ -30,26 +30,26 @@ class TranslationFixtures extends Fixture implements FixtureGroupInterface {
             ['key' => 'user.not_found', 'en' => 'User not found', 'pl' => 'Nie znaleziono użytkownika'],
             ['key' => 'user.registered', 'en' => 'User registered successfully', 'pl' => 'Użytkownik zarejestrowany pomyślnie'],
             ['key' => 'user.email_exists', 'en' => 'Email already exists', 'pl' => 'Email już istnieje'],
-            
+
             // Role messages
             ['key' => 'role.created', 'en' => 'Role created successfully', 'pl' => 'Rola utworzona pomyślnie'],
             ['key' => 'role.updated', 'en' => 'Role updated successfully', 'pl' => 'Rola zaktualizowana pomyślnie'],
             ['key' => 'role.deleted', 'en' => 'Role deleted successfully', 'pl' => 'Rola usunięta pomyślnie'],
             ['key' => 'role.not_found', 'en' => 'Role not found', 'pl' => 'Nie znaleziono roli'],
-            
+
             // Role names
             ['key' => 'role.admin', 'en' => 'Administrator', 'pl' => 'Administrator'],
             ['key' => 'role.manager', 'en' => 'Manager', 'pl' => 'Menedżer'],
             ['key' => 'role.technician', 'en' => 'Technician', 'pl' => 'Technik'],
             ['key' => 'role.reporter', 'en' => 'Reporter', 'pl' => 'Zgłaszający'],
-            
+
             // Permission/Access messages
             ['key' => 'permission.create_user_denied', 'en' => 'You are not allowed to create users with this role', 'pl' => 'Nie masz uprawnień do tworzenia użytkowników z tą rolą'],
             ['key' => 'permission.delete_user_denied', 'en' => 'You are not allowed to delete users with this role', 'pl' => 'Nie masz uprawnień do usuwania użytkowników z tą rolą'],
             ['key' => 'permission.access_denied', 'en' => 'Access denied', 'pl' => 'Dostęp zabroniony'],
             ['key' => 'permission.not_authenticated', 'en' => 'Not authenticated', 'pl' => 'Nie uwierzytelniono'],
             ['key' => 'permission.unauthorized', 'en' => 'Unauthorized', 'pl' => 'Brak autoryzacji'],
-            
+
             // Error messages
             ['key' => 'error.resource_not_found', 'en' => 'Resource not found', 'pl' => 'Nie znaleziono zasobu'],
             ['key' => 'error.internal_server', 'en' => 'Internal server error', 'pl' => 'Wewnętrzny błąd serwera'],
@@ -65,10 +65,10 @@ class TranslationFixtures extends Fixture implements FixtureGroupInterface {
             ['key' => 'error.fetch_role_failed', 'en' => 'Failed to fetch role', 'pl' => 'Nie udało się pobrać roli'],
             ['key' => 'error.fetch_user_info_failed', 'en' => 'Failed to fetch user info', 'pl' => 'Nie udało się pobrać informacji o użytkowniku'],
             ['key' => 'error.register_user_failed', 'en' => 'Failed to register user', 'pl' => 'Nie udało się zarejestrować użytkownika'],
-            
+
             // Translation system
             ['key' => 'translations.fetch_failed', 'en' => 'Failed to fetch translations', 'pl' => 'Nie udało się pobrać tłumaczeń'],
-            
+
             // UI Elements (examples for frontend)
             ['key' => 'button.add', 'en' => 'Add', 'pl' => 'Dodaj'],
             ['key' => 'button.edit', 'en' => 'Edit', 'pl' => 'Edytuj'],

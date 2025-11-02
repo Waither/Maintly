@@ -5,13 +5,12 @@ namespace App\EventListener;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * Event Listener that converts exceptions to JSON responses for API routes
- * This ensures frontend always gets proper JSON with status codes
+ * This ensures frontend always gets proper JSON with status codes.
  */
 #[AsEventListener(event: 'kernel.exception', priority: 10)]
 class ApiExceptionListener {
@@ -40,7 +39,7 @@ class ApiExceptionListener {
         $response = new JsonResponse([
             'status' => 'error',
             'message' => $message,
-            'code' => $statusCode
+            'code' => $statusCode,
         ], $statusCode);
 
         $event->setResponse($response);

@@ -8,15 +8,14 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Handler for GetUserQuery
- * Returns single user with role data
+ * Returns single user with role data.
  */
 #[AsMessageHandler(bus: 'query.bus')]
 final readonly class GetUserHandler {
-    
     public function __construct(
-        private UserRepository $userRepository
+        private UserRepository $userRepository,
     ) {}
-    
+
     public function __invoke(GetUserQuery $query): ?User {
         return $this->userRepository->createQueryBuilder('u')
             ->leftJoin('u.userRole', 'r')

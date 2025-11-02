@@ -9,14 +9,13 @@ use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture {
-    
     public function __construct(
-        private UserPasswordHasherInterface $passwordHasher
+        private UserPasswordHasherInterface $passwordHasher,
     ) {}
-    
+
     public function load(ObjectManager $manager): void {
         // ========== CREATE USER ROLES ==========
-        
+
         // 1. ADMIN - full system access
         $adminRole = new UserRole();
         $adminRole->setName('admin');
@@ -45,7 +44,7 @@ class AppFixtures extends Fixture {
         $manager->flush();
 
         // ========== CREATE USERS ==========
-        
+
         // ADMIN ONLY - with secure password for testing
         $admin = new User();
         $admin->setEmail('admin@maintly.com');
@@ -60,4 +59,3 @@ class AppFixtures extends Fixture {
         $manager->flush();
     }
 }
-

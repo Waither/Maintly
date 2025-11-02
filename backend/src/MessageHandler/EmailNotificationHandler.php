@@ -8,13 +8,12 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * Handles async email sending
- * Processed by messenger:consume worker
+ * Processed by messenger:consume worker.
  */
 #[AsMessageHandler]
 final readonly class EmailNotificationHandler {
-    
     public function __construct(
-        private LoggerInterface $logger
+        private LoggerInterface $logger,
         // TODO: Inject MailerInterface when ready to send real emails
         // private MailerInterface $mailer
     ) {}
@@ -22,7 +21,7 @@ final readonly class EmailNotificationHandler {
     public function __invoke(EmailNotificationMessage $message): void {
         $this->logger->info('Processing email notification', [
             'to' => $message->to,
-            'subject' => $message->subject
+            'subject' => $message->subject,
         ]);
 
         // TODO: Replace with actual email sending
@@ -35,7 +34,7 @@ final readonly class EmailNotificationHandler {
 
         // For now, just log (mock)
         $this->logger->info('Email sent successfully (mocked)', [
-            'to' => $message->to
+            'to' => $message->to,
         ]);
     }
 }

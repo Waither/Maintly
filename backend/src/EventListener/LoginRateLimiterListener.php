@@ -11,13 +11,12 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 /**
  * Rate limiter for /api/login endpoint
  * Protects against bruteforce attacks
- * Limit: 5 attempts per 15 minutes per IP
+ * Limit: 5 attempts per 15 minutes per IP.
  */
 #[AsEventListener(event: KernelEvents::REQUEST, priority: 10)]
 class LoginRateLimiterListener {
-    
     public function __construct(
-        private RateLimiterFactory $loginLimiter
+        private RateLimiterFactory $loginLimiter,
     ) {}
 
     public function __invoke(RequestEvent $event): void {
@@ -30,14 +29,14 @@ class LoginRateLimiterListener {
 
         // Check rate limit per IP
         $limiter = $this->loginLimiter->create($request->getClientIp());
-        
-        if (false === $limiter->consume(1)->isAccepted()) {
+
+        if ($limiter->consume(1)->isAccepted() === false) {
             $response = new JsonResponse([
                 'status' => 'error',
                 'code' => 429,
-                'message' => 'error.too_many_login_attempts'
+                'message' => 'error.too_many_login_attempts',
             ], 429);
-            
+
             $event->setResponse($response);
         }
     }
