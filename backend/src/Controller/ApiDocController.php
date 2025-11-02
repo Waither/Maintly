@@ -17,9 +17,8 @@ class ApiDocController extends AbstractController {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maintly API Documentation</title>
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
-    <style>
-        body { margin: 0; padding: 0; }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/theme-material.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="swagger-ui"></div>
@@ -39,7 +38,13 @@ class ApiDocController extends AbstractController {
                 plugins: [
                     SwaggerUIBundle.plugins.DownloadUrl
                 ],
-                layout: "StandaloneLayout"
+                layout: "StandaloneLayout",
+                defaultModelsExpandDepth: 1,
+                defaultModelExpandDepth: 1,
+                displayRequestDuration: true,
+                filter: true,
+                tryItOutEnabled: true,
+                persistAuthorization: true
             });
         };
     </script>
