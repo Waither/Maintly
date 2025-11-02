@@ -44,27 +44,27 @@ class SecurityController extends AbstractController {
                         property: 'email',
                         type: 'string',
                         format: 'email',
-                        example: 'john.doe@example.com'
+                        example: 'john.doe@example.com',
                     ),
                     new OA\Property(
                         property: 'password',
                         type: 'string',
                         format: 'password',
                         minLength: 8,
-                        example: 'SecurePass123'
+                        example: 'SecurePass123',
                     ),
                     new OA\Property(
                         property: 'firstName',
                         type: 'string',
-                        example: 'John'
+                        example: 'John',
                     ),
                     new OA\Property(
                         property: 'lastName',
                         type: 'string',
-                        example: 'Doe'
+                        example: 'Doe',
                     ),
-                ]
-            )
+                ],
+            ),
         ),
         responses: [
             new OA\Response(
@@ -84,10 +84,10 @@ class SecurityController extends AbstractController {
                                 new OA\Property(property: 'firstName', type: 'string', example: 'John'),
                                 new OA\Property(property: 'lastName', type: 'string', example: 'Doe'),
                                 new OA\Property(property: 'role', type: 'string', example: 'reporter'),
-                            ]
+                            ],
                         ),
-                    ]
-                )
+                    ],
+                ),
             ),
             new OA\Response(
                 response: 400,
@@ -97,8 +97,8 @@ class SecurityController extends AbstractController {
                         new OA\Property(property: 'status', type: 'string', example: 'error'),
                         new OA\Property(property: 'code', type: 'integer', example: 400),
                         new OA\Property(property: 'message', type: 'string', example: 'validation.missing_fields'),
-                    ]
-                )
+                    ],
+                ),
             ),
             new OA\Response(
                 response: 409,
@@ -108,11 +108,11 @@ class SecurityController extends AbstractController {
                         new OA\Property(property: 'status', type: 'string', example: 'error'),
                         new OA\Property(property: 'code', type: 'integer', example: 409),
                         new OA\Property(property: 'message', type: 'string', example: 'user.email_exists'),
-                    ]
-                )
+                    ],
+                ),
             ),
             new OA\Response(response: 500, description: 'Internal server error'),
-        ]
+        ],
     )]
     public function register(Request $request): JsonResponse {
         try {
@@ -201,10 +201,6 @@ class SecurityController extends AbstractController {
      * Login endpoint - handled by security.yaml (json_login firewall)
      * This route is required for Symfony routing, but the actual authentication
      * is handled by Lexik JWT Bundle through security.yaml configuration.
-     *
-     * POST /api/login
-     * Body: {"email": "email@example.com", "password": "password123"}
-     * Returns: {"token": "JWT_TOKEN_HERE"}
      */
     #[Route('/login', name: 'login', methods: ['POST'])]
     #[OA\Post(
@@ -255,7 +251,9 @@ class SecurityController extends AbstractController {
                 content: new OA\JsonContent(
                     properties: [
                         new OA\Property(property: 'status', type: 'string', example: 'success'),
-                        new OA\Property(property: 'data', type: 'object',
+                        new OA\Property(
+                            property: 'data',
+                            type: 'object',
                             properties: [
                                 new OA\Property(property: 'id', type: 'integer', example: 1),
                                 new OA\Property(property: 'email', type: 'string', example: 'user@example.com'),
