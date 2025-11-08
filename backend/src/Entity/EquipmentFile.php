@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'equipment_files')]
@@ -15,6 +17,7 @@ class EquipmentFile {
 
     #[ORM\ManyToOne(targetEntity: Equipment::class, inversedBy: 'files')]
     #[ORM\JoinColumn(name: 'equipment_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[Ignore]
     private ?Equipment $equipment = null;
 
     #[ORM\Column(length: 255)]
@@ -34,6 +37,7 @@ class EquipmentFile {
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'uploaded_by', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private ?User $uploadedBy = null;
 
     #[ORM\Column(nullable: true)]

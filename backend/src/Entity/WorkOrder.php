@@ -7,6 +7,8 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: WorkOrderRepository::class)]
 #[ORM\Table(name: 'work_orders')]
@@ -58,38 +60,45 @@ class WorkOrder {
 
     #[ORM\ManyToOne(targetEntity: Equipment::class)]
     #[ORM\JoinColumn(name: 'equipment_id', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private Equipment $equipment;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private User $createdBy;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'updated_by', referencedColumnName: 'id', nullable: true)]
+    #[MaxDepth(1)]
     private ?User $updatedBy = null;
 
     /**
      * @var Collection<int, WorkOrderAssignment>
      */
     #[ORM\OneToMany(targetEntity: WorkOrderAssignment::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $assignments;
 
     /**
      * @var Collection<int, WorkOrderTag>
      */
     #[ORM\OneToMany(targetEntity: WorkOrderTag::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $workOrderTags;
 
     /**
      * @var Collection<int, WorkOrderActivity>
      */
     #[ORM\OneToMany(targetEntity: WorkOrderActivity::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $activities;
 
     /**
      * @var Collection<int, WorkOrderFile>
      */
     #[ORM\OneToMany(targetEntity: WorkOrderFile::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $files;
 
     public function __construct() {

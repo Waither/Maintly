@@ -7,6 +7,8 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: EquipmentRepository::class)]
 #[ORM\Table(name: 'equipment')]
@@ -25,12 +27,14 @@ class Equipment {
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
     #[ORM\JoinColumn(name: 'parent_equipment_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
+    #[MaxDepth(1)]
     private ?self $parentEquipment = null;
 
     /**
      * @var Collection<int, Equipment>
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentEquipment')]
+    #[Ignore]
     private Collection $children;
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
@@ -44,37 +48,47 @@ class Equipment {
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
+    #[Ignore]
     private ?User $createdBy = null;
 
     #[ORM\Column]
+    #[Ignore]
     private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\Column(nullable: true)]
+    #[Ignore]
     private ?DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'updated_by', referencedColumnName: 'id', nullable: true)]
+    #[MaxDepth(1)]
+    #[Ignore]
     private ?User $updatedBy = null;
 
     #[ORM\Column(nullable: true)]
+    #[Ignore]
     private ?DateTimeImmutable $deletedAt = null;
 
     /**
      * @var Collection<int, EquipmentTag>
      */
     #[ORM\OneToMany(targetEntity: EquipmentTag::class, mappedBy: 'equipment', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $equipmentTags;
 
     /**
      * @var Collection<int, EquipmentFile>
      */
     #[ORM\OneToMany(targetEntity: EquipmentFile::class, mappedBy: 'equipment', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $files;
 
     /**
      * @var Collection<int, EquipmentCustomValue>
      */
     #[ORM\OneToMany(targetEntity: EquipmentCustomValue::class, mappedBy: 'equipment', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $customValues;
 
     public function __construct() {

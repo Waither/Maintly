@@ -7,6 +7,8 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: TagRepository::class)]
 #[ORM\Table(name: 'tags')]
@@ -24,6 +26,7 @@ class Tag {
 
     #[ORM\ManyToOne(targetEntity: TagGroup::class, inversedBy: 'tags')]
     #[ORM\JoinColumn(name: 'tag_group_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    #[MaxDepth(1)]
     private ?TagGroup $tagGroup = null;
 
     #[ORM\Column]
@@ -33,6 +36,7 @@ class Tag {
      * @var Collection<int, EquipmentTag>
      */
     #[ORM\OneToMany(targetEntity: EquipmentTag::class, mappedBy: 'tag', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $equipmentTags;
 
     public function __construct() {

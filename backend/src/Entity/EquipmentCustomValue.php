@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'equipment_custom_values')]
@@ -16,10 +18,12 @@ class EquipmentCustomValue {
 
     #[ORM\ManyToOne(targetEntity: Equipment::class, inversedBy: 'customValues')]
     #[ORM\JoinColumn(name: 'equipment_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[Ignore]
     private ?Equipment $equipment = null;
 
     #[ORM\ManyToOne(targetEntity: EquipmentCustomField::class, inversedBy: 'customValues')]
     #[ORM\JoinColumn(name: 'custom_field_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[MaxDepth(1)]
     private ?EquipmentCustomField $customField = null;
 
     #[ORM\Column(type: 'text', nullable: true)]

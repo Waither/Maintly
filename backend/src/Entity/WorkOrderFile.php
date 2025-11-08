@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'work_order_files')]
@@ -33,10 +35,12 @@ class WorkOrderFile {
 
     #[ORM\ManyToOne(targetEntity: WorkOrder::class, inversedBy: 'files')]
     #[ORM\JoinColumn(name: 'work_order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[Ignore]
     private WorkOrder $workOrder;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'uploaded_by', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private User $uploadedBy;
 
     public function __construct() {

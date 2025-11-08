@@ -6,6 +6,7 @@ use App\Repository\UserRoleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: UserRoleRepository::class)]
 #[ORM\Table(name: 'user_roles')]
@@ -25,6 +26,7 @@ class UserRole {
      * @var Collection<int, User>
      */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'userRole')]
+    #[Ignore]
     private Collection $users;
 
     public function __construct() {

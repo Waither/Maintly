@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: WorkOrderPriorityRepository::class)]
 #[ORM\Table(name: 'work_order_priorities')]
@@ -26,12 +27,14 @@ class WorkOrderPriority {
     private int $displayOrder = 0;
 
     #[ORM\Column(type: 'datetime')]
+    #[Ignore]
     private DateTime $createdAt;
 
     /**
      * @var Collection<int, WorkOrder>
      */
     #[ORM\OneToMany(targetEntity: WorkOrder::class, mappedBy: 'priority')]
+    #[Ignore]
     private Collection $workOrders;
 
     public function __construct() {

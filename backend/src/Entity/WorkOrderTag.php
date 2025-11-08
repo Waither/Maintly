@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'work_order_tags')]
@@ -19,14 +21,17 @@ class WorkOrderTag {
 
     #[ORM\ManyToOne(targetEntity: WorkOrder::class, inversedBy: 'workOrderTags')]
     #[ORM\JoinColumn(name: 'work_order_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[Ignore]
     private WorkOrder $workOrder;
 
     #[ORM\ManyToOne(targetEntity: Tag::class)]
     #[ORM\JoinColumn(name: 'tag_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    #[MaxDepth(1)]
     private Tag $tag;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'assigned_by', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private User $assignedBy;
 
     public function __construct() {

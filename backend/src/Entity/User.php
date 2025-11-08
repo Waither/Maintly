@@ -7,6 +7,8 @@ use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
@@ -23,6 +25,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     private ?string $email = null;
 
     #[ORM\Column]
+    #[Ignore]
     private ?string $password = null;
 
     #[ORM\Column(length: 100)]
@@ -32,10 +35,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     private ?string $lastName = null;
 
     #[ORM\Column]
+    #[Ignore]
     private ?DateTimeImmutable $createdAt = null;
 
     #[ORM\ManyToOne(targetEntity: UserRole::class, inversedBy: 'users')]
     #[ORM\JoinColumn(name: 'user_role_id', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private ?UserRole $userRole = null;
 
     public function __construct() {
@@ -56,6 +61,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
         return $this;
     }
 
+    #[Ignore]
     public function getUserIdentifier(): string {
         return (string) $this->email;
     }
@@ -63,6 +69,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     /**
      * Symfony requires this method - convert UserRole to strings.
      */
+    #[Ignore]
     public function getRoles(): array {
         $roles = ['ROLE_USER']; // Minimum role for everyone
 

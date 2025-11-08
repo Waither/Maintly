@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: TagGroupRepository::class)]
 #[ORM\Table(name: 'tag_groups')]
@@ -35,6 +36,7 @@ class TagGroup {
      * @var Collection<int, Tag>
      */
     #[ORM\OneToMany(targetEntity: Tag::class, mappedBy: 'tagGroup')]
+    #[Ignore]
     private Collection $tags;
 
     public function __construct() {

@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
 
 #[ORM\Entity(repositoryClass: WorkOrderStatusRepository::class)]
 #[ORM\Table(name: 'work_order_statuses')]
@@ -29,12 +30,14 @@ class WorkOrderStatus {
     private bool $isFinal = false;
 
     #[ORM\Column(type: 'datetime')]
+    #[Ignore]
     private DateTime $createdAt;
 
     /**
      * @var Collection<int, WorkOrder>
      */
     #[ORM\OneToMany(targetEntity: WorkOrder::class, mappedBy: 'status')]
+    #[Ignore]
     private Collection $workOrders;
 
     public function __construct() {
@@ -76,6 +79,7 @@ class WorkOrderStatus {
         return $this;
     }
 
+    #[Ignore]
     public function isFinal(): bool {
         return $this->isFinal;
     }

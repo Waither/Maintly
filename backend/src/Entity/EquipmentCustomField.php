@@ -7,6 +7,8 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Ignore;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: EquipmentCustomFieldRepository::class)]
 #[ORM\Table(name: 'equipment_custom_fields')]
@@ -45,6 +47,7 @@ class EquipmentCustomField {
 
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by', referencedColumnName: 'id', nullable: false)]
+    #[MaxDepth(1)]
     private ?User $createdBy = null;
 
     #[ORM\Column(nullable: true)]
@@ -54,6 +57,7 @@ class EquipmentCustomField {
      * @var Collection<int, EquipmentCustomValue>
      */
     #[ORM\OneToMany(targetEntity: EquipmentCustomValue::class, mappedBy: 'customField', cascade: ['persist', 'remove'])]
+    #[Ignore]
     private Collection $customValues;
 
     public function __construct() {
