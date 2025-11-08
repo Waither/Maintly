@@ -13,8 +13,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *
  * Rules:
  * - Admin can manage ALL users (create, update, delete any role)
- * - Manager can manage users with role: technician, reporter (NOT admin, NOT manager)
- * - Technician/Reporter cannot manage users
+ * - Manager can manage users with role: technician, provider, reporter (NOT admin, NOT manager)
+ * - Technician/Provider/Reporter cannot manage users
  *
  * @extends Voter<string, User|UserRole|null>
  */
@@ -28,7 +28,8 @@ class UserManagementVoter extends Voter {
         'admin' => 1,
         'manager' => 2,
         'technician' => 3,
-        'reporter' => 4,
+        'provider' => 4,
+        'reporter' => 5,
     ];
 
     protected function supports(string $attribute, mixed $subject): bool {

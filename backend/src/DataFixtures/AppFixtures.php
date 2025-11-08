@@ -31,7 +31,12 @@ class AppFixtures extends Fixture {
         $technicianRole->setName('technician');
         $manager->persist($technicianRole);
 
-        // 4. REPORTER - production worker (can report failures)
+        // 4. PROVIDER - external service provider (sees only their own actions)
+        $providerRole = new UserRole();
+        $providerRole->setName('provider');
+        $manager->persist($providerRole);
+
+        // 5. REPORTER - production worker (can report failures, read-only)
         $reporterRole = new UserRole();
         $reporterRole->setName('reporter');
         $manager->persist($reporterRole);

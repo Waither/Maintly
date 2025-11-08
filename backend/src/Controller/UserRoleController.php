@@ -10,6 +10,7 @@ use App\Application\Query\UserRole\GetUserRolesListQuery;
 use App\Entity\UserRole;
 use Exception;
 use InvalidArgumentException;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,34 @@ class UserRoleController extends AbstractController {
      * Query: GetUserRolesListQuery.
      */
     #[Route('/select', name: 'select', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/roles/select',
+        summary: 'Get simplified roles list for dropdowns',
+        description: 'Returns a simplified list of roles formatted for select/dropdown components',
+        tags: ['User Roles'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Roles list retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'value', type: 'integer', example: 1),
+                                    new OA\Property(property: 'label', type: 'string', example: 'admin'),
+                                ],
+                            ),
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 500, description: 'Server error'),
+        ],
+    )]
     public function select(): JsonResponse {
         try {
             $query = new GetUserRolesListQuery();
@@ -64,6 +93,35 @@ class UserRoleController extends AbstractController {
      * Query: GetUserRolesListQuery.
      */
     #[Route('', name: 'list', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/roles',
+        summary: 'Get all user roles',
+        description: 'Returns complete list of all roles with user counts',
+        tags: ['User Roles'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Roles list retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(
+                                properties: [
+                                    new OA\Property(property: 'id', type: 'integer', example: 1),
+                                    new OA\Property(property: 'name', type: 'string', example: 'admin'),
+                                    new OA\Property(property: 'usersCount', type: 'integer', example: 5),
+                                ],
+                            ),
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 500, description: 'Server error'),
+        ],
+    )]
     public function list(): JsonResponse {
         try {
             $query = new GetUserRolesListQuery();
@@ -98,6 +156,44 @@ class UserRoleController extends AbstractController {
      * Command: CreateUserRoleCommand.
      */
     #[Route('', name: 'create', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/roles',
+        summary: 'Create a new user role',
+        description: 'Creates a new role in the system',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'supervisor', description: 'Unique role name'),
+                ],
+            ),
+        ),
+        tags: ['User Roles'],
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Role created successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'code', type: 'integer', example: 201),
+                        new OA\Property(property: 'message', type: 'string', example: 'role.created'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 6),
+                                new OA\Property(property: 'name', type: 'string', example: 'supervisor'),
+                            ],
+                            type: 'object',
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 400, description: 'Validation error'),
+            new OA\Response(response: 500, description: 'Server error'),
+        ],
+    )]
     public function create(Request $request): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
@@ -148,6 +244,43 @@ class UserRoleController extends AbstractController {
      * Query: GetUserRoleQuery.
      */
     #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/roles/{id}',
+        summary: 'Get role by ID',
+        description: 'Returns details of a specific role',
+        tags: ['User Roles'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Role ID',
+                schema: new OA\Schema(type: 'integer'),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Role retrieved successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 1),
+                                new OA\Property(property: 'name', type: 'string', example: 'admin'),
+                                new OA\Property(property: 'usersCount', type: 'integer', example: 5),
+                            ],
+                            type: 'object',
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 404, description: 'Role not found'),
+            new OA\Response(response: 500, description: 'Server error'),
+        ],
+    )]
     public function show(int $id): JsonResponse {
         try {
             $query = new GetUserRoleQuery(id: $id);
@@ -186,6 +319,52 @@ class UserRoleController extends AbstractController {
      * Command: UpdateUserRoleCommand.
      */
     #[Route('/{id}', name: 'update', methods: ['PUT'])]
+    #[OA\Put(
+        path: '/api/roles/{id}',
+        summary: 'Update a role',
+        description: 'Updates role name',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'senior_technician'),
+                ],
+            ),
+        ),
+        tags: ['User Roles'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Role ID',
+                schema: new OA\Schema(type: 'integer'),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Role updated successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'role.updated'),
+                        new OA\Property(
+                            property: 'data',
+                            properties: [
+                                new OA\Property(property: 'id', type: 'integer', example: 3),
+                                new OA\Property(property: 'name', type: 'string', example: 'senior_technician'),
+                            ],
+                            type: 'object',
+                        ),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 404, description: 'Role not found'),
+            new OA\Response(response: 500, description: 'Server error'),
+        ],
+    )]
     public function update(int $id, Request $request): JsonResponse {
         try {
             $data = json_decode($request->getContent(), true);
@@ -229,6 +408,36 @@ class UserRoleController extends AbstractController {
      * Command: DeleteUserRoleCommand.
      */
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/roles/{id}',
+        summary: 'Delete a role',
+        description: 'Deletes a role from the system. Cannot delete if role has assigned users.',
+        tags: ['User Roles'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Role ID',
+                schema: new OA\Schema(type: 'integer'),
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Role deleted successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'status', type: 'string', example: 'success'),
+                        new OA\Property(property: 'code', type: 'integer', example: 200),
+                        new OA\Property(property: 'message', type: 'string', example: 'role.deleted'),
+                    ],
+                ),
+            ),
+            new OA\Response(response: 400, description: 'Cannot delete role with assigned users'),
+            new OA\Response(response: 500, description: 'Server error'),
+        ],
+    )]
     public function delete(int $id): JsonResponse {
         try {
             $command = new DeleteUserRoleCommand(id: $id);
