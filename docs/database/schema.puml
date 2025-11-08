@@ -1,0 +1,270 @@
+@startuml Maintly_CMMS_Database
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <b><color:red>PK:</color> x</b>
+!define foreign_key(x) <color:blue>FK:</color> x
+hide methods
+hide stereotypes
+
+' ============================================
+' USER MANAGEMENT
+' ============================================
+table(user_roles) {
+  primary_key(id): int
+  --
+  name: varchar(50) <<unique>>
+  created_at: datetime
+}
+
+table(users) {
+  primary_key(id): int
+  --
+  email: varchar(180) <<unique>>
+  password: varchar(255)
+  first_name: varchar(100)
+  last_name: varchar(100)
+  is_active: boolean
+  created_at: datetime
+  updated_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(user_role_id): int
+}
+
+users }o--|| user_roles
+
+' ============================================
+' EQUIPMENT MODULE
+' ============================================
+table(equipment) {
+  primary_key(id): int
+  --
+  name: varchar(255)
+  cost_center: int
+  qr_code_data: varchar(255) <<unique>>
+  direct_work_time: int
+  total_work_time: int
+  created_at: datetime
+  updated_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(parent_equipment_id): int
+  foreign_key(created_by): int
+  foreign_key(updated_by): int
+}
+
+equipment }o--o| equipment : parent
+equipment }o--|| users : created_by
+equipment }o--o| users : updated_by
+
+table(tag_groups) {
+  primary_key(id): int
+  --
+  name: varchar(100) <<unique>>
+  is_required: boolean
+  is_single_choice: boolean
+  display_order: int
+  created_at: datetime
+}
+
+table(tags) {
+  primary_key(id): int
+  --
+  name: varchar(100) <<unique>>
+  color: varchar(7)
+  created_at: datetime
+  --
+  foreign_key(tag_group_id): int
+}
+
+tags }o--o| tag_groups
+
+table(equipment_tags) {
+  primary_key(id): int
+  --
+  assigned_at: datetime
+  --
+  foreign_key(equipment_id): int
+  foreign_key(tag_id): int
+  foreign_key(assigned_by): int
+}
+
+equipment ||--o{ equipment_tags
+tags ||--o{ equipment_tags
+users ||--o{ equipment_tags : assigned_by
+
+table(equipment_custom_fields) {
+  primary_key(id): int
+  --
+  field_name: varchar(100) <<unique>>
+  field_type: varchar(20)
+  field_options: json
+  is_required: boolean
+  default_value: text
+  display_order: int
+  is_active: boolean
+  created_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(created_by): int
+}
+
+equipment_custom_fields }o--|| users : created_by
+
+table(equipment_custom_values) {
+  primary_key(id): int
+  --
+  value: text
+  created_at: datetime
+  updated_at: datetime
+  --
+  foreign_key(equipment_id): int
+  foreign_key(custom_field_id): int
+}
+
+equipment ||--o{ equipment_custom_values
+equipment_custom_fields ||--o{ equipment_custom_values
+
+table(equipment_files) {
+  primary_key(id): int
+  --
+  file_name: varchar(255)
+  file_type: varchar(50)
+  file_size: bigint
+  description: text
+  uploaded_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(equipment_id): int
+  foreign_key(uploaded_by): int
+}
+
+equipment ||--o{ equipment_files
+users ||--o{ equipment_files : uploaded_by
+
+' ============================================
+' WORK ORDER MODULE
+' ============================================
+table(work_order_statuses) {
+  primary_key(id): int
+  --
+  name: varchar(50) <<unique>>
+  color: varchar(7)
+  display_order: int
+  is_final: boolean
+  created_at: datetime
+}
+
+table(work_order_priorities) {
+  primary_key(id): int
+  --
+  name: varchar(50) <<unique>>
+  color: varchar(7)
+  display_order: int
+  created_at: datetime
+}
+
+table(work_orders) {
+  primary_key(id): int
+  --
+  unique_code: varchar(20) <<unique>>
+  title: varchar(255)
+  description: text
+  planned_start_date: datetime
+  planned_end_date: datetime
+  actual_start_date: datetime
+  actual_end_date: datetime
+  created_at: datetime
+  updated_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(status_id): int
+  foreign_key(priority_id): int
+  foreign_key(equipment_id): int
+  foreign_key(created_by): int
+  foreign_key(updated_by): int
+}
+
+work_orders }o--|| work_order_statuses
+work_orders }o--|| work_order_priorities
+work_orders }o--|| equipment
+work_orders }o--|| users : created_by
+work_orders }o--o| users : updated_by
+
+table(work_order_assignments) {
+  primary_key(id): int
+  --
+  assigned_at: datetime
+  --
+  foreign_key(work_order_id): int
+  foreign_key(user_id): int
+  foreign_key(assigned_by): int
+}
+
+work_orders ||--o{ work_order_assignments
+users ||--o{ work_order_assignments : user
+users ||--o{ work_order_assignments : assigned_by
+
+table(work_order_tags) {
+  primary_key(id): int
+  --
+  assigned_at: datetime
+  --
+  foreign_key(work_order_id): int
+  foreign_key(tag_id): int
+  foreign_key(assigned_by): int
+}
+
+work_orders ||--o{ work_order_tags
+tags ||--o{ work_order_tags
+users ||--o{ work_order_tags : assigned_by
+
+table(work_order_activities) {
+  primary_key(id): int
+  --
+  description: text
+  time_spent: int
+  completed_at: datetime
+  created_at: datetime
+  updated_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(work_order_id): int
+  foreign_key(performed_by): int
+  foreign_key(created_by): int
+}
+
+work_orders ||--o{ work_order_activities
+users ||--o{ work_order_activities : performed_by
+users ||--o{ work_order_activities : created_by
+
+table(work_order_files) {
+  primary_key(id): int
+  --
+  file_name: varchar(255)
+  file_type: varchar(50)
+  file_size: bigint
+  description: text
+  uploaded_at: datetime
+  deleted_at: datetime
+  --
+  foreign_key(work_order_id): int
+  foreign_key(uploaded_by): int
+}
+
+work_orders ||--o{ work_order_files
+users ||--o{ work_order_files : uploaded_by
+
+' ============================================
+' TRANSLATIONS
+' ============================================
+table(translations) {
+  primary_key(id): int
+  --
+  locale: varchar(5)
+  message_key: varchar(255)
+  message_value: text
+  created_at: datetime
+}
+
+@enduml
