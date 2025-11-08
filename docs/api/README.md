@@ -78,23 +78,53 @@ curl -X GET http://localhost:8000/api/equipment \
 - `DELETE /api/equipment-custom-fields/{id}` - Delete field
 - `POST /api/equipment-custom-fields/values` - Set value for equipment
 
-### 8. Translations (`/api/translations`)
+### 8. Work Orders (`/api/work-orders`)
+**Statuses (admin only CRUD):**
+- `GET /api/work-orders/statuses` - List statuses (all users)
+- `POST /api/work-orders/statuses` - Create status (admin only)
+- `PUT /api/work-orders/statuses/{id}` - Update status (admin only)
+- `DELETE /api/work-orders/statuses/{id}` - Delete status (admin only)
+
+**Priorities (admin only CRUD):**
+- `GET /api/work-orders/priorities` - List priorities (all users)
+- `POST /api/work-orders/priorities` - Create priority (admin only)
+- `PUT /api/work-orders/priorities/{id}` - Update priority (admin only)
+- `DELETE /api/work-orders/priorities/{id}` - Delete priority (admin only)
+
+**Work Orders:**
+- `GET /api/work-orders` - List work orders (provider: only own)
+- `GET /api/work-orders/{id}` - Get work order details
+- `POST /api/work-orders` - Create work order (admin/manager/technician/provider)
+- `PUT /api/work-orders/{id}` - Update work order
+- `PATCH /api/work-orders/{id}` - Partial update
+- `DELETE /api/work-orders/{id}` - Delete work order (admin/manager)
+- `POST /api/work-orders/{id}/assign` - Assign user to work order
+- `POST /api/work-orders/{id}/activities` - Add activity log entry
+
+### 9. Translations (`/api/translations`)
 - `GET /api/translations/{locale}` - Get translations (pl, en, de)
 
-### 9. Dashboard (`/api/dashboard`)
+### 10. Dashboard (`/api/dashboard`)
 - `GET /api/dashboard/stats` - Dashboard statistics
 
 ## Permissions
 
 Role-based access control:
 
-| Role | User Management | Equipment CRUD | View Equipment | View WorkOrders |
-|------|----------------|----------------|----------------|-----------------|
-| **admin** | ✅ All | ✅ Full | ✅ All | ✅ All |
-| **manager** | ✅ Create/Edit technician, provider, reporter | ✅ Full | ✅ All | ✅ All |
-| **technician** | ❌ | ❌ | ✅ All | ✅ All |
-| **provider** | ❌ | ❌ | ✅ All | ✅ Only own |
-| **reporter** | ❌ | ❌ | ✅ All | ✅ All (read-only) |
+| Role | User Management | Equipment CRUD | View Equipment | WorkOrder Create | WorkOrder Edit | WorkOrder Delete | WorkOrder View | Add Activity | Status/Priority CRUD |
+|------|----------------|----------------|----------------|------------------|----------------|------------------|----------------|--------------|----------------------|
+| **admin** | ✅ All | ✅ Full | ✅ All | ✅ | ✅ All | ✅ | ✅ All | ✅ All | ✅ Full |
+| **manager** | ✅ Create/Edit tech/prov/rep | ✅ Full | ✅ All | ✅ | ✅ All | ✅ | ✅ All | ✅ All | ❌ View only |
+| **technician** | ❌ | ❌ | ✅ All | ✅ | ✅ All | ❌ | ✅ All | ✅ All | ❌ View only |
+| **provider** | ❌ | ❌ | ✅ All | ✅ | ✅ Own only | ❌ | ✅ Own only | ✅ Own only | ❌ View only |
+| **reporter** | ❌ | ❌ | ✅ All | ✅ | ❌ | ❌ | ✅ All (read-only) | ❌ | ❌ View only |
+
+**Notes:**
+- **Reporter**: Can create work orders (incident reporting) but CANNOT edit or add activities
+- **Technician**: Full access to all work orders (create, edit all), can add activities, cannot delete
+- **Provider**: Can only view/edit work orders they created, can add activities to own work orders
+- **Status/Priority**: Only admin can create/edit/delete, all users can view
+- **Activities**: Requires WORKORDER_EDIT permission (reporter cannot add)
 
 ## Response Format
 
