@@ -54,6 +54,32 @@ services:
     networks:
       - maintly-network
 
+    # Frontend - React + Vite (DEV mode z hot reload)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: maintly-frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - ./backend/ssl:/app/ssl:ro
+    environment:
+      # Backend API URL (z perspektywy przeglądarki, nie kontenera!)
+      - VITE_API_URL=http://localhost:8000/api
+      - VITE_API_URL_HTTPS=https://localhost:8443/api
+      - VITE_WS_URL=ws://localhost:8000
+      - VITE_USE_HTTPS=false
+    depends_on:
+      - nginx
+    networks:
+      - maintly-network
+    stdin_open: true
+    tty: true
+
 volumes:
   mysql-data:
   backend-cache:  # Symfony cache - isolated from Windows
