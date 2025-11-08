@@ -6,6 +6,7 @@ use App\Application\Command\TagGroup\CreateTagGroupCommand;
 use App\Application\Command\TagGroup\DeleteTagGroupCommand;
 use App\Application\Command\TagGroup\UpdateTagGroupCommand;
 use App\Application\Query\TagGroup\GetAllTagGroupsQuery;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -31,9 +32,14 @@ class TagGroupController extends AbstractController {
         path: '/api/tag-groups',
         summary: 'Get all tag groups',
         tags: ['Tag Groups'],
-        responses: [
-            new OA\Response(response: 200, description: 'Tag groups list retrieved successfully'),
-        ],
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Tag groups list retrieved successfully',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: \App\Entity\TagGroup::class)),
+        ),
     )]
     public function index(): JsonResponse {
         $query = new GetAllTagGroupsQuery();
@@ -71,11 +77,13 @@ class TagGroupController extends AbstractController {
                 ],
             ),
         ),
-        responses: [
-            new OA\Response(response: 201, description: 'Tag group created successfully'),
-            new OA\Response(response: 400, description: 'Bad request'),
-        ],
     )]
+    #[OA\Response(
+        response: 201,
+        description: 'Tag group created successfully',
+        content: new OA\JsonContent(ref: new Model(type: \App\Entity\TagGroup::class)),
+    )]
+    #[OA\Response(response: 400, description: 'Bad request')]
     public function create(Request $request): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -111,11 +119,13 @@ class TagGroupController extends AbstractController {
         parameters: [
             new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer')),
         ],
-        responses: [
-            new OA\Response(response: 200, description: 'Tag group updated successfully'),
-            new OA\Response(response: 404, description: 'Tag group not found'),
-        ],
     )]
+    #[OA\Response(
+        response: 200,
+        description: 'Tag group updated successfully',
+        content: new OA\JsonContent(ref: new Model(type: \App\Entity\TagGroup::class)),
+    )]
+    #[OA\Response(response: 404, description: 'Tag group not found')]
     public function update(int $id, Request $request): JsonResponse {
         $data = json_decode($request->getContent(), true);
 

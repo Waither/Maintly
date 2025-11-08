@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Entity\WorkOrder;
 use App\Entity\WorkOrderPriority;
 use App\Entity\WorkOrderStatus;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -50,30 +51,30 @@ class UpdateWorkOrderHandler {
         }
 
         if ($command->plannedStartDate !== null) {
-            $plannedStart = $command->plannedStartDate instanceof \DateTime 
-                ? $command->plannedStartDate 
-                : \DateTime::createFromInterface($command->plannedStartDate);
+            $plannedStart = $command->plannedStartDate instanceof DateTime
+                ? $command->plannedStartDate
+                : DateTime::createFromInterface($command->plannedStartDate);
             $workOrder->setPlannedStartDate($plannedStart);
         }
 
         if ($command->plannedEndDate !== null) {
-            $plannedEnd = $command->plannedEndDate instanceof \DateTime 
-                ? $command->plannedEndDate 
-                : \DateTime::createFromInterface($command->plannedEndDate);
+            $plannedEnd = $command->plannedEndDate instanceof DateTime
+                ? $command->plannedEndDate
+                : DateTime::createFromInterface($command->plannedEndDate);
             $workOrder->setPlannedEndDate($plannedEnd);
         }
 
         if ($command->actualStartDate !== null) {
-            $actualStart = $command->actualStartDate instanceof \DateTime 
-                ? $command->actualStartDate 
-                : \DateTime::createFromInterface($command->actualStartDate);
+            $actualStart = $command->actualStartDate instanceof DateTime
+                ? $command->actualStartDate
+                : DateTime::createFromInterface($command->actualStartDate);
             $workOrder->setActualStartDate($actualStart);
         }
 
         if ($command->actualEndDate !== null) {
-            $actualEnd = $command->actualEndDate instanceof \DateTime 
-                ? $command->actualEndDate 
-                : \DateTime::createFromInterface($command->actualEndDate);
+            $actualEnd = $command->actualEndDate instanceof DateTime
+                ? $command->actualEndDate
+                : DateTime::createFromInterface($command->actualEndDate);
             $workOrder->setActualEndDate($actualEnd);
         }
 

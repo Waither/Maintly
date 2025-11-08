@@ -12,6 +12,7 @@ use App\Repository\UserRepository;
 use App\Repository\UserRoleRepository;
 use Exception;
 use InvalidArgumentException;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,16 +58,7 @@ class UserController extends AbstractController {
                                 new OA\Property(
                                     property: 'users',
                                     type: 'array',
-                                    items: new OA\Items(
-                                        type: 'object',
-                                        properties: [
-                                            new OA\Property(property: 'id', type: 'integer', example: 1),
-                                            new OA\Property(property: 'email', type: 'string', example: 'john.doe@example.com'),
-                                            new OA\Property(property: 'firstName', type: 'string', example: 'John'),
-                                            new OA\Property(property: 'lastName', type: 'string', example: 'Doe'),
-                                            new OA\Property(property: 'role', type: 'string', example: 'reporter'),
-                                        ],
-                                    ),
+                                    items: new OA\Items(ref: new Model(type: \App\Entity\User::class)),
                                 ),
                                 new OA\Property(
                                     property: 'pagination',
@@ -153,14 +145,7 @@ class UserController extends AbstractController {
                         new OA\Property(property: 'message', type: 'string', example: 'user.created'),
                         new OA\Property(
                             property: 'user',
-                            type: 'object',
-                            properties: [
-                                new OA\Property(property: 'id', type: 'integer', example: 1),
-                                new OA\Property(property: 'email', type: 'string', example: 'john.doe@example.com'),
-                                new OA\Property(property: 'firstName', type: 'string', example: 'John'),
-                                new OA\Property(property: 'lastName', type: 'string', example: 'Doe'),
-                                new OA\Property(property: 'role', type: 'string', example: 'reporter'),  // ← role jako string w odpowiedzi
-                            ],
+                            ref: new Model(type: \App\Entity\User::class),
                         ),
                     ],
                 ),

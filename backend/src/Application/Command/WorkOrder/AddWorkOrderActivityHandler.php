@@ -7,6 +7,7 @@ namespace App\Application\Command\WorkOrder;
 use App\Entity\User;
 use App\Entity\WorkOrder;
 use App\Entity\WorkOrderActivity;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -38,9 +39,9 @@ class AddWorkOrderActivityHandler {
         }
 
         if ($command->completedAt !== null) {
-            $completedAt = $command->completedAt instanceof \DateTime 
-                ? $command->completedAt 
-                : \DateTime::createFromInterface($command->completedAt);
+            $completedAt = $command->completedAt instanceof DateTime
+                ? $command->completedAt
+                : DateTime::createFromInterface($command->completedAt);
             $activity->setCompletedAt($completedAt);
         }
 

@@ -7,6 +7,7 @@ use App\Application\Command\EquipmentCustomField\DeleteCustomFieldCommand;
 use App\Application\Command\EquipmentCustomValue\SetCustomValueCommand;
 use App\Application\Query\EquipmentCustomField\GetAllCustomFieldsQuery;
 use App\Entity\User;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,9 +41,14 @@ class EquipmentCustomFieldController extends AbstractController {
                 schema: new OA\Schema(type: 'boolean', default: true),
             ),
         ],
-        responses: [
-            new OA\Response(response: 200, description: 'Custom fields list retrieved successfully'),
-        ],
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Custom fields list retrieved successfully',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: \App\Entity\EquipmentCustomField::class)),
+        ),
     )]
     public function index(Request $request): JsonResponse {
         $onlyActive = $request->query->get('onlyActive', 'true') === 'true';
@@ -86,11 +92,13 @@ class EquipmentCustomFieldController extends AbstractController {
                 ],
             ),
         ),
-        responses: [
-            new OA\Response(response: 201, description: 'Custom field created successfully'),
-            new OA\Response(response: 400, description: 'Bad request'),
-        ],
     )]
+    #[OA\Response(
+        response: 201,
+        description: 'Custom field created successfully',
+        content: new OA\JsonContent(ref: new Model(type: \App\Entity\EquipmentCustomField::class)),
+    )]
+    #[OA\Response(response: 400, description: 'Bad request')]
     public function create(Request $request): JsonResponse {
         $data = json_decode($request->getContent(), true);
 

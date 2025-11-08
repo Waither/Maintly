@@ -100,7 +100,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Post(
         path: '/api/work-orders/statuses',
         summary: 'Create work order status (admin only)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -138,7 +138,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Put(
         path: '/api/work-orders/statuses/{id}',
         summary: 'Update work order status (admin only)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -183,7 +183,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Delete(
         path: '/api/work-orders/statuses/{id}',
         summary: 'Delete work order status (admin only)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['WorkOrder'],
     )]
     #[OA\Parameter(
@@ -206,7 +206,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Post(
         path: '/api/work-orders/priorities',
         summary: 'Create work order priority (admin only)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -242,7 +242,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Put(
         path: '/api/work-orders/priorities/{id}',
         summary: 'Update work order priority (admin only)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -285,7 +285,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Delete(
         path: '/api/work-orders/priorities/{id}',
         summary: 'Delete work order priority (admin only)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['WorkOrder'],
     )]
     #[OA\Parameter(
@@ -308,7 +308,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Get(
         path: '/api/work-orders',
         summary: 'Get all work orders',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['WorkOrder'],
     )]
     #[OA\Response(
@@ -345,7 +345,7 @@ class WorkOrderController extends AbstractController {
         path: '/api/work-orders/export',
         summary: 'Export work orders in minimal format (optimized for Excel)',
         description: 'Returns work orders with only essential fields for export. Provides 80% smaller response size compared to standard list endpoint.',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['WorkOrder'],
     )]
     #[OA\Parameter(
@@ -481,7 +481,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Post(
         path: '/api/work-orders',
         summary: 'Create a new work order',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -544,7 +544,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Get(
         path: '/api/work-orders/{id}',
         summary: 'Get work order by ID',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['WorkOrder'],
     )]
     #[OA\Parameter(
@@ -577,7 +577,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Put(
         path: '/api/work-orders/{id}',
         summary: 'Update work order',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -599,7 +599,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Patch(
         path: '/api/work-orders/{id}',
         summary: 'Partially update work order',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -680,7 +680,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Delete(
         path: '/api/work-orders/{id}',
         summary: 'Delete work order (soft delete)',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['WorkOrder'],
     )]
     #[OA\Parameter(
@@ -710,7 +710,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Post(
         path: '/api/work-orders/{id}/assign',
         summary: 'Assign user to work order',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
@@ -773,7 +773,7 @@ class WorkOrderController extends AbstractController {
     #[OA\Post(
         path: '/api/work-orders/{id}/activities',
         summary: 'Add activity to work order',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(

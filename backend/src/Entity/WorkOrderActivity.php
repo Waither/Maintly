@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
+use App\Repository\WorkOrderActivityRepository;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Ignore;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: WorkOrderActivityRepository::class)]
 #[ORM\Table(name: 'work_order_activities')]
 class WorkOrderActivity {
     #[ORM\Id]

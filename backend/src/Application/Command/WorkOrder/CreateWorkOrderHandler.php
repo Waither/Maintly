@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Entity\WorkOrder;
 use App\Entity\WorkOrderPriority;
 use App\Entity\WorkOrderStatus;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -33,16 +34,16 @@ class CreateWorkOrderHandler {
         $workOrder->setCreatedBy($createdBy);
 
         if ($command->plannedStartDate) {
-            $plannedStart = $command->plannedStartDate instanceof \DateTime 
-                ? $command->plannedStartDate 
-                : \DateTime::createFromInterface($command->plannedStartDate);
+            $plannedStart = $command->plannedStartDate instanceof DateTime
+                ? $command->plannedStartDate
+                : DateTime::createFromInterface($command->plannedStartDate);
             $workOrder->setPlannedStartDate($plannedStart);
         }
 
         if ($command->plannedEndDate) {
-            $plannedEnd = $command->plannedEndDate instanceof \DateTime 
-                ? $command->plannedEndDate 
-                : \DateTime::createFromInterface($command->plannedEndDate);
+            $plannedEnd = $command->plannedEndDate instanceof DateTime
+                ? $command->plannedEndDate
+                : DateTime::createFromInterface($command->plannedEndDate);
             $workOrder->setPlannedEndDate($plannedEnd);
         }
 

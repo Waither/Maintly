@@ -33,7 +33,7 @@ class SecurityController extends AbstractController {
         path: '/api/register',
         summary: 'Register a new user (Manager+ only)',
         description: 'Creates a new user account with default reporter role. Requires ROLE_MANAGER or ROLE_ADMIN.',
-        security: [['bearerAuth' => []]],
+        security: [['Bearer' => []]],
         tags: ['Manager+'],
         requestBody: new OA\RequestBody(
             required: true,

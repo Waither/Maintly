@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\TranslationRepository;
 use Exception;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;

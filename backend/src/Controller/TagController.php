@@ -6,6 +6,7 @@ use App\Application\Command\Tag\CreateTagCommand;
 use App\Application\Command\Tag\DeleteTagCommand;
 use App\Application\Command\Tag\UpdateTagCommand;
 use App\Application\Query\Tag\GetAllTagsQuery;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -39,11 +40,16 @@ class TagController extends AbstractController {
                 schema: new OA\Schema(type: 'integer'),
             ),
         ],
-        responses: [
-            new OA\Response(response: 200, description: 'Tags list retrieved successfully'),
-            new OA\Response(response: 401, description: 'Unauthorized'),
-        ],
     )]
+    #[OA\Response(
+        response: 200,
+        description: 'Tags list retrieved successfully',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: \App\Entity\Tag::class)),
+        ),
+    )]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
     public function index(Request $request): JsonResponse {
         $tagGroupId = $request->query->get('tagGroupId');
 
@@ -82,12 +88,14 @@ class TagController extends AbstractController {
                 ],
             ),
         ),
-        responses: [
-            new OA\Response(response: 201, description: 'Tag created successfully'),
-            new OA\Response(response: 400, description: 'Bad request'),
-            new OA\Response(response: 401, description: 'Unauthorized'),
-        ],
     )]
+    #[OA\Response(
+        response: 201,
+        description: 'Tag created successfully',
+        content: new OA\JsonContent(ref: new Model(type: \App\Entity\Tag::class)),
+    )]
+    #[OA\Response(response: 400, description: 'Bad request')]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
     public function create(Request $request): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
@@ -130,11 +138,13 @@ class TagController extends AbstractController {
                 ],
             ),
         ),
-        responses: [
-            new OA\Response(response: 200, description: 'Tag updated successfully'),
-            new OA\Response(response: 404, description: 'Tag not found'),
-        ],
     )]
+    #[OA\Response(
+        response: 200,
+        description: 'Tag updated successfully',
+        content: new OA\JsonContent(ref: new Model(type: \App\Entity\Tag::class)),
+    )]
+    #[OA\Response(response: 404, description: 'Tag not found')]
     public function update(int $id, Request $request): JsonResponse {
         $data = json_decode($request->getContent(), true);
 

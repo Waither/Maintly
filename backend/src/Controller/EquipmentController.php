@@ -10,6 +10,7 @@ use App\Application\Command\Tag\RemoveTagFromEquipmentCommand;
 use App\Application\Query\Equipment\GetAllEquipmentQuery;
 use App\Application\Query\Equipment\GetEquipmentByIdQuery;
 use App\Entity\User;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use RuntimeException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,17 +58,7 @@ class EquipmentController extends AbstractController {
                         new OA\Property(
                             property: 'data',
                             type: 'array',
-                            items: new OA\Items(
-                                properties: [
-                                    new OA\Property(property: 'id', type: 'integer'),
-                                    new OA\Property(property: 'name', type: 'string'),
-                                    new OA\Property(property: 'costCenter', type: 'integer'),
-                                    new OA\Property(property: 'qrCodeData', type: 'string', nullable: true),
-                                    new OA\Property(property: 'parentEquipmentId', type: 'integer', nullable: true),
-                                    new OA\Property(property: 'directWorkTime', type: 'integer'),
-                                    new OA\Property(property: 'totalWorkTime', type: 'integer'),
-                                ],
-                            ),
+                            items: new OA\Items(ref: new Model(type: \App\Entity\Equipment::class)),
                         ),
                     ],
                 ),
@@ -123,17 +114,7 @@ class EquipmentController extends AbstractController {
                         new OA\Property(property: 'status', type: 'string', example: 'success'),
                         new OA\Property(
                             property: 'data',
-                            properties: [
-                                new OA\Property(property: 'id', type: 'integer'),
-                                new OA\Property(property: 'name', type: 'string'),
-                                new OA\Property(property: 'costCenter', type: 'integer'),
-                                new OA\Property(property: 'qrCodeData', type: 'string'),
-                                new OA\Property(property: 'parentEquipmentId', type: 'integer', nullable: true),
-                                new OA\Property(property: 'directWorkTime', type: 'integer'),
-                                new OA\Property(property: 'totalWorkTime', type: 'integer'),
-                                new OA\Property(property: 'tags', type: 'array', items: new OA\Items(type: 'object')),
-                                new OA\Property(property: 'files', type: 'array', items: new OA\Items(type: 'object')),
-                            ],
+                            ref: new Model(type: \App\Entity\Equipment::class),
                         ),
                     ],
                 ),
@@ -201,6 +182,7 @@ class EquipmentController extends AbstractController {
             new OA\Response(
                 response: 201,
                 description: 'Equipment created successfully',
+                content: new OA\JsonContent(ref: new Model(type: \App\Entity\Equipment::class)),
             ),
             new OA\Response(response: 400, description: 'Invalid input'),
         ],

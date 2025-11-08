@@ -10,6 +10,7 @@ use App\Application\Query\UserRole\GetUserRolesListQuery;
 use App\Entity\UserRole;
 use Exception;
 use InvalidArgumentException;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -108,13 +109,7 @@ class UserRoleController extends AbstractController {
                         new OA\Property(
                             property: 'data',
                             type: 'array',
-                            items: new OA\Items(
-                                properties: [
-                                    new OA\Property(property: 'id', type: 'integer', example: 1),
-                                    new OA\Property(property: 'name', type: 'string', example: 'admin'),
-                                    new OA\Property(property: 'usersCount', type: 'integer', example: 5),
-                                ],
-                            ),
+                            items: new OA\Items(ref: new Model(type: \App\Entity\UserRole::class)),
                         ),
                     ],
                 ),
