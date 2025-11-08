@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Command\WorkOrder;
 
-use App\Application\Command\WorkOrder\AddWorkOrderActivityCommand;
 use App\Entity\User;
 use App\Entity\WorkOrder;
 use App\Entity\WorkOrderActivity;
@@ -39,7 +38,10 @@ class AddWorkOrderActivityHandler {
         }
 
         if ($command->completedAt !== null) {
-            $activity->setCompletedAt($command->completedAt);
+            $completedAt = $command->completedAt instanceof \DateTime 
+                ? $command->completedAt 
+                : \DateTime::createFromInterface($command->completedAt);
+            $activity->setCompletedAt($completedAt);
         }
 
         $this->entityManager->persist($activity);

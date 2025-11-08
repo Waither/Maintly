@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Query\WorkOrder;
 
-use App\Application\Query\WorkOrder\GetAllWorkOrdersQuery;
 use App\Repository\WorkOrderRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -14,6 +13,9 @@ class GetAllWorkOrdersHandler {
         private WorkOrderRepository $workOrderRepository,
     ) {}
 
+    /**
+     * @return array<int, \App\Entity\WorkOrder>
+     */
     public function __invoke(GetAllWorkOrdersQuery $query): array {
         if ($query->filterByUserId !== null) {
             // For provider role - return only work orders created by this user

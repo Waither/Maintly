@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Query\WorkOrder;
 
-use App\Application\Query\WorkOrder\GetWorkOrderPrioritiesQuery;
 use App\Repository\WorkOrderPriorityRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -14,6 +13,9 @@ class GetWorkOrderPrioritiesHandler {
         private WorkOrderPriorityRepository $priorityRepository,
     ) {}
 
+    /**
+     * @return array<int, \App\Entity\WorkOrderPriority>
+     */
     public function __invoke(GetWorkOrderPrioritiesQuery $query): array {
         return $this->priorityRepository->findAllOrdered();
     }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Command\WorkOrder;
 
-use App\Application\Command\WorkOrder\CreateWorkOrderCommand;
 use App\Entity\Equipment;
 use App\Entity\User;
 use App\Entity\WorkOrder;
@@ -34,11 +33,17 @@ class CreateWorkOrderHandler {
         $workOrder->setCreatedBy($createdBy);
 
         if ($command->plannedStartDate) {
-            $workOrder->setPlannedStartDate($command->plannedStartDate);
+            $plannedStart = $command->plannedStartDate instanceof \DateTime 
+                ? $command->plannedStartDate 
+                : \DateTime::createFromInterface($command->plannedStartDate);
+            $workOrder->setPlannedStartDate($plannedStart);
         }
 
         if ($command->plannedEndDate) {
-            $workOrder->setPlannedEndDate($command->plannedEndDate);
+            $plannedEnd = $command->plannedEndDate instanceof \DateTime 
+                ? $command->plannedEndDate 
+                : \DateTime::createFromInterface($command->plannedEndDate);
+            $workOrder->setPlannedEndDate($plannedEnd);
         }
 
         $this->entityManager->persist($workOrder);

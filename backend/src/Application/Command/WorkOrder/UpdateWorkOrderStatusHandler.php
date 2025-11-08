@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Command\WorkOrder;
 
-use App\Application\Command\WorkOrder\UpdateWorkOrderStatusCommand;
 use App\Entity\WorkOrderStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;

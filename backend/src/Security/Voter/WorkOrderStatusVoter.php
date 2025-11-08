@@ -9,6 +9,9 @@ use App\Entity\WorkOrderStatus;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, WorkOrderStatus|null>
+ */
 class WorkOrderStatusVoter extends Voter {
     public const VIEW = 'WORKORDER_STATUS_VIEW';
     public const CREATE = 'WORKORDER_STATUS_CREATE';

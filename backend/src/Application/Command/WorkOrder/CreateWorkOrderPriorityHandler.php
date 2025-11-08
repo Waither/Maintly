@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Command\WorkOrder;
 
-use App\Application\Command\WorkOrder\CreateWorkOrderPriorityCommand;
 use App\Entity\WorkOrderPriority;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

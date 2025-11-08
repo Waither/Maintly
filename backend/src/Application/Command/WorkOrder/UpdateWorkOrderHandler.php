@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Application\Command\WorkOrder;
 
-use App\Application\Command\WorkOrder\UpdateWorkOrderCommand;
 use App\Entity\Equipment;
 use App\Entity\User;
 use App\Entity\WorkOrder;
@@ -51,19 +50,31 @@ class UpdateWorkOrderHandler {
         }
 
         if ($command->plannedStartDate !== null) {
-            $workOrder->setPlannedStartDate($command->plannedStartDate);
+            $plannedStart = $command->plannedStartDate instanceof \DateTime 
+                ? $command->plannedStartDate 
+                : \DateTime::createFromInterface($command->plannedStartDate);
+            $workOrder->setPlannedStartDate($plannedStart);
         }
 
         if ($command->plannedEndDate !== null) {
-            $workOrder->setPlannedEndDate($command->plannedEndDate);
+            $plannedEnd = $command->plannedEndDate instanceof \DateTime 
+                ? $command->plannedEndDate 
+                : \DateTime::createFromInterface($command->plannedEndDate);
+            $workOrder->setPlannedEndDate($plannedEnd);
         }
 
         if ($command->actualStartDate !== null) {
-            $workOrder->setActualStartDate($command->actualStartDate);
+            $actualStart = $command->actualStartDate instanceof \DateTime 
+                ? $command->actualStartDate 
+                : \DateTime::createFromInterface($command->actualStartDate);
+            $workOrder->setActualStartDate($actualStart);
         }
 
         if ($command->actualEndDate !== null) {
-            $workOrder->setActualEndDate($command->actualEndDate);
+            $actualEnd = $command->actualEndDate instanceof \DateTime 
+                ? $command->actualEndDate 
+                : \DateTime::createFromInterface($command->actualEndDate);
+            $workOrder->setActualEndDate($actualEnd);
         }
 
         $updatedBy = $this->entityManager->getReference(User::class, $command->updatedBy);

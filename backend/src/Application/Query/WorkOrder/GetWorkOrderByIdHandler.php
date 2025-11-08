@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Application\Query\WorkOrder;
 
 use App\Entity\WorkOrder;
-use App\Application\Query\WorkOrder\GetWorkOrderByIdQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;

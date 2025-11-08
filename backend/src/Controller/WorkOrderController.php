@@ -15,11 +15,11 @@ use App\Application\Command\WorkOrder\DeleteWorkOrderStatusCommand;
 use App\Application\Command\WorkOrder\UpdateWorkOrderCommand;
 use App\Application\Command\WorkOrder\UpdateWorkOrderPriorityCommand;
 use App\Application\Command\WorkOrder\UpdateWorkOrderStatusCommand;
-use App\Entity\User;
 use App\Application\Query\WorkOrder\GetAllWorkOrdersQuery;
 use App\Application\Query\WorkOrder\GetWorkOrderByIdQuery;
 use App\Application\Query\WorkOrder\GetWorkOrderPrioritiesQuery;
 use App\Application\Query\WorkOrder\GetWorkOrderStatusesQuery;
+use App\Entity\User;
 use DateTime;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
@@ -417,7 +417,7 @@ class WorkOrderController extends AbstractController {
         if ($startDate || $endDate) {
             $workOrders = array_filter($workOrders, function ($wo) use ($startDate, $endDate) {
                 $createdAt = $wo->getCreatedAt();
-                
+
                 if ($startDate) {
                     $start = new DateTime($startDate);
                     $start->setTime(0, 0, 0);
@@ -425,7 +425,7 @@ class WorkOrderController extends AbstractController {
                         return false;
                     }
                 }
-                
+
                 if ($endDate) {
                     $end = new DateTime($endDate);
                     $end->setTime(23, 59, 59);
@@ -433,10 +433,10 @@ class WorkOrderController extends AbstractController {
                         return false;
                     }
                 }
-                
+
                 return true;
             });
-            
+
             // Re-index array after filtering
             $workOrders = array_values($workOrders);
         }

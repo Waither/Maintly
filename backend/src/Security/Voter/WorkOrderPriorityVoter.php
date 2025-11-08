@@ -9,6 +9,9 @@ use App\Entity\WorkOrderPriority;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, WorkOrderPriority|null>
+ */
 class WorkOrderPriorityVoter extends Voter {
     public const VIEW = 'WORKORDER_PRIORITY_VIEW';
     public const CREATE = 'WORKORDER_PRIORITY_CREATE';

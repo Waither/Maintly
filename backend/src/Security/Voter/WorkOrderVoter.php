@@ -9,19 +9,14 @@ use App\Entity\WorkOrder;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * @extends Voter<string, WorkOrder|null>
+ */
 class WorkOrderVoter extends Voter {
     public const VIEW = 'WORKORDER_VIEW';
     public const CREATE = 'WORKORDER_CREATE';
     public const EDIT = 'WORKORDER_EDIT';
     public const DELETE = 'WORKORDER_DELETE';
-
-    private const ROLE_LEVELS = [
-        'admin' => 1,
-        'manager' => 2,
-        'technician' => 3,
-        'provider' => 4,
-        'reporter' => 5,
-    ];
 
     protected function supports(string $attribute, mixed $subject): bool {
         return in_array($attribute, [self::VIEW, self::CREATE, self::EDIT, self::DELETE])
@@ -59,7 +54,7 @@ class WorkOrderVoter extends Voter {
                 return true;
             }
 
-            return $workOrder->getCreatedBy()?->getId() === $user->getId();
+            return $workOrder->getCreatedBy()->getId() === $user->getId();
         }
 
         // Admin, Manager, Technician: can view all work orders
@@ -92,7 +87,7 @@ class WorkOrderVoter extends Voter {
 
         // Provider: can edit only own work orders (created_by)
         if ($userRole === 'provider') {
-            return $workOrder->getCreatedBy()?->getId() === $user->getId();
+            return $workOrder->getCreatedBy()->getId() === $user->getId();
         }
 
         return false;
