@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Backend - PHP 8.4 + Symfony
   backend:
@@ -13,8 +11,10 @@ services:
       - backend-cache:/var/www/html/var/cache
       - backend-logs:/var/www/html/var/log
     environment:
-      DATABASE_URL: "mysql://maintly:secret@mysql:3306/maintly?serverVersion=8.0"
+      DATABASE_URL: "mysql://maintly:secret@mysql:3306/maintly?serverVersion=8.4"
       APP_ENV: "dev"
+      PHP_OPCACHE_ENABLE: "1"
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
     depends_on:
       - mysql
     networks:
@@ -38,15 +38,18 @@ services:
     networks:
       - maintly-network
 
-  # MySQL 8.0
+  # MySQL 8.4
   mysql:
-    image: mysql:8.0
+    image: mysql:8.4
     container_name: maintly-mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: maintly
       MYSQL_USER: maintly
       MYSQL_PASSWORD: secret
+    command: >
+      --innodb-buffer-pool-size=256M
+      --max-connections=100
     volumes:
       - mysql-data:/var/lib/mysql
     ports:
@@ -84,6 +87,8 @@ volumes:
   mysql-data:
   backend-cache:  # Symfony cache - isolated from Windows
   backend-logs:   # Symfony logs - isolated from Windows
+  backend-vendor: # ⚡ Composer vendor - isolated from Windows (SZYBKOŚĆ!)
+  frontend-node-modules: # ⚡ npm node_modules - isolated from Windows (SZYBKOŚĆ!)
 
 networks:
   maintly-network:
