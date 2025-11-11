@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # WAŻNE: Skopiuj lokalny pakiet MDB PRZED npm ci
-COPY src/mdb-local ./src/mdb-local
+COPY src/lib/mdb ./src/lib/mdb
 
 # Install dependencies using lock file (faster & deterministic)
 RUN npm ci
