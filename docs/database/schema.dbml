@@ -1,0 +1,222 @@
+// MAINTLY CMMS - Database Schema
+// Generated: 11 listopada 2025
+// Framework: Symfony 7 + Doctrine ORM
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+Table user_roles {
+  id int [pk, increment]
+  name varchar(50) [unique, not null]
+  created_at datetime [not null]
+}
+
+Table users {
+  id int [pk, increment]
+  email varchar(180) [unique, not null]
+  password varchar(255) [not null]
+  first_name varchar(100) [not null]
+  last_name varchar(100) [not null]
+  is_active boolean [not null, default: true]
+  created_at datetime [not null]
+  updated_at datetime
+  deleted_at datetime
+  user_role_id int [not null, ref: > user_roles.id]
+}
+
+// ============================================
+// EQUIPMENT MANAGEMENT
+// ============================================
+Table equipment {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  cost_center int [not null]
+  qr_code_data varchar(255) [unique]
+  direct_work_time int [not null, default: 0]
+  total_work_time int [not null, default: 0]
+  created_at datetime [not null]
+  updated_at datetime
+  deleted_at datetime
+  parent_equipment_id int [ref: > equipment.id]
+  created_by int [not null, ref: > users.id]
+  updated_by int [ref: > users.id]
+}
+
+Table tag_groups {
+  id int [pk, increment]
+  name varchar(100) [unique, not null]
+  is_required boolean [not null, default: false]
+  is_single_choice boolean [not null, default: false]
+  display_order int [not null, default: 0]
+  created_at datetime [not null]
+}
+
+Table tags {
+  id int [pk, increment]
+  name varchar(100) [unique, not null]
+  color varchar(7) [not null]
+  created_at datetime [not null]
+  tag_group_id int [ref: > tag_groups.id]
+}
+
+Table equipment_tags {
+  id int [pk, increment]
+  assigned_at datetime [not null]
+  equipment_id int [not null, ref: > equipment.id]
+  tag_id int [not null, ref: > tags.id]
+  assigned_by int [not null, ref: > users.id]
+}
+
+Table equipment_custom_fields {
+  id int [pk, increment]
+  field_name varchar(100) [unique, not null]
+  field_type varchar(20) [not null]
+  field_options json
+  is_required boolean [not null, default: false]
+  default_value text
+  display_order int [not null, default: 0]
+  is_active boolean [not null, default: true]
+  created_at datetime [not null]
+  deleted_at datetime
+  created_by int [not null, ref: > users.id]
+}
+
+Table equipment_custom_values {
+  id int [pk, increment]
+  value text
+  created_at datetime [not null]
+  updated_at datetime
+  equipment_id int [not null, ref: > equipment.id]
+  custom_field_id int [not null, ref: > equipment_custom_fields.id]
+}
+
+Table equipment_files {
+  id int [pk, increment]
+  file_name varchar(255) [not null]
+  file_type varchar(50) [not null]
+  file_size bigint [not null]
+  description text
+  uploaded_at datetime [not null]
+  deleted_at datetime
+  equipment_id int [not null, ref: > equipment.id]
+  uploaded_by int [not null, ref: > users.id]
+}
+
+// ============================================
+// WORK ORDER MANAGEMENT
+// ============================================
+Table work_order_statuses {
+  id int [pk, increment]
+  name varchar(50) [unique, not null]
+  color varchar(7) [not null]
+  display_order int [not null]
+  is_final boolean [not null, default: false]
+  created_at datetime [not null]
+}
+
+Table work_order_priorities {
+  id int [pk, increment]
+  name varchar(50) [unique, not null]
+  color varchar(7) [not null]
+  display_order int [not null]
+  created_at datetime [not null]
+}
+
+Table work_orders {
+  id int [pk, increment]
+  unique_code varchar(20) [unique, not null]
+  title varchar(255) [not null]
+  description text
+  planned_start_date datetime
+  planned_end_date datetime
+  actual_start_date datetime
+  actual_end_date datetime
+  created_at datetime [not null]
+  updated_at datetime
+  deleted_at datetime
+  status_id int [not null, ref: > work_order_statuses.id]
+  priority_id int [not null, ref: > work_order_priorities.id]
+  equipment_id int [not null, ref: > equipment.id]
+  created_by int [not null, ref: > users.id]
+  updated_by int [ref: > users.id]
+}
+
+Table work_order_assignments {
+  id int [pk, increment]
+  assigned_at datetime [not null]
+  work_order_id int [not null, ref: > work_orders.id]
+  user_id int [not null, ref: > users.id]
+  assigned_by int [not null, ref: > users.id]
+}
+
+Table work_order_tags {
+  id int [pk, increment]
+  assigned_at datetime [not null]
+  work_order_id int [not null, ref: > work_orders.id]
+  tag_id int [not null, ref: > tags.id]
+  assigned_by int [not null, ref: > users.id]
+}
+
+Table work_order_activities {
+  id int [pk, increment]
+  description text [not null]
+  time_spent int [not null, default: 0]
+  completed_at datetime
+  created_at datetime [not null]
+  updated_at datetime
+  deleted_at datetime
+  work_order_id int [not null, ref: > work_orders.id]
+  performed_by int [not null, ref: > users.id]
+  created_by int [not null, ref: > users.id]
+}
+
+Table work_order_files {
+  id int [pk, increment]
+  file_name varchar(255) [not null]
+  file_type varchar(50) [not null]
+  file_size bigint [not null]
+  description text
+  uploaded_at datetime [not null]
+  deleted_at datetime
+  work_order_id int [not null, ref: > work_orders.id]
+  uploaded_by int [not null, ref: > users.id]
+}
+
+// ============================================
+// SYSTEM
+// ============================================
+Table translations {
+  id int [pk, increment]
+  locale varchar(5) [not null]
+  message_key varchar(255) [not null]
+  message_value text [not null]
+  created_at datetime [not null]
+}
+
+// ============================================
+// TABLE GROUPS
+// ============================================
+TableGroup user_management {
+  user_roles
+  users
+}
+
+TableGroup equipment_management {
+  equipment
+  tag_groups
+  tags
+  equipment_tags
+  equipment_custom_fields
+  equipment_custom_values
+  equipment_files
+}
+
+TableGroup work_order_management {
+  work_order_statuses
+  work_order_priorities
+  work_orders
+  work_order_assignments
+  work_order_tags
+  work_order_activities
+  work_order_files
+}
