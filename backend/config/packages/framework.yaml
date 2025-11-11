@@ -9,7 +9,7 @@ framework:
     # Rate limiting for API endpoints
     rate_limiter:
         # Login bruteforce protection (5 attempts per 15 minutes per IP)
-        # CRITICAL: Public endpoint accessible to everyone
+        # Counter is reset after successful login (see LoginSuccessListener)
         login:
             policy: 'sliding_window'
             limit: 5

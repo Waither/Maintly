@@ -27,10 +27,11 @@ class LoginRateLimiterListener {
             return;
         }
 
-        // Check rate limit per IP
+        // Check rate limit per IP (peek only - don't consume yet)
         $limiter = $this->loginLimiter->create($request->getClientIp());
 
-        if ($limiter->consume(1)->isAccepted() === false) {
+        // Only block if limit exceeded (peek doesn't consume)
+        if ($limiter->consume(0)->isAccepted() === false) {
             $response = new JsonResponse([
                 'status' => 'error',
                 'code' => 429,
