@@ -107,7 +107,6 @@ i18n
 // Save language to localStorage on change
 i18n.on('languageChanged', (lng) => {
     localStorage.setItem('locale', lng);
-    console.log('🌍 Language changed to:', lng);
 });
 
 i18n.on('loaded', (loaded) => {
