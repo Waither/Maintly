@@ -109,7 +109,7 @@ class UserRoleController extends AbstractController {
                         new OA\Property(
                             property: 'data',
                             type: 'array',
-                            items: new OA\Items(ref: new Model(type: \App\Entity\UserRole::class)),
+                            items: new OA\Items(ref: new Model(type: UserRole::class)),
                         ),
                     ],
                 ),

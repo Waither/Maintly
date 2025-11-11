@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Repository\TranslationRepository;
 use Exception;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -71,9 +70,9 @@ class TranslationController extends AbstractController {
             ], 200, [
                 'Content-Type' => 'application/json; charset=utf-8',
             ]);
-            
+
             $response->setEncodingOptions(JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            
+
             return $response;
         }
         catch (Exception $e) {

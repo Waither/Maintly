@@ -58,7 +58,7 @@ class UserController extends AbstractController {
                                 new OA\Property(
                                     property: 'users',
                                     type: 'array',
-                                    items: new OA\Items(ref: new Model(type: \App\Entity\User::class)),
+                                    items: new OA\Items(ref: new Model(type: User::class)),
                                 ),
                                 new OA\Property(
                                     property: 'pagination',
@@ -145,7 +145,7 @@ class UserController extends AbstractController {
                         new OA\Property(property: 'message', type: 'string', example: 'user.created'),
                         new OA\Property(
                             property: 'user',
-                            ref: new Model(type: \App\Entity\User::class),
+                            ref: new Model(type: User::class),
                         ),
                     ],
                 ),
