@@ -64,15 +64,17 @@ class TranslationController extends AbstractController {
         try {
             $translations = $this->translationRepository->getAllForLocale($locale);
 
-            return $this->json([
+            $response = new JsonResponse([
                 'status' => 'success',
                 'code' => 200,
                 'data' => $translations,
             ], 200, [
                 'Content-Type' => 'application/json; charset=utf-8',
-            ], [
-                'json_encode_options' => JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
             ]);
+            
+            $response->setEncodingOptions(JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            
+            return $response;
         }
         catch (Exception $e) {
             return $this->json([
