@@ -1,0 +1,49 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Raport został wygenerowany - Maintly{% endblock %}
+
+{% block header_title %}Raport gotowy!{% endblock %}
+{% block header_subtitle %}Twój raport został pomyślnie wygenerowany{% endblock %}
+
+{% block content %}
+    <h2>Witaj {{ userName }}!</h2>
+    
+    <p>Raport, o który prosiłeś, został pomyślnie wygenerowany i jest gotowy do pobrania.</p>
+    
+    <div class="info-box">
+        <p><strong>Typ raportu:</strong> {{ reportType }}</p>
+        <p><strong>Format:</strong> {{ reportFormat|upper }}</p>
+        <p><strong>Data wygenerowania:</strong> {{ completedAt|date('Y-m-d H:i:s') }}</p>
+        {% if filters is defined and filters %}
+            <p><strong>Zastosowane filtry:</strong></p>
+            <ul>
+                {% if filters.status is defined and filters.status %}
+                    <li>Status: {{ filters.status }}</li>
+                {% endif %}
+                {% if filters.dateFrom is defined and filters.dateFrom %}
+                    <li>Data od: {{ filters.dateFrom }}</li>
+                {% endif %}
+                {% if filters.dateTo is defined and filters.dateTo %}
+                    <li>Data do: {{ filters.dateTo }}</li>
+                {% endif %}
+                {% if filters.costCenter is defined and filters.costCenter %}
+                    <li>Centrum kosztów: {{ filters.costCenter }}</li>
+                {% endif %}
+                {% if filters.equipmentId is defined and filters.equipmentId %}
+                    <li>ID urządzenia: {{ filters.equipmentId }}</li>
+                {% endif %}
+                {% if filters.role is defined and filters.role %}
+                    <li>Rola: {{ filters.role }}</li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    </div>
+    
+    <p>Możesz pobrać raport klikając w poniższy przycisk:</p>
+    
+    <a href="{{ downloadUrl }}" class="button">Pobierz raport</a>
+    
+    <p style="font-size: 13px; color: #666;">
+        Link do pobrania będzie aktywny przez 30 dni. Po tym czasie raport zostanie automatycznie usunięty.
+    </p>
+{% endblock %}

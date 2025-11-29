@@ -32,10 +32,12 @@ framework:
                 middleware:
                     - validation
                     - doctrine_transaction
+                    - App\Messenger\Middleware\CommandBusLoggingMiddleware
             
             query.bus:
                 middleware:
                     - validation
+                    - App\Messenger\Middleware\CommandBusLoggingMiddleware
 
 when@test:
     framework:

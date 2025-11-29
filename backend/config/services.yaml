@@ -29,6 +29,11 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    # Command Bus Logging Middleware
+    App\Messenger\Middleware\CommandBusLoggingMiddleware:
+        autowire: true
+        autoconfigure: false
+
     # Report Generator Configuration
     App\Service\Report\ReportGenerator:
         arguments:

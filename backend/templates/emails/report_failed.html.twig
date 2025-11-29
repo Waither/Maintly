@@ -1,0 +1,32 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Błąd generowania raportu - Maintly{% endblock %}
+
+{% block header_title %}Wystąpił problem{% endblock %}
+{% block header_subtitle %}Nie udało się wygenerować raportu{% endblock %}
+
+{% block content %}
+    <h2>Witaj {{ userName }}!</h2>
+    
+    <p>Niestety podczas generowania raportu wystąpił błąd i proces nie mógł zostać ukończony.</p>
+    
+    <div class="info-box" style="border-left-color: #dc3545; background-color: #fff5f5;">
+        <p><strong>Typ raportu:</strong> {{ reportType }}</p>
+        <p><strong>Format:</strong> {{ reportFormat|upper }}</p>
+        <p><strong>Data próby:</strong> {{ attemptedAt|date('Y-m-d H:i:s') }}</p>
+        {% if errorMessage %}
+            <p style="color: #dc3545;"><strong>Szczegóły błędu:</strong> {{ errorMessage }}</p>
+        {% endif %}
+    </div>
+    
+    <p>Prosimy spróbować ponownie później. Jeśli problem będzie się powtarzał, skontaktuj się z administratorem systemu.</p>
+    
+    <a href="{{ appUrl }}/reports" class="button" style="background-color: #6c757d;">Wróć do raportów</a>
+    
+    <p style="font-size: 13px; color: #666; margin-top: 30px;">
+        <strong>Wskazówki:</strong><br>
+        - Sprawdź czy zastosowane filtry są poprawne<br>
+        - Spróbuj zawęzić zakres dat<br>
+        - Upewnij się, że w systemie są dane spełniające kryteria
+    </p>
+{% endblock %}

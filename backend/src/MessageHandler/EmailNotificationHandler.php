@@ -4,6 +4,10 @@ namespace App\MessageHandler;
 
 use App\Message\EmailNotificationMessage;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
@@ -14,27 +18,60 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class EmailNotificationHandler {
     public function __construct(
         private LoggerInterface $logger,
-        // TODO: Inject MailerInterface when ready to send real emails
-        // private MailerInterface $mailer
+        private MailerInterface $mailer,
+        #[Autowire('%env(MAILER_FROM_EMAIL)%')]
+        private string $fromEmail,
+        #[Autowire('%env(MAILER_FROM_NAME)%')]
+        private string $fromName,
     ) {}
 
     public function __invoke(EmailNotificationMessage $message): void {
         $this->logger->info('Processing email notification', [
             'to' => $message->to,
             'subject' => $message->subject,
+            'template' => $message->template ?? 'none',
         ]);
 
-        // TODO: Replace with actual email sending
-        // $email = (new Email())
-        //     ->from('noreply@maintly.com')
-        //     ->to($message->to)
-        //     ->subject($message->subject)
-        //     ->html($message->body);
-        // $this->mailer->send($email);
+        try {
+            if ($message->template) {
+                // Send templated email (HTML from Twig)
+                $email = (new TemplatedEmail())
+                    ->from($this->fromEmail)
+                    ->to($message->to)
+                    ->subject($message->subject)
+                    ->htmlTemplate($message->template)
+                    ->context($message->context ?? []);
+            } else {
+                // Fallback: plain HTML body
+                $email = (new TemplatedEmail())
+                    ->from($this->fromEmail)
+                    ->to($message->to)
+                    ->subject($message->subject)
+                    ->html($message->body ?? '');
+            }
 
-        // For now, just log (mock)
-        $this->logger->info('Email sent successfully (mocked)', [
-            'to' => $message->to,
-        ]);
+            $this->mailer->send($email);
+
+            $this->logger->info('Email sent successfully', [
+                'to' => $message->to,
+                'subject' => $message->subject,
+            ]);
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->error('Failed to send email', [
+                'to' => $message->to,
+                'subject' => $message->subject,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Re-throw to trigger Messenger retry mechanism
+            throw $e;
+        } catch (\Throwable $e) {
+            $this->logger->error('Unexpected error while sending email', [
+                'to' => $message->to,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw $e;
+        }
     }
 }

@@ -8,13 +8,13 @@ namespace App\Message;
  */
 final readonly class EmailNotificationMessage {
     /**
-     * @param array<string, mixed> $context
+     * @param array<string, mixed> $context Template variables for Twig
      */
     public function __construct(
         public string $to,
         public string $subject,
-        public string $body,
-        public ?string $templateName = null,
+        public ?string $body = null,
+        public ?string $template = null,
         public array $context = [],
     ) {}
 }
