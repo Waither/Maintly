@@ -11,10 +11,12 @@
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/orm": "^3.0",
+        "dompdf/dompdf": "*",
         "lexik/jwt-authentication-bundle": "^2.20",
         "minishlink/web-push": "^9.0",
         "nelmio/api-doc-bundle": "^4.19",
         "nelmio/cors-bundle": "^2.4",
+        "phpoffice/phpspreadsheet": "*",
         "symfony/console": "7.3.*",
         "symfony/doctrine-messenger": "7.3.*",
         "symfony/dotenv": "7.3.*",
@@ -27,8 +29,10 @@
         "symfony/runtime": "7.3.*",
         "symfony/security-bundle": "7.3.*",
         "symfony/serializer": "7.3.*",
+        "symfony/twig-bundle": "7.3.*",
         "symfony/validator": "7.3.*",
-        "symfony/yaml": "7.3.*"
+        "symfony/yaml": "7.3.*",
+        "twig/twig": "*"
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.4",
