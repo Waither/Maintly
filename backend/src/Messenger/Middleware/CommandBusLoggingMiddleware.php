@@ -2,27 +2,29 @@
 
 namespace App\Messenger\Middleware;
 
+use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionProperty;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\StackInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Throwable;
 
 /**
  * Middleware for logging all Command and Query messages in CQRS pattern
- * Logs: message class, user, timestamp, parameters, execution time
+ * Logs: message class, user, timestamp, parameters, execution time.
  */
-final class CommandBusLoggingMiddleware implements MiddlewareInterface
-{
+final class CommandBusLoggingMiddleware implements MiddlewareInterface {
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly TokenStorageInterface $tokenStorage,
-    ) {
-    }
+    ) {}
 
-    public function handle(Envelope $envelope, StackInterface $stack): Envelope
-    {
+    public function handle(Envelope $envelope, StackInterface $stack): Envelope {
         // Skip logging for received messages (already logged when dispatched)
         if ($envelope->last(ReceivedStamp::class)) {
             return $stack->next()->handle($envelope, $stack);
@@ -30,14 +32,14 @@ final class CommandBusLoggingMiddleware implements MiddlewareInterface
 
         $message = $envelope->getMessage();
         $messageClass = get_class($message);
-        
+
         // Get current user (if authenticated)
         $user = null;
         $token = $this->tokenStorage->getToken();
         if ($token && $token->getUser()) {
             $user = $token->getUser();
             $userId = method_exists($user, 'getId') ? $user->getId() : null;
-            $userEmail = method_exists($user, 'getUserIdentifier') ? $user->getUserIdentifier() : null;
+            $userEmail = $user->getUserIdentifier();
         }
 
         // Extract message data (public readonly properties)
@@ -49,7 +51,7 @@ final class CommandBusLoggingMiddleware implements MiddlewareInterface
             'user_id' => $userId ?? null,
             'user_email' => $userEmail ?? null,
             'data' => $messageData,
-            'timestamp' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'timestamp' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
 
         $startTime = microtime(true);
@@ -67,8 +69,8 @@ final class CommandBusLoggingMiddleware implements MiddlewareInterface
             ]);
 
             return $envelope;
-
-        } catch (\Throwable $e) {
+        }
+        catch (Throwable $e) {
             $executionTime = round((microtime(true) - $startTime) * 1000, 2);
 
             // Log failure
@@ -86,34 +88,38 @@ final class CommandBusLoggingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Extract public properties from message for logging
+     * Extract public properties from message for logging.
+     *
      * @return array<string, mixed>
      */
-    private function extractMessageData(object $message): array
-    {
+    private function extractMessageData(object $message): array {
         $data = [];
-        
+
         try {
-            $reflection = new \ReflectionClass($message);
-            
-            foreach ($reflection->getProperties(\ReflectionProperty::IS_PUBLIC) as $property) {
+            $reflection = new ReflectionClass($message);
+
+            foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
                 $name = $property->getName();
                 $value = $property->getValue($message);
-                
+
                 // Sanitize sensitive data
                 if (in_array(strtolower($name), ['password', 'token', 'secret', 'key'])) {
                     $data[$name] = '***REDACTED***';
-                } elseif (is_object($value) && method_exists($value, 'getId')) {
+                }
+                elseif (is_object($value) && method_exists($value, 'getId')) {
                     // For entity objects, log just the ID
                     $data[$name] = get_class($value) . '#' . $value->getId();
-                } elseif (is_array($value)) {
+                }
+                elseif (is_array($value)) {
                     $data[$name] = count($value) . ' items';
-                } else {
+                }
+                else {
                     // Log scalar values directly
                     $data[$name] = $value;
                 }
             }
-        } catch (\ReflectionException $e) {
+        }
+        catch (ReflectionException $e) {
             $data['_error'] = 'Could not extract message data';
         }
 

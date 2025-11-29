@@ -9,6 +9,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Throwable;
 
 /**
  * Handles async email sending
@@ -17,12 +18,10 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final readonly class EmailNotificationHandler {
     public function __construct(
-        private LoggerInterface $logger,
-        private MailerInterface $mailer,
+        private readonly LoggerInterface $logger,
+        private readonly MailerInterface $mailer,
         #[Autowire('%env(MAILER_FROM_EMAIL)%')]
-        private string $fromEmail,
-        #[Autowire('%env(MAILER_FROM_NAME)%')]
-        private string $fromName,
+        private readonly string $fromEmail,
     ) {}
 
     public function __invoke(EmailNotificationMessage $message): void {
@@ -41,7 +40,8 @@ final readonly class EmailNotificationHandler {
                     ->subject($message->subject)
                     ->htmlTemplate($message->template)
                     ->context($message->context ?? []);
-            } else {
+            }
+            else {
                 // Fallback: plain HTML body
                 $email = (new TemplatedEmail())
                     ->from($this->fromEmail)
@@ -56,7 +56,8 @@ final readonly class EmailNotificationHandler {
                 'to' => $message->to,
                 'subject' => $message->subject,
             ]);
-        } catch (TransportExceptionInterface $e) {
+        }
+        catch (TransportExceptionInterface $e) {
             $this->logger->error('Failed to send email', [
                 'to' => $message->to,
                 'subject' => $message->subject,
@@ -65,7 +66,8 @@ final readonly class EmailNotificationHandler {
 
             // Re-throw to trigger Messenger retry mechanism
             throw $e;
-        } catch (\Throwable $e) {
+        }
+        catch (Throwable $e) {
             $this->logger->error('Unexpected error while sending email', [
                 'to' => $message->to,
                 'error' => $e->getMessage(),

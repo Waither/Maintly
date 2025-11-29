@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Notification;
 use App\Entity\User;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,7 +17,7 @@ class NotificationRepository extends ServiceEntityRepository {
     }
 
     /**
-     * Find notifications for a user with pagination
+     * Find notifications for a user with pagination.
      *
      * @return Notification[]
      */
@@ -32,7 +33,7 @@ class NotificationRepository extends ServiceEntityRepository {
     }
 
     /**
-     * Find unread notifications for a user
+     * Find unread notifications for a user.
      *
      * @return Notification[]
      */
@@ -48,7 +49,7 @@ class NotificationRepository extends ServiceEntityRepository {
     }
 
     /**
-     * Count total notifications for user
+     * Count total notifications for user.
      */
     public function countByUser(User $user): int {
         return (int) $this->createQueryBuilder('n')
@@ -60,7 +61,7 @@ class NotificationRepository extends ServiceEntityRepository {
     }
 
     /**
-     * Count unread notifications for user
+     * Count unread notifications for user.
      */
     public function countUnreadByUser(User $user): int {
         return (int) $this->createQueryBuilder('n')
@@ -73,7 +74,7 @@ class NotificationRepository extends ServiceEntityRepository {
     }
 
     /**
-     * Mark all notifications as read for a user
+     * Mark all notifications as read for a user.
      */
     public function markAllAsReadForUser(User $user): int {
         return $this->createQueryBuilder('n')
@@ -83,16 +84,16 @@ class NotificationRepository extends ServiceEntityRepository {
             ->where('n.user = :user')
             ->andWhere('n.isRead = false')
             ->setParameter('user', $user)
-            ->setParameter('now', new \DateTimeImmutable())
+            ->setParameter('now', new DateTimeImmutable())
             ->getQuery()
             ->execute();
     }
 
     /**
-     * Delete old read notifications (cleanup)
+     * Delete old read notifications (cleanup).
      */
     public function deleteOldReadNotifications(int $daysOld = 30): int {
-        $date = new \DateTimeImmutable("-{$daysOld} days");
+        $date = new DateTimeImmutable("-{$daysOld} days");
 
         return $this->createQueryBuilder('n')
             ->delete()

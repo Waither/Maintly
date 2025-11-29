@@ -12,7 +12,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,8 +20,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api/reports', name: 'api_reports_')]
 #[IsGranted('ROLE_USER')]
-class ReportController extends AbstractController
-{
+class ReportController extends AbstractController {
     use ApiResponseTrait;
 
     public function __construct(
@@ -31,12 +29,11 @@ class ReportController extends AbstractController
         private readonly ReportRepository $reportRepository,
         private readonly SerializerInterface $serializer,
         private readonly string $reportsDir,
-    ) {
-    }
+    ) {}
 
     /**
      * Generate a report asynchronously.
-     * 
+     *
      * Request body example:
      * {
      *   "reportType": "maintenance",
@@ -49,15 +46,14 @@ class ReportController extends AbstractController
      * }
      */
     #[Route('/generate', name: 'generate', methods: ['POST'])]
-    public function generate(Request $request): JsonResponse
-    {
+    public function generate(Request $request): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
         // Validate required fields
         if (!isset($data['reportType']) || !isset($data['format'])) {
             return $this->validationErrorResponse(
                 'error.report.missing_fields',
-                ['fields' => 'reportType, format']
+                ['fields' => 'reportType, format'],
             );
         }
 
@@ -66,7 +62,7 @@ class ReportController extends AbstractController
         if (!in_array($data['reportType'], $allowedTypes, true)) {
             return $this->validationErrorResponse(
                 'error.report.invalid_type',
-                ['allowedValues' => $allowedTypes]
+                ['allowedValues' => $allowedTypes],
             );
         }
 
@@ -75,13 +71,15 @@ class ReportController extends AbstractController
         if (!in_array($data['format'], $allowedFormats, true)) {
             return $this->validationErrorResponse(
                 'error.report.invalid_format',
-                ['allowedValues' => $allowedFormats]
+                ['allowedValues' => $allowedFormats],
             );
         }
 
         // Create Report entity
+        /** @var \App\Entity\User $user */
+        $user = $this->getUser();
         $report = new Report();
-        $report->setUser($this->getUser());
+        $report->setUser($user);
         $report->setReportType($data['reportType']);
         $report->setFormat($data['format']);
         $report->setFilters($data['filters'] ?? []);
@@ -110,7 +108,7 @@ class ReportController extends AbstractController
                 'createdAt' => $report->getCreatedAt()->format('c'),
             ],
             code: 202,
-            message: 'success.report.generation_started'
+            message: 'success.report.generation_started',
         );
     }
 
@@ -118,14 +116,16 @@ class ReportController extends AbstractController
      * Get list of user's reports.
      */
     #[Route('', name: 'list', methods: ['GET'])]
-    public function list(Request $request): JsonResponse
-    {
+    public function list(Request $request): JsonResponse {
+        $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = min(100, max(1, (int) $request->query->get('limit', 20)));
         $offset = ($page - 1) * $limit;
 
-        $reports = $this->reportRepository->findByUser($this->getUser(), $limit, $offset);
-        $total = $this->reportRepository->countByUser($this->getUser());
+        $reports = $this->reportRepository->findByUser($user, $limit, $offset);
+        $total = $this->reportRepository->countByUser($user);
 
         return $this->successResponse(
             data: [
@@ -137,7 +137,7 @@ class ReportController extends AbstractController
                     'itemsPerPage' => $limit,
                 ],
             ],
-            message: 'report.list.retrieved'
+            message: 'report.list.retrieved',
         );
     }
 
@@ -145,8 +145,10 @@ class ReportController extends AbstractController
      * Get single report details.
      */
     #[Route('/{id}', name: 'show', methods: ['GET'])]
-    public function show(int $id): JsonResponse
-    {
+    public function show(int $id): JsonResponse {
+        $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $report = $this->reportRepository->find($id);
 
         if (!$report) {
@@ -154,13 +156,13 @@ class ReportController extends AbstractController
         }
 
         // Check ownership
-        if ($report->getUser()->getId() !== $this->getUser()->getId()) {
+        if ($report->getUser()->getId() !== $user->getId()) {
             return $this->forbiddenResponse('error.report.access_denied');
         }
 
         return $this->successResponse(
             data: json_decode($this->serializer->serialize($report, 'json', ['groups' => 'report:read']), true),
-            message: 'report.show.retrieved'
+            message: 'report.show.retrieved',
         );
     }
 
@@ -168,8 +170,10 @@ class ReportController extends AbstractController
      * Download generated report file.
      */
     #[Route('/{id}/download', name: 'download', methods: ['GET'])]
-    public function download(int $id): BinaryFileResponse|JsonResponse
-    {
+    public function download(int $id): BinaryFileResponse|JsonResponse {
+        $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $report = $this->reportRepository->find($id);
 
         if (!$report) {
@@ -177,7 +181,7 @@ class ReportController extends AbstractController
         }
 
         // Check ownership
-        if ($report->getUser()->getId() !== $this->getUser()->getId()) {
+        if ($report->getUser()->getId() !== $user->getId()) {
             return $this->forbiddenResponse('error.report.access_denied');
         }
 
@@ -186,7 +190,7 @@ class ReportController extends AbstractController
             return $this->errorResponse(
                 message: 'error.report.not_ready',
                 code: 400,
-                errors: ['status' => $report->getStatus()]
+                errors: ['status' => $report->getStatus()],
             );
         }
 
@@ -203,8 +207,10 @@ class ReportController extends AbstractController
      * Delete report and file.
      */
     #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
-    public function delete(int $id): JsonResponse
-    {
+    public function delete(int $id): JsonResponse {
+        $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $report = $this->reportRepository->find($id);
 
         if (!$report) {
@@ -212,7 +218,7 @@ class ReportController extends AbstractController
         }
 
         // Check ownership
-        if ($report->getUser()->getId() !== $this->getUser()->getId()) {
+        if ($report->getUser()->getId() !== $user->getId()) {
             return $this->forbiddenResponse('error.report.access_denied');
         }
 
@@ -230,7 +236,7 @@ class ReportController extends AbstractController
 
         return $this->successResponse(
             data: ['id' => $id],
-            message: 'success.report.deleted'
+            message: 'success.report.deleted',
         );
     }
 
@@ -238,8 +244,7 @@ class ReportController extends AbstractController
      * Get available report types and formats.
      */
     #[Route('/options', name: 'options', methods: ['GET'])]
-    public function options(): JsonResponse
-    {
+    public function options(): JsonResponse {
         return $this->successResponse(
             data: [
                 'reportTypes' => [
@@ -268,7 +273,7 @@ class ReportController extends AbstractController
                     ['id' => 'csv', 'name' => 'report.format.csv', 'extension' => 'csv'],
                 ],
             ],
-            message: 'report.options.retrieved'
+            message: 'report.options.retrieved',
         );
     }
 }

@@ -4,34 +4,30 @@ declare(strict_types=1);
 
 namespace App\Service\Report\Formatter;
 
+use DateTimeImmutable;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 /**
  * Excel report formatter using PhpSpreadsheet.
  */
-final class ExcelReportFormatter implements ReportFormatterInterface
-{
-    public function getFormat(): string
-    {
+final class ExcelReportFormatter implements ReportFormatterInterface {
+    public function getFormat(): string {
         return 'excel';
     }
 
-    public function getExtension(): string
-    {
+    public function getExtension(): string {
         return 'xlsx';
     }
 
     /**
      * @param array<string, mixed> $data
-     * @param string $outputPath
      * @param array<string, mixed> $options
      */
-    public function format(array $data, string $outputPath, array $options = []): void
-    {
+    public function format(array $data, string $outputPath, array $options = []): void {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -46,7 +42,7 @@ final class ExcelReportFormatter implements ReportFormatterInterface
         $sheet->getStyle('A1')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
         // Add generation date
-        $generatedAt = $options['generatedAt'] ?? new \DateTimeImmutable();
+        $generatedAt = $options['generatedAt'] ?? new DateTimeImmutable();
         $sheet->setCellValue('A2', 'Generated: ' . $generatedAt->format('Y-m-d H:i:s'));
         $sheet->mergeCells('A2:' . $this->getColumnLetter(count($data['columns'] ?? []) - 1) . '2');
 
@@ -65,16 +61,16 @@ final class ExcelReportFormatter implements ReportFormatterInterface
         }
 
         // Add data rows
-        $currentRow++;
+        ++$currentRow;
         $rows = $data['rows'] ?? [];
         foreach ($rows as $row) {
             $columnIndex = 0;
             foreach ($row as $value) {
                 $cellRef = $this->getColumnLetter($columnIndex) . $currentRow;
                 $sheet->setCellValue($cellRef, $value);
-                $columnIndex++;
+                ++$columnIndex;
             }
-            $currentRow++;
+            ++$currentRow;
         }
 
         // Add borders to data range
@@ -96,7 +92,7 @@ final class ExcelReportFormatter implements ReportFormatterInterface
             $currentRow += 2;
             $sheet->setCellValue('A' . $currentRow, 'Summary');
             $sheet->getStyle('A' . $currentRow)->getFont()->setBold(true);
-            $currentRow++;
+            ++$currentRow;
 
             $sheet->setCellValue('A' . $currentRow, 'Total Records:');
             $sheet->setCellValue('B' . $currentRow, $summary['total'] ?? 0);
@@ -107,13 +103,13 @@ final class ExcelReportFormatter implements ReportFormatterInterface
         $writer->save($outputPath);
     }
 
-    private function getColumnLetter(int $index): string
-    {
+    private function getColumnLetter(int $index): string {
         $letter = '';
         while ($index >= 0) {
             $letter = chr($index % 26 + 65) . $letter;
             $index = intval($index / 26) - 1;
         }
+
         return $letter;
     }
 }

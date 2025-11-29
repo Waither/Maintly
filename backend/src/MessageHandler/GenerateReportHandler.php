@@ -10,7 +10,9 @@ use App\Message\EmailNotificationMessage;
 use App\Message\GenerateReportMessage;
 use App\Repository\ReportRepository;
 use App\Service\Report\ReportGenerator;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -21,8 +23,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * Processes GenerateReportMessage and delegates to ReportGenerator service.
  */
 #[AsMessageHandler]
-final readonly class GenerateReportHandler
-{
+final readonly class GenerateReportHandler {
     public function __construct(
         private ReportGenerator $reportGenerator,
         private ReportRepository $reportRepository,
@@ -31,16 +32,15 @@ final readonly class GenerateReportHandler
         private MessageBusInterface $messageBus,
         #[Autowire('%env(DEFAULT_URI)%')]
         private string $appUrl,
-    ) {
-    }
+    ) {}
 
-    public function __invoke(GenerateReportMessage $message): void
-    {
+    public function __invoke(GenerateReportMessage $message): void {
         // Load Report entity
         $report = $this->reportRepository->find($message->reportId);
-        
+
         if (!$report) {
             $this->logger->error('Report entity not found', ['reportId' => $message->reportId]);
+
             return;
         }
 
@@ -68,7 +68,7 @@ final readonly class GenerateReportHandler
             // Update report as completed
             $report->setStatus('completed');
             $report->setFileName(basename($filePath));
-            $report->setCompletedAt(new \DateTimeImmutable());
+            $report->setCompletedAt(new DateTimeImmutable());
             $this->entityManager->flush();
 
             $this->logger->info('Report generated successfully', [
@@ -85,7 +85,7 @@ final readonly class GenerateReportHandler
             $notification->setMessage(sprintf(
                 'Raport "%s" w formacie %s jest gotowy do pobrania.',
                 $this->translateReportType($message->reportType),
-                strtoupper($message->format)
+                strtoupper($message->format),
             ));
             $notification->setData([
                 'reportId' => $report->getId(),
@@ -99,7 +99,7 @@ final readonly class GenerateReportHandler
 
             // Send email notification
             $downloadUrl = $this->appUrl . '/api/reports/' . $report->getId() . '/download';
-            
+
             $this->messageBus->dispatch(new EmailNotificationMessage(
                 to: $user->getEmail(),
                 subject: 'Raport został wygenerowany - Maintly',
@@ -113,8 +113,8 @@ final readonly class GenerateReportHandler
                     'downloadUrl' => $downloadUrl,
                 ],
             ));
-
-        } catch (\Exception $e) {
+        }
+        catch (Exception $e) {
             // Update report as failed
             $report->setStatus('failed');
             $report->setErrorMessage($e->getMessage());
@@ -135,7 +135,7 @@ final readonly class GenerateReportHandler
             $notification->setMessage(sprintf(
                 'Nie udało się wygenerować raportu "%s". Błąd: %s',
                 $this->translateReportType($message->reportType),
-                $e->getMessage()
+                $e->getMessage(),
             ));
             $notification->setData([
                 'reportId' => $report->getId(),
@@ -156,7 +156,7 @@ final readonly class GenerateReportHandler
                     'userName' => $user->getFirstName() . ' ' . $user->getLastName(),
                     'reportType' => $this->translateReportType($message->reportType),
                     'reportFormat' => $message->format,
-                    'attemptedAt' => new \DateTimeImmutable(),
+                    'attemptedAt' => new DateTimeImmutable(),
                     'errorMessage' => $e->getMessage(),
                     'appUrl' => $this->appUrl,
                 ],
@@ -167,10 +167,9 @@ final readonly class GenerateReportHandler
     }
 
     /**
-     * Translate report type to human-readable Polish name
+     * Translate report type to human-readable Polish name.
      */
-    private function translateReportType(string $type): string
-    {
+    private function translateReportType(string $type): string {
         return match ($type) {
             'maintenance' => 'Raport zleceń konserwacji',
             'equipment' => 'Raport sprzętu',

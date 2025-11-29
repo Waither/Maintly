@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Controller\ApiResponseTrait;
 use App\Entity\Notification;
 use App\Repository\NotificationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * API endpoints for user notifications (bell icon with unread count)
+ * API endpoints for user notifications (bell icon with unread count).
  */
 #[Route('/api/notifications')]
 #[IsGranted('ROLE_USER')]
@@ -26,11 +25,13 @@ class NotificationController extends AbstractController {
     ) {}
 
     /**
-     * Get list of notifications for current user
+     * Get list of notifications for current user.
      */
     #[Route('', name: 'api_notifications_list', methods: ['GET'])]
     public function list(Request $request): JsonResponse {
         $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $page = max(1, (int) $request->query->get('page', 1));
         $limit = min(100, max(1, (int) $request->query->get('limit', 20)));
         $onlyUnread = $request->query->getBoolean('unread', false);
@@ -40,7 +41,8 @@ class NotificationController extends AbstractController {
         if ($onlyUnread) {
             $notifications = $this->notificationRepository->findUnreadByUser($user, $limit);
             $total = $this->notificationRepository->countUnreadByUser($user);
-        } else {
+        }
+        else {
             $notifications = $this->notificationRepository->findByUser($user, $limit, $offset);
             $total = $this->notificationRepository->countByUser($user);
         }
@@ -48,7 +50,7 @@ class NotificationController extends AbstractController {
         return $this->successResponse(
             data: [
                 'notifications' => array_map(
-                    fn(Notification $n) => [
+                    fn (Notification $n) => [
                         'id' => $n->getId(),
                         'type' => $n->getType(),
                         'title' => $n->getTitle(),
@@ -58,7 +60,7 @@ class NotificationController extends AbstractController {
                         'createdAt' => $n->getCreatedAt()->format('Y-m-d H:i:s'),
                         'readAt' => $n->getReadAt()?->format('Y-m-d H:i:s'),
                     ],
-                    $notifications
+                    $notifications,
                 ),
                 'pagination' => [
                     'total' => $total,
@@ -67,30 +69,34 @@ class NotificationController extends AbstractController {
                     'totalPages' => (int) ceil($total / $limit),
                 ],
             ],
-            message: 'notification.list.retrieved'
+            message: 'notification.list.retrieved',
         );
     }
 
     /**
-     * Get unread notification count (for bell badge)
+     * Get unread notification count (for bell badge).
      */
     #[Route('/unread-count', name: 'api_notifications_unread_count', methods: ['GET'])]
     public function unreadCount(): JsonResponse {
         $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $count = $this->notificationRepository->countUnreadByUser($user);
 
         return $this->successResponse(
             data: ['count' => $count],
-            message: 'notification.unread_count.retrieved'
+            message: 'notification.unread_count.retrieved',
         );
     }
 
     /**
-     * Mark single notification as read
+     * Mark single notification as read.
      */
     #[Route('/{id}/read', name: 'api_notifications_mark_read', methods: ['PATCH'])]
     public function markAsRead(int $id): JsonResponse {
         $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $notification = $this->notificationRepository->find($id);
 
         if (!$notification) {
@@ -112,30 +118,34 @@ class NotificationController extends AbstractController {
                 'isRead' => $notification->isRead(),
                 'readAt' => $notification->getReadAt()?->format('Y-m-d H:i:s'),
             ],
-            message: 'notification.marked_as_read'
+            message: 'notification.marked_as_read',
         );
     }
 
     /**
-     * Mark all notifications as read for current user
+     * Mark all notifications as read for current user.
      */
     #[Route('/mark-all-read', name: 'api_notifications_mark_all_read', methods: ['PATCH'])]
     public function markAllAsRead(): JsonResponse {
         $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $updated = $this->notificationRepository->markAllAsReadForUser($user);
 
         return $this->successResponse(
+            message: 'notification.all_marked_as_read',
             data: ['updated' => $updated],
-            message: 'notification.all_marked_as_read'
         );
     }
 
     /**
-     * Delete a notification
+     * Delete a notification.
      */
     #[Route('/{id}', name: 'api_notifications_delete', methods: ['DELETE'])]
     public function delete(int $id): JsonResponse {
         $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $notification = $this->notificationRepository->find($id);
 
         if (!$notification) {
@@ -150,16 +160,19 @@ class NotificationController extends AbstractController {
         $this->entityManager->flush();
 
         return $this->successResponse(
-            message: 'notification.deleted'
+            data: ['id' => $id],
+            message: 'notification.deleted',
         );
     }
 
     /**
-     * Get single notification details
+     * Get single notification details.
      */
     #[Route('/{id}', name: 'api_notifications_show', methods: ['GET'])]
     public function show(int $id): JsonResponse {
         $user = $this->getUser();
+        assert($user instanceof \App\Entity\User);
+
         $notification = $this->notificationRepository->find($id);
 
         if (!$notification) {
@@ -183,7 +196,7 @@ class NotificationController extends AbstractController {
                     'readAt' => $notification->getReadAt()?->format('Y-m-d H:i:s'),
                 ],
             ],
-            message: 'notification.retrieved'
+            message: 'notification.retrieved',
         );
     }
 }

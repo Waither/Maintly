@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace App\Service\Report;
 
 use App\Service\Report\Formatter\ReportFormatterInterface;
+use DateTime;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 
 /**
  * Main service for generating reports in various formats.
  * Coordinates data fetching and formatting delegation.
  */
-final readonly class ReportGenerator
-{
+final readonly class ReportGenerator {
     /** @var array<string, ReportFormatterInterface> */
     private array $formatters;
 
@@ -38,8 +40,10 @@ final readonly class ReportGenerator
      * @param string $format Output format (pdf, excel, csv)
      * @param array<string, mixed> $filters Filtering criteria
      * @param string|null $outputPath Custom output directory
+     *
+     * @throws InvalidArgumentException If format is not supported
+     *
      * @return string Absolute path to generated file
-     * @throws \InvalidArgumentException If format is not supported
      */
     public function generate(
         string $reportType,
@@ -48,7 +52,7 @@ final readonly class ReportGenerator
         ?string $outputPath = null,
     ): string {
         if (!isset($this->formatters[$format])) {
-            throw new \InvalidArgumentException("Unsupported format: {$format}");
+            throw new InvalidArgumentException("Unsupported format: {$format}");
         }
 
         // Fetch data based on report type
@@ -71,7 +75,7 @@ final readonly class ReportGenerator
         $formatter->format($data, $filePath, [
             'reportType' => $reportType,
             'filters' => $filters,
-            'generatedAt' => new \DateTimeImmutable(),
+            'generatedAt' => new DateTimeImmutable(),
         ]);
 
         return $filePath;
@@ -80,26 +84,25 @@ final readonly class ReportGenerator
     /**
      * Fetch data for specific report type.
      *
-     * @param string $reportType
      * @param array<string, mixed> $filters
+     *
      * @return array<string, mixed>
      */
-    private function fetchReportData(string $reportType, array $filters): array
-    {
+    private function fetchReportData(string $reportType, array $filters): array {
         return match ($reportType) {
             'maintenance' => $this->fetchWorkOrdersData($filters),
             'equipment' => $this->fetchEquipmentData($filters),
             'users' => $this->fetchUsersData($filters),
-            default => throw new \InvalidArgumentException("Unknown report type: {$reportType}"),
+            default => throw new InvalidArgumentException("Unknown report type: {$reportType}"),
         };
     }
 
     /**
      * @param array<string, mixed> $filters
+     *
      * @return array<string, mixed>
      */
-    private function fetchWorkOrdersData(array $filters): array
-    {
+    private function fetchWorkOrdersData(array $filters): array {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('w', 'e', 's', 'p')
             ->from('App\Entity\WorkOrder', 'w')
@@ -115,12 +118,12 @@ final readonly class ReportGenerator
 
         if (isset($filters['dateFrom'])) {
             $qb->andWhere('w.plannedStartDate >= :dateFrom')
-                ->setParameter('dateFrom', new \DateTime($filters['dateFrom']));
+                ->setParameter('dateFrom', new DateTime($filters['dateFrom']));
         }
 
         if (isset($filters['dateTo'])) {
             $qb->andWhere('w.plannedStartDate <= :dateTo')
-                ->setParameter('dateTo', new \DateTime($filters['dateTo']));
+                ->setParameter('dateTo', new DateTime($filters['dateTo']));
         }
 
         if (isset($filters['equipmentId'])) {
@@ -154,10 +157,10 @@ final readonly class ReportGenerator
 
     /**
      * @param array<string, mixed> $filters
+     *
      * @return array<string, mixed>
      */
-    private function fetchEquipmentData(array $filters): array
-    {
+    private function fetchEquipmentData(array $filters): array {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('e', 'p', 'c')
             ->from('App\Entity\Equipment', 'e')
@@ -194,10 +197,10 @@ final readonly class ReportGenerator
 
     /**
      * @param array<string, mixed> $filters
+     *
      * @return array<string, mixed>
      */
-    private function fetchUsersData(array $filters): array
-    {
+    private function fetchUsersData(array $filters): array {
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('u', 'r')
             ->from('App\Entity\User', 'u')

@@ -8,8 +8,7 @@ namespace App\Message;
  * Asynchronous message for generating reports in various formats.
  * Processed by GenerateReportHandler in the background.
  */
-readonly class GenerateReportMessage
-{
+readonly class GenerateReportMessage {
     /**
      * @param int $reportId ID of Report entity to track status
      * @param string $reportType Type of report (e.g., 'maintenance', 'equipment', 'users')
@@ -23,17 +22,15 @@ readonly class GenerateReportMessage
         public string $format,
         public array $filters = [],
         public ?string $outputPath = null,
-    ) {
-    }
+    ) {}
 
-    public function getFileName(): string
-    {
+    public function getFileName(): string {
         $timestamp = date('Y-m-d_His');
+
         return "{$this->reportType}_report_{$timestamp}.{$this->getExtension()}";
     }
 
-    private function getExtension(): string
-    {
+    private function getExtension(): string {
         return match ($this->format) {
             'pdf' => 'pdf',
             'excel' => 'xlsx',

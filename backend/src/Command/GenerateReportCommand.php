@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Service\Report\ReportGenerator;
+use Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,16 +18,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     name: 'app:generate-report',
     description: 'Generate a report in PDF, Excel or CSV format',
 )]
-class GenerateReportCommand extends Command
-{
+class GenerateReportCommand extends Command {
     public function __construct(
         private readonly ReportGenerator $reportGenerator,
     ) {
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
+    protected function configure(): void {
         $this
             ->addArgument('type', InputArgument::REQUIRED, 'Report type (maintenance, equipment, users)')
             ->addArgument('format', InputArgument::REQUIRED, 'Output format (pdf, excel, csv)')
@@ -37,7 +36,8 @@ class GenerateReportCommand extends Command
             ->addOption('cost-center', null, InputOption::VALUE_OPTIONAL, 'Filter by cost center (equipment only)')
             ->addOption('role', null, InputOption::VALUE_OPTIONAL, 'Filter by role (users only)')
             ->addOption('output', 'o', InputOption::VALUE_OPTIONAL, 'Output directory path')
-            ->setHelp(<<<'HELP'
+            ->setHelp(
+                <<<'HELP'
 This command generates reports in various formats.
 
 Examples:
@@ -59,8 +59,7 @@ HELP
             );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $io = new SymfonyStyle($input, $output);
 
         $reportType = $input->getArgument('type');
@@ -69,12 +68,14 @@ HELP
         // Validate report type
         if (!in_array($reportType, ['maintenance', 'equipment', 'users'], true)) {
             $io->error('Invalid report type. Allowed: maintenance, equipment, users');
+
             return Command::FAILURE;
         }
 
         // Validate format
         if (!in_array($format, ['pdf', 'excel', 'csv'], true)) {
             $io->error('Invalid format. Allowed: pdf, excel, csv');
+
             return Command::FAILURE;
         }
 
@@ -125,8 +126,8 @@ HELP
             ]);
 
             return Command::SUCCESS;
-
-        } catch (\Exception $e) {
+        }
+        catch (Exception $e) {
             $io->error([
                 'Report generation failed!',
                 '',
@@ -141,13 +142,14 @@ HELP
         }
     }
 
-    private function formatBytes(int $bytes): string
-    {
+    private function formatBytes(int $bytes): string {
         if ($bytes >= 1048576) {
             return number_format($bytes / 1048576, 2) . ' MB';
-        } elseif ($bytes >= 1024) {
+        }
+        if ($bytes >= 1024) {
             return number_format($bytes / 1024, 2) . ' KB';
         }
+
         return $bytes . ' B';
     }
 }

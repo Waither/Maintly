@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\NotificationRepository;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -44,6 +45,7 @@ class Notification {
 
     /**
      * Additional data (JSON): reportId, workOrderId, etc.
+     *
      * @var array<string, mixed>|null
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -56,19 +58,19 @@ class Notification {
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     #[Groups(['notification:read', 'notification:list'])]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups(['notification:read', 'notification:list'])]
-    private ?\DateTimeImmutable $readAt = null;
+    private ?DateTimeImmutable $readAt = null;
 
     public function __construct() {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     #[ORM\PrePersist]
     public function onPrePersist(): void {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int {
@@ -81,6 +83,7 @@ class Notification {
 
     public function setUser(User $user): self {
         $this->user = $user;
+
         return $this;
     }
 
@@ -90,6 +93,7 @@ class Notification {
 
     public function setType(string $type): self {
         $this->type = $type;
+
         return $this;
     }
 
@@ -99,6 +103,7 @@ class Notification {
 
     public function setTitle(string $title): self {
         $this->title = $title;
+
         return $this;
     }
 
@@ -108,6 +113,7 @@ class Notification {
 
     public function setMessage(?string $message): self {
         $this->message = $message;
+
         return $this;
     }
 
@@ -123,6 +129,7 @@ class Notification {
      */
     public function setData(?array $data): self {
         $this->data = $data;
+
         return $this;
     }
 
@@ -133,8 +140,9 @@ class Notification {
     public function setIsRead(bool $isRead): self {
         $this->isRead = $isRead;
         if ($isRead && $this->readAt === null) {
-            $this->readAt = new \DateTimeImmutable();
+            $this->readAt = new DateTimeImmutable();
         }
+
         return $this;
     }
 
@@ -142,11 +150,11 @@ class Notification {
         return $this->setIsRead(true);
     }
 
-    public function getCreatedAt(): \DateTimeImmutable {
+    public function getCreatedAt(): DateTimeImmutable {
         return $this->createdAt;
     }
 
-    public function getReadAt(): ?\DateTimeImmutable {
+    public function getReadAt(): ?DateTimeImmutable {
         return $this->readAt;
     }
 }

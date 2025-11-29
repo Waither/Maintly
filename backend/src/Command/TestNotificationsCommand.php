@@ -2,10 +2,8 @@
 
 namespace App\Command;
 
-use App\Entity\Notification;
 use App\Entity\Report;
 use App\Entity\User;
-use App\Message\EmailNotificationMessage;
 use App\Message\GenerateReportMessage;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,8 +18,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
     name: 'app:test-notifications',
     description: 'Test complete notification + email flow (creates Report entity, dispatches to queue, worker processes)',
 )]
-class TestNotificationsCommand extends Command
-{
+class TestNotificationsCommand extends Command {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly MessageBusInterface $messageBus,
@@ -31,17 +28,17 @@ class TestNotificationsCommand extends Command
         parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    protected function execute(InputInterface $input, OutputInterface $output): int {
         $io = new SymfonyStyle($input, $output);
 
         $io->title('Testing Notifications + Email Flow');
 
         // 1. Get test user
         $user = $this->userRepository->find(1); // admin@maintly.com
-        
+
         if (!$user) {
             $io->error('User with ID 1 not found. Please create a user first.');
+
             return Command::FAILURE;
         }
 

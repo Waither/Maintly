@@ -8,8 +8,7 @@ namespace App\Service\Report\Formatter;
  * Interface for report formatters.
  * Each implementation handles specific output format (PDF, Excel, CSV).
  */
-interface ReportFormatterInterface
-{
+interface ReportFormatterInterface {
     /**
      * Get format identifier (e.g., 'pdf', 'excel', 'csv').
      */

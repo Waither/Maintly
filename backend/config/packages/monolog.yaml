@@ -1,0 +1,100 @@
+monolog:
+    channels:
+        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - cqrs        # Commands and Queries (CQRS pattern)
+        - api         # HTTP API requests
+
+when@dev:
+    monolog:
+        handlers:
+            # Main application logs
+            main:
+                type: rotating_file
+                path: "%kernel.logs_dir%/app.log"
+                level: debug
+                max_files: 14
+                channels: ["!event", "!cqrs", "!api"]
+            
+            # CQRS - Commands and Queries
+            cqrs:
+                type: rotating_file
+                path: "%kernel.logs_dir%/cqrs.log"
+                level: debug
+                max_files: 30
+                channels: ["cqrs"]
+            
+            # API Requests
+            api:
+                type: rotating_file
+                path: "%kernel.logs_dir%/api.log"
+                level: info
+                max_files: 30
+                channels: ["api"]
+            
+            # Console output (dla symfony console commands)
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine", "!console"]
+
+when@test:
+    monolog:
+        handlers:
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!event"]
+            nested:
+                type: stream
+                path: "%kernel.logs_dir%/%kernel.environment%.log"
+                level: debug
+
+when@prod:
+    monolog:
+        handlers:
+            # Main errors only (fingers_crossed = tylko gdy wystąpi ERROR)
+            main:
+                type: fingers_crossed
+                action_level: error
+                handler: nested
+                excluded_http_codes: [404, 405]
+                channels: ["!deprecation", "!cqrs", "!api"]
+                buffer_size: 50
+            nested:
+                type: rotating_file
+                path: "%kernel.logs_dir%/app.log"
+                level: error
+                max_files: 90
+                formatter: monolog.formatter.json
+            
+            # CQRS - all commands/queries
+            cqrs:
+                type: rotating_file
+                path: "%kernel.logs_dir%/cqrs.log"
+                level: info
+                max_files: 365
+                channels: ["cqrs"]
+                formatter: monolog.formatter.json
+            
+            # API Requests - all HTTP calls
+            api:
+                type: rotating_file
+                path: "%kernel.logs_dir%/api.log"
+                level: info
+                max_files: 365
+                channels: ["api"]
+                formatter: monolog.formatter.json
+            
+            console:
+                type: console
+                process_psr_3_messages: false
+                channels: ["!event", "!doctrine"]
+            
+            deprecation:
+                type: rotating_file
+                channels: [deprecation]
+                path: "%kernel.logs_dir%/deprecation.log"
+                max_files: 7
+                formatter: monolog.formatter.json

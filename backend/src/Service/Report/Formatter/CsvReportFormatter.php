@@ -4,31 +4,29 @@ declare(strict_types=1);
 
 namespace App\Service\Report\Formatter;
 
+use DateTimeImmutable;
+use RuntimeException;
+
 /**
  * CSV report formatter using native PHP functions.
  */
-final class CsvReportFormatter implements ReportFormatterInterface
-{
-    public function getFormat(): string
-    {
+final class CsvReportFormatter implements ReportFormatterInterface {
+    public function getFormat(): string {
         return 'csv';
     }
 
-    public function getExtension(): string
-    {
+    public function getExtension(): string {
         return 'csv';
     }
 
     /**
      * @param array<string, mixed> $data
-     * @param string $outputPath
      * @param array<string, mixed> $options
      */
-    public function format(array $data, string $outputPath, array $options = []): void
-    {
+    public function format(array $data, string $outputPath, array $options = []): void {
         $handle = fopen($outputPath, 'w');
         if ($handle === false) {
-            throw new \RuntimeException("Could not open file for writing: {$outputPath}");
+            throw new RuntimeException("Could not open file for writing: {$outputPath}");
         }
 
         try {
@@ -37,11 +35,11 @@ final class CsvReportFormatter implements ReportFormatterInterface
 
             // Write title
             fputcsv($handle, [$data['title'] ?? 'Report']);
-            
+
             // Write generation date
-            $generatedAt = $options['generatedAt'] ?? new \DateTimeImmutable();
+            $generatedAt = $options['generatedAt'] ?? new DateTimeImmutable();
             fputcsv($handle, ['Generated: ' . $generatedAt->format('Y-m-d H:i:s')]);
-            
+
             // Empty line
             fputcsv($handle, []);
 
@@ -63,7 +61,7 @@ final class CsvReportFormatter implements ReportFormatterInterface
                 fputcsv($handle, []); // Empty line
                 fputcsv($handle, ['Summary']);
                 fputcsv($handle, ['Total Records', $summary['total'] ?? 0]);
-                
+
                 if (!empty($summary['filters'])) {
                     fputcsv($handle, []); // Empty line
                     fputcsv($handle, ['Applied Filters']);
@@ -72,8 +70,8 @@ final class CsvReportFormatter implements ReportFormatterInterface
                     }
                 }
             }
-
-        } finally {
+        }
+        finally {
             fclose($handle);
         }
     }
