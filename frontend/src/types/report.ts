@@ -34,16 +34,15 @@ export interface Report extends BaseEntity {
 }
 
 export interface ReportGenerateRequest {
-    name: string;
-    type: ReportType;
+    reportType: ReportType;
     format: ReportFormat;
-    parameters?: {
-        startDate?: string;
-        endDate?: string;
+    filters?: {
+        dateFrom?: string;
+        dateTo?: string;
+        status?: string;
         equipmentIds?: number[];
         userIds?: number[];
-        statusFilter?: string[];
-        [key: string]: any;
+        [key: string]: unknown;
     };
 }
 

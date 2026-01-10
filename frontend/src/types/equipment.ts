@@ -28,18 +28,30 @@ export interface EquipmentCustomValue {
 
 export interface EquipmentFile {
     id: number;
-    equipmentId: number;
+    equipmentId?: number;
     fileName: string;
-    originalName: string;
-    mimeType: string;
-    size: number;
-    uploadedAt: string;
+    originalName?: string;
+    mimeType?: string;
+    fileType?: string;
+    fileSize?: number;
+    size?: number;
+    uploadedAt?: string;
     uploadedBy?: User;
 }
 
 export interface Equipment extends BaseEntity {
     name: string;
-    code: string;
+    costCenter?: number;
+    qrCodeData?: string;
+    parentEquipmentId?: number;
+    parentEquipment?: Equipment;
+    directWorkTime?: number;
+    totalWorkTime?: number;
+    children?: Equipment[];
+    tags?: EquipmentTag[];
+    files?: EquipmentFile[];
+    // Legacy fields (may not be returned by backend)
+    code?: string;
     description?: string;
     location?: string;
     manufacturer?: string;
@@ -47,14 +59,11 @@ export interface Equipment extends BaseEntity {
     serialNumber?: string;
     purchaseDate?: string;
     warrantyExpiration?: string;
-    status: 'active' | 'inactive' | 'maintenance' | 'retired';
+    status?: 'active' | 'inactive' | 'maintenance' | 'retired';
     category?: string;
     parentId?: number;
     parent?: Equipment;
-    children?: Equipment[];
-    tags?: EquipmentTag[];
     customValues?: EquipmentCustomValue[];
-    files?: EquipmentFile[];
     maintenanceHistory?: MaintenanceRecord[];
     qrCode?: string;
     image?: string;
@@ -74,7 +83,10 @@ export interface MaintenanceRecord {
 
 export interface EquipmentFormData {
     name: string;
-    code: string;
+    costCenter?: number;
+    parentEquipmentId?: number | null;
+    // Legacy optional fields
+    code?: string;
     description?: string;
     location?: string;
     manufacturer?: string;
@@ -82,7 +94,7 @@ export interface EquipmentFormData {
     serialNumber?: string;
     purchaseDate?: string;
     warrantyExpiration?: string;
-    status: 'active' | 'inactive' | 'maintenance' | 'retired';
+    status?: 'active' | 'inactive' | 'maintenance' | 'retired';
     category?: string;
     parentId?: number;
     tagIds?: number[];

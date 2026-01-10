@@ -1,12 +1,7 @@
 // ============================================
-// Maintly CMMS - Główne style SCSS
+// Maintly CMMS - Main SCSS Styles
 // ============================================
 
-// 1. Najpierw: Twoje zmienne (nadpisują domyślne MDB)
 @forward './variables';
-
-// 2. MDBootstrap Pro CSS będzie importowany przez React components
-// (z lokalnego pakietu mdb-react-ui-kit)
-
-// 3. Twoje custom style
 @forward './custom';
+@forward './loading';

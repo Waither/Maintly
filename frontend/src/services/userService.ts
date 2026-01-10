@@ -18,7 +18,21 @@ export const getUsers = async (
 ): Promise<PaginatedResponse<User>> => {
     const params = { page, limit, search };
     const response = await apiClient.get(BASE_URL, { params });
-    return response.data;
+    
+    // Handle nested API response: { status, code, data: { users: [...], pagination } }
+    const apiData = response.data?.data || response.data;
+    const users = apiData?.users || apiData?.data || [];
+    const pagination = apiData?.pagination || { page, limit, total: users.length, totalPages: 1 };
+    
+    return {
+        data: Array.isArray(users) ? users : [],
+        pagination: {
+            page: pagination.currentPage || pagination.page || page,
+            limit: pagination.itemsPerPage || pagination.limit || limit,
+            total: pagination.totalItems || pagination.total || 0,
+            totalPages: pagination.totalPages || 1,
+        }
+    };
 };
 
 /**
@@ -90,6 +104,11 @@ export const toggleUserStatus = async (id: number): Promise<User> => {
     return response.data.data || response.data;
 };
 
+/**
+ * Toggle user active status (alias)
+ */
+export const toggleActive = toggleUserStatus;
+
 export default {
     getUsers,
     getUser,
@@ -100,4 +119,5 @@ export default {
     getRoles,
     changePassword,
     toggleUserStatus,
+    toggleActive,
 };

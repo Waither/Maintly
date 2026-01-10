@@ -18,7 +18,28 @@ export const getReports = async (
 ): Promise<PaginatedResponse<Report>> => {
     const params = { page, limit, ...filters };
     const response = await apiClient.get(BASE_URL, { params });
-    return response.data;
+    
+    // Backend may return various formats
+    const raw = response.data;
+    const apiData = raw?.data ?? raw;
+
+    const reports =
+        Array.isArray(apiData) ? apiData :
+        Array.isArray(apiData?.reports) ? apiData.reports :
+        Array.isArray(apiData?.data) ? apiData.data :
+        [];
+
+    const pagination = apiData?.pagination || { page, limit, total: reports.length, totalPages: 1 };
+    
+    return {
+        data: Array.isArray(reports) ? reports : [],
+        pagination: {
+            page: pagination.currentPage || pagination.page || page,
+            limit: pagination.itemsPerPage || pagination.limit || limit,
+            total: pagination.totalItems || pagination.total || 0,
+            totalPages: pagination.totalPages || 1,
+        }
+    };
 };
 
 /**
@@ -77,12 +98,11 @@ export const deleteReport = async (id: number): Promise<void> => {
  * Get available report types
  */
 export const getReportTypes = async (): Promise<Array<{ value: string; label: string }>> => {
-    // Static for now, could be fetched from API
+    // Backend supports: maintenance, equipment, users
     return [
         { value: 'maintenance', label: 'Raport konserwacji' },
         { value: 'equipment', label: 'Raport sprzętu' },
         { value: 'users', label: 'Raport użytkowników' },
-        { value: 'work_orders', label: 'Raport zleceń' },
     ];
 };
 

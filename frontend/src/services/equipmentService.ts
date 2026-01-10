@@ -24,7 +24,32 @@ export const getEquipmentList = async (
 ): Promise<PaginatedResponse<Equipment>> => {
     const params = { page, limit, ...filters };
     const response = await apiClient.get(BASE_URL, { params });
-    return response.data;
+    
+    // Backend may return:
+    // - Equipment[]
+    // - { status: 'success', data: Equipment[] }
+    // - { data: { equipment: Equipment[], pagination?: ... } }
+    // - { data: Equipment[], pagination?: ... }
+    const raw = response.data;
+    const apiData = raw?.data ?? raw;
+
+    const equipment =
+        Array.isArray(apiData) ? apiData :
+        Array.isArray(apiData?.equipment) ? apiData.equipment :
+        Array.isArray(apiData?.data) ? apiData.data :
+        [];
+
+    const pagination = apiData?.pagination || { page, limit, total: equipment.length, totalPages: 1 };
+    
+    return {
+        data: Array.isArray(equipment) ? equipment : [],
+        pagination: {
+            page: pagination.currentPage || pagination.page || page,
+            limit: pagination.itemsPerPage || pagination.limit || limit,
+            total: pagination.totalItems || pagination.total || 0,
+            totalPages: pagination.totalPages || 1,
+        }
+    };
 };
 
 /**

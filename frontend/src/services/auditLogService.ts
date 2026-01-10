@@ -18,7 +18,29 @@ export const getAuditLogs = async (
 ): Promise<PaginatedResponse<AuditLog>> => {
     const params = { page, limit, ...filters };
     const response = await apiClient.get(BASE_URL, { params });
-    return response.data;
+    
+    // Backend may return various formats
+    const raw = response.data;
+    const apiData = raw?.data ?? raw;
+
+    const logs =
+        Array.isArray(apiData) ? apiData :
+        Array.isArray(apiData?.auditLogs) ? apiData.auditLogs :
+        Array.isArray(apiData?.logs) ? apiData.logs :
+        Array.isArray(apiData?.data) ? apiData.data :
+        [];
+
+    const pagination = apiData?.pagination || { page, limit, total: logs.length, totalPages: 1 };
+    
+    return {
+        data: Array.isArray(logs) ? logs : [],
+        pagination: {
+            page: pagination.currentPage || pagination.page || page,
+            limit: pagination.itemsPerPage || pagination.limit || limit,
+            total: pagination.totalItems || pagination.total || 0,
+            totalPages: pagination.totalPages || 1,
+        }
+    };
 };
 
 /**

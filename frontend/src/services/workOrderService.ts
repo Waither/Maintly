@@ -25,7 +25,32 @@ export const getWorkOrders = async (
 ): Promise<PaginatedResponse<WorkOrder>> => {
     const params = { page, limit, ...filters };
     const response = await apiClient.get(BASE_URL, { params });
-    return response.data;
+    const raw = response.data;
+
+    // Backend may return:
+    // - WorkOrder[]
+    // - { status: 'success', data: WorkOrder[] }
+    // - { data: WorkOrder[], pagination?: ... }
+    // - { data: { data: WorkOrder[] } }
+    const dataCandidate =
+        Array.isArray(raw) ? raw :
+        Array.isArray(raw?.data) ? raw.data :
+        Array.isArray(raw?.data?.data) ? raw.data.data :
+        Array.isArray(raw?.workOrders) ? raw.workOrders :
+        Array.isArray(raw?.data?.workOrders) ? raw.data.workOrders :
+        [];
+
+    const total = dataCandidate.length;
+
+    return {
+        data: dataCandidate,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1,
+        },
+    };
 };
 
 /**
