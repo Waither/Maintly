@@ -106,9 +106,42 @@ export const WorkOrderStatusBadge = ({ status, ...props }: Omit<StatusBadgeProps
     <StatusBadge status={status} {...props} />
 );
 
-export const PriorityBadge = ({ priority, ...props }: Omit<StatusBadgeProps, 'status'> & { priority: string }) => (
-    <StatusBadge status={priority} {...props} />
-);
+interface PriorityBadgeProps extends Omit<StatusBadgeProps, 'status'> {
+    priority: string;
+}
+
+export const PriorityBadge = ({ priority, ...props }: PriorityBadgeProps) => {
+    const { t } = useTranslation();
+    
+    const priorityColorMap: Record<string, BadgeColor> = {
+        low: 'success',
+        medium: 'info',
+        high: 'warning',
+        critical: 'danger',
+    };
+    
+    const priorityTranslations: Record<string, string> = {
+        low: 'Niski',
+        medium: 'Średni',
+        high: 'Wysoki',
+        critical: 'Krytyczny',
+    };
+    
+    const badgeColor = props.color || priorityColorMap[priority.toLowerCase()] || 'secondary';
+    const displayText = t(`priority.${priority}`, { defaultValue: priorityTranslations[priority.toLowerCase()] || priority });
+    
+    const sizeClass = (props.size || 'md') === 'sm' ? 'fs-7' : (props.size || 'md') === 'lg' ? 'fs-6' : '';
+
+    return (
+        <MDBBadge 
+            color={badgeColor} 
+            pill={props.pill !== false}
+            className={`${sizeClass} ${props.className || ''}`.trim()}
+        >
+            {displayText}
+        </MDBBadge>
+    );
+};
 
 export const EquipmentStatusBadge = ({ status, ...props }: Omit<StatusBadgeProps, 'status'> & { status: string }) => (
     <StatusBadge status={status} {...props} />

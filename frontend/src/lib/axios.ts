@@ -14,7 +14,7 @@ const TOKEN_KEY = 'auth_token';
 // Create axios instance with default configuration
 export const apiClient = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 10000, // 10 seconds timeout
+    timeout: 30000, // 30 seconds timeout (PHP-FPM can be slow under load)
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

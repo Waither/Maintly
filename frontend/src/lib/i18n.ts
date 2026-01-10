@@ -8,7 +8,7 @@ import HttpBackend from 'i18next-http-backend';
 
 // Cache settings
 const CACHE_KEY = 'i18next_cache';
-const CACHE_VERSION = 1;
+const CACHE_VERSION = 3;
 const CACHE_EXPIRATION = 24 * 60 * 60 * 1000; // 24h
 
 const getCachedTranslations = (lng: string) => {

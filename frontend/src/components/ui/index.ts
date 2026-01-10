@@ -10,4 +10,6 @@ export { StatCard, StatCardCompact } from './StatCard';
 export { ConfirmModal, DeleteConfirmModal } from './ConfirmModal';
 export { PageHeader } from './PageHeader';
 export { DataTable, Pagination, TableActions } from './DataTable';
+export { MDBDataTable } from './MDBDataTable';
+export type { DataTableColumn, NoFoundConfig, LoadingConfig, MDBDataTableProps } from './MDBDataTable';
 export { ToastProvider, useToast } from './Toast';
