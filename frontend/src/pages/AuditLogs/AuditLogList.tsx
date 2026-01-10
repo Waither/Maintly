@@ -275,8 +275,8 @@ export const AuditLogList = () => {
             />
 
             {/* Quick Stats */}
-            <MDBRow className="mb-4 g-3">
-                <MDBCol md="3">
+            <MDBRow className="mb-4 g-3 stats-row">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -289,7 +289,7 @@ export const AuditLogList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-success bg-opacity-10 p-3 me-3">
@@ -302,7 +302,7 @@ export const AuditLogList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
@@ -315,7 +315,7 @@ export const AuditLogList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-info bg-opacity-10 p-3 me-3">
@@ -331,10 +331,10 @@ export const AuditLogList = () => {
             </MDBRow>
 
             {/* Filters */}
-            <MDBCard className="mb-4 shadow-sm border-0">
+            <MDBCard className="mb-4 shadow-sm border-0 filter-section">
                 <MDBCardBody>
                     <MDBRow className="g-3 align-items-end">
-                        <MDBCol md="3">
+                        <MDBCol lg="3" md="6" sm="12">
                             <label className="form-label small text-muted">
                                 {t('auditLog.filterByAction', { defaultValue: 'Filter by action' })}
                             </label>
@@ -350,7 +350,7 @@ export const AuditLogList = () => {
                                 searchLabel={t('common.search', { defaultValue: 'Search...' })}
                             />
                         </MDBCol>
-                        <MDBCol md="3">
+                        <MDBCol lg="3" md="6" sm="12">
                             <label className="form-label small text-muted">
                                 {t('auditLog.filterByEntity', { defaultValue: 'Filter by entity' })}
                             </label>
@@ -364,7 +364,7 @@ export const AuditLogList = () => {
                                 }}
                             />
                         </MDBCol>
-                        <MDBCol md="2">
+                        <MDBCol lg="2" md="4" sm="6">
                             <MDBInput
                                 type="date"
                                 label={t('auditLog.startDate', { defaultValue: 'Start date' })}
@@ -372,7 +372,7 @@ export const AuditLogList = () => {
                                 onChange={(e) => setStartDate(e.target.value)}
                             />
                         </MDBCol>
-                        <MDBCol md="2">
+                        <MDBCol lg="2" md="4" sm="6">
                             <MDBInput
                                 type="date"
                                 label={t('auditLog.endDate', { defaultValue: 'End date' })}
@@ -380,7 +380,7 @@ export const AuditLogList = () => {
                                 onChange={(e) => setEndDate(e.target.value)}
                             />
                         </MDBCol>
-                        <MDBCol md="2">
+                        <MDBCol lg="2" md="4" sm="12">
                             <MDBBtn 
                                 type="button" 
                                 color="light"
@@ -398,7 +398,7 @@ export const AuditLogList = () => {
 
             {/* DataTable */}
             <MDBCard className="shadow-sm border-0">
-                <MDBCardBody className="p-0">
+                <MDBCardBody className="p-0 table-responsive">
                     <MDBDataTable
                         columns={datatableColumns}
                         rows={datatableRows}

@@ -309,8 +309,8 @@ export const WorkOrderList = () => {
             />
 
             {/* Quick Stats */}
-            <MDBRow className="mb-4 g-3">
-                <MDBCol md="3">
+            <MDBRow className="mb-4 g-3 stats-row">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -323,7 +323,7 @@ export const WorkOrderList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
@@ -338,7 +338,7 @@ export const WorkOrderList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
@@ -353,7 +353,7 @@ export const WorkOrderList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
@@ -375,10 +375,10 @@ export const WorkOrderList = () => {
             </MDBRow>
 
             {/* Filters with MDBSelect */}
-            <MDBCard className="mb-4 shadow-sm border-0">
+            <MDBCard className="mb-4 shadow-sm border-0 filter-section">
                 <MDBCardBody>
                     <MDBRow className="g-3 align-items-end">
-                        <MDBCol md="4">
+                        <MDBCol lg="4" md="6" sm="12">
                             <label className="form-label small text-muted">
                                 {t('workOrder.filterByStatus', { defaultValue: 'Filtruj wg statusu' })}
                             </label>
@@ -390,7 +390,7 @@ export const WorkOrderList = () => {
                                 searchLabel={t('common.search', { defaultValue: 'Szukaj...' })}
                             />
                         </MDBCol>
-                        <MDBCol md="4">
+                        <MDBCol lg="4" md="6" sm="12">
                             <label className="form-label small text-muted">
                                 {t('workOrder.filterByPriority', { defaultValue: 'Filtruj wg priorytetu' })}
                             </label>
@@ -402,12 +402,13 @@ export const WorkOrderList = () => {
                                 searchLabel={t('common.search', { defaultValue: 'Search...' })}
                             />
                         </MDBCol>
-                        <MDBCol md="4">
+                        <MDBCol lg="4" md="12" sm="12">
                             <MDBBtn 
                                 type="button" 
                                 color="light"
                                 onClick={clearFilters}
                                 disabled={!statusFilter && !priorityFilter}
+                                className="w-100 w-lg-auto"
                             >
                                 <MDBIcon icon="times" className="me-2" />
                                 {t('common.clearFilters', { defaultValue: 'Clear filters' })}
@@ -419,7 +420,7 @@ export const WorkOrderList = () => {
 
             {/* MDB DataTable Component */}
             <MDBCard className="shadow-sm border-0">
-                <MDBCardBody className="p-0">
+                <MDBCardBody className="p-0 table-responsive">
                     <MDBDataTable
                         columns={datatableColumns}
                         rows={datatableRows}

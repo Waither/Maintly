@@ -343,8 +343,8 @@ export const ReportList = () => {
             />
 
             {/* Quick Stats */}
-            <MDBRow className="mb-4 g-3">
-                <MDBCol md="3">
+            <MDBRow className="mb-4 g-3 stats-row">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -357,7 +357,7 @@ export const ReportList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-success bg-opacity-10 p-3 me-3">
@@ -370,7 +370,7 @@ export const ReportList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
@@ -383,7 +383,7 @@ export const ReportList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
@@ -400,7 +400,7 @@ export const ReportList = () => {
 
             {/* DataTable */}
             <MDBCard className="shadow-sm border-0">
-                <MDBCardBody className="p-0">
+                <MDBCardBody className="p-0 table-responsive">
                     <MDBDataTable
                         columns={datatableColumns}
                         rows={datatableRows}

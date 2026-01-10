@@ -1,6 +1,7 @@
 /**
  * Sidebar Component
  * Main navigation sidebar with menu items
+ * Responsive - overlay on mobile, fixed on desktop
  */
 
 import { NavLink, useLocation } from 'react-router-dom';
@@ -17,9 +18,12 @@ interface MenuItem {
 interface SidebarProps {
     isCollapsed: boolean;
     onToggle: () => void;
+    isMobile?: boolean;
+    isOpen?: boolean;
+    onClose?: () => void;
 }
 
-export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
+export const Sidebar = ({ isCollapsed, onToggle, isMobile = false, isOpen = false, onClose }: SidebarProps) => {
     const { t } = useTranslation();
     const location = useLocation();
 
@@ -65,33 +69,66 @@ export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
         return location.pathname.startsWith(path);
     };
 
-    return (
-        <aside 
-            className={`sidebar bg-dark text-white d-flex flex-column ${isCollapsed ? 'collapsed' : ''}`}
-            style={{
-                width: isCollapsed ? '70px' : '250px',
+    const handleNavClick = () => {
+        // Close sidebar on mobile after navigation
+        if (isMobile && onClose) {
+            onClose();
+        }
+    };
+
+    // Determine visibility and width
+    const getSidebarStyle = (): React.CSSProperties => {
+        if (isMobile) {
+            return {
+                width: '280px',
                 minHeight: '100vh',
                 position: 'fixed',
                 top: 0,
-                left: 0,
+                left: isOpen ? 0 : '-300px',
                 zIndex: 1000,
-                transition: 'width 0.3s ease',
-            }}
+                transition: 'left 0.3s ease',
+                boxShadow: isOpen ? '2px 0 10px rgba(0,0,0,0.3)' : 'none',
+            };
+        }
+        return {
+            width: isCollapsed ? '70px' : '250px',
+            minHeight: '100vh',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            zIndex: 1000,
+            transition: 'width 0.3s ease',
+        };
+    };
+
+    return (
+        <aside 
+            className={`sidebar bg-dark text-white d-flex flex-column ${isCollapsed && !isMobile ? 'collapsed' : ''}`}
+            style={getSidebarStyle()}
         >
             {/* Logo / Brand */}
             <div 
                 className="d-flex align-items-center justify-content-between p-3 border-bottom border-secondary"
                 style={{ height: '60px' }}
             >
-                {!isCollapsed && (
+                {(!isCollapsed || isMobile) && (
                     <h4 className="mb-0 text-primary fw-bold">
                         <MDBIcon icon="tools" className="me-2" />
                         Maintly
                     </h4>
                 )}
-                <div className='p-2' onClick={onToggle} title={isCollapsed ? 'Rozwiń' : 'Zwiń'}>
-                    <MDBIcon icon={isCollapsed ? 'chevron-right' : 'chevron-left'} />
-                </div>
+                {/* Desktop toggle button */}
+                {!isMobile && (
+                    <div className='p-2' onClick={onToggle} style={{ cursor: 'pointer' }} title={isCollapsed ? 'Rozwiń' : 'Zwiń'}>
+                        <MDBIcon icon={isCollapsed ? 'chevron-right' : 'chevron-left'} />
+                    </div>
+                )}
+                {/* Mobile close button */}
+                {isMobile && (
+                    <div className='p-2' onClick={onClose} style={{ cursor: 'pointer' }}>
+                        <MDBIcon icon="times" size="lg" />
+                    </div>
+                )}
             </div>
 
             {/* Navigation Menu */}
@@ -101,6 +138,7 @@ export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                         <li key={item.path} className="nav-item">
                             <NavLink
                                 to={item.path}
+                                onClick={handleNavClick}
                                 className={`nav-link d-flex align-items-center gap-3 px-3 py-2 mx-2 rounded ${
                                     isActive(item.path) 
                                         ? 'bg-primary text-white' 
@@ -109,14 +147,14 @@ export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
                                 style={{
                                     transition: 'all 0.2s ease',
                                 }}
-                                title={isCollapsed ? item.label : undefined}
+                                title={isCollapsed && !isMobile ? item.label : undefined}
                             >
                                 <MDBIcon 
                                     icon={item.icon} 
                                     className="fa-fw"
                                     style={{ fontSize: '1.1rem' }}
                                 />
-                                {!isCollapsed && (
+                                {(!isCollapsed || isMobile) && (
                                     <span>{item.label}</span>
                                 )}
                             </NavLink>
@@ -126,7 +164,7 @@ export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
             </nav>
 
             {/* Footer */}
-            {!isCollapsed && (
+            {(!isCollapsed || isMobile) && (
                 <div className="p-3 border-top border-secondary text-center">
                     <small className="text-white-50">
                         &copy; {new Date().getFullYear()} Maintly

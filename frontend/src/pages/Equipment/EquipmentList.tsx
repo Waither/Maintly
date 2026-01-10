@@ -235,8 +235,8 @@ export const EquipmentList = () => {
             />
 
             {/* Quick Stats */}
-            <MDBRow className="mb-4 g-3">
-                <MDBCol md="3">
+            <MDBRow className="mb-4 g-3 stats-row">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
@@ -249,7 +249,7 @@ export const EquipmentList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-info bg-opacity-10 p-3 me-3">
@@ -262,7 +262,7 @@ export const EquipmentList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-success bg-opacity-10 p-3 me-3">
@@ -275,7 +275,7 @@ export const EquipmentList = () => {
                         </MDBCardBody>
                     </MDBCard>
                 </MDBCol>
-                <MDBCol md="3">
+                <MDBCol md="3" sm="6" className="stat-card">
                     <MDBCard className="border-0 shadow-sm h-100">
                         <MDBCardBody className="d-flex align-items-center">
                             <div className="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
@@ -291,22 +291,23 @@ export const EquipmentList = () => {
             </MDBRow>
 
             {/* Search Filter */}
-            <MDBCard className="mb-4 shadow-sm border-0">
+            <MDBCard className="mb-4 shadow-sm border-0 filter-section">
                 <MDBCardBody>
                     <MDBRow className="g-3 align-items-end">
-                        <MDBCol md="6">
+                        <MDBCol lg="6" md="8" sm="12">
                             <MDBInput
                                 label={t('common.search', { defaultValue: 'Search...' })}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </MDBCol>
-                        <MDBCol md="6">
+                        <MDBCol lg="6" md="4" sm="12">
                             {searchTerm && (
                                 <MDBBtn 
                                     type="button" 
                                     color="light"
                                     onClick={() => setSearchTerm('')}
+                                    className="w-100 w-lg-auto"
                                 >
                                     <MDBIcon icon="times" className="me-2" />
                                     {t('common.clearFilters', { defaultValue: 'Clear' })}
@@ -319,7 +320,7 @@ export const EquipmentList = () => {
 
             {/* DataTable */}
             <MDBCard className="shadow-sm border-0">
-                <MDBCardBody className="p-0">
+                <MDBCardBody className="p-0 table-responsive">
                     <MDBDataTable
                         columns={datatableColumns}
                         rows={datatableRows}
