@@ -6,6 +6,14 @@ import path from 'path';
 export default defineConfig({
     plugins: [react()],
     
+    resolve: {
+        alias: {
+            // Force single React instance (fixes "Invalid hook call" with mdb-react-ui-kit)
+            'react': path.resolve(__dirname, './node_modules/react'),
+            'react-dom': path.resolve(__dirname, './node_modules/react-dom')
+        }
+    },
+    
     server: {
         host: '0.0.0.0',  // ⚠️ WAŻNE: pozwala dostęp z zewnątrz kontenera
         port: 3000,  // Jeden port dla HTTP i HTTPS
