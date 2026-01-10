@@ -22,6 +22,7 @@ WORKDIR /var/www/html
 
 # Copy PHP config
 COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/www.conf /usr/local/etc/php-fpm.d/www.conf
 
 USER www-data
 
