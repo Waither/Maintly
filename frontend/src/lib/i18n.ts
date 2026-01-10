@@ -107,10 +107,7 @@ i18n
 // Save language to localStorage on change
 i18n.on('languageChanged', (lng) => {
     localStorage.setItem('locale', lng);
-});
-
-i18n.on('loaded', (loaded) => {
-    console.log('✅ Translations loaded:', Object.keys(loaded));
+    console.log(`✅ Language changed to: ${lng.toUpperCase()}`);
 });
 
 i18n.on('failedLoading', (lng, ns, msg) => {
