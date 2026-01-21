@@ -1,19 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DataFixtures;
 
 use App\Entity\Translation;
 use App\Repository\TranslationRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class TranslationFixtures extends Fixture implements FixtureGroupInterface {
+class TranslationFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
+{
     public function __construct(
         private TranslationRepository $translationRepository
     ) {}
-    public static function getGroups(): array {
-        return ['translation'];
+
+    public static function getGroups(): array
+    {
+        return ['translation', 'default'];
+    }
+
+    public function getDependencies(): array
+    {
+        return [
+            MasterFixtures::class,
+        ];
     }
 
     public function load(ObjectManager $manager): void {
