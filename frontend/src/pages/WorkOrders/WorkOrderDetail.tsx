@@ -22,7 +22,6 @@ import {
     PageHeader, 
     StatusBadge, 
     PriorityBadge,
-    LoadingSpinner,
     ErrorState,
     DeleteConfirmModal,
     useToast
@@ -312,7 +311,7 @@ export const WorkOrderDetail = () => {
                     </MDBCard>
 
                     {/* Assigned Users */}
-                    <MDBCard className="shadow-sm border-0">
+                    <MDBCard className="shadow-sm border-0 mb-4">
                         <MDBCardHeader className="bg-white border-bottom py-3">
                             <h6 className="mb-0 fw-bold">
                                 <MDBIcon icon="users" className="me-2 text-info" />
@@ -323,7 +322,7 @@ export const WorkOrderDetail = () => {
                             {workOrder.assignedUsers && workOrder.assignedUsers.length > 0 ? (
                                 <div className="d-flex flex-column gap-2">
                                     {workOrder.assignedUsers.map((assignment) => (
-                                        <div key={assignment.id} className="d-flex align-items-center gap-2">
+                                        <div key={assignment.userId} className="d-flex align-items-center gap-2">
                                             <div 
                                                 className="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
                                                 style={{ width: '32px', height: '32px', fontSize: '12px' }}
@@ -338,6 +337,70 @@ export const WorkOrderDetail = () => {
                                 <p className="text-muted mb-0">
                                     {t('workOrder.noAssignedUsers', { defaultValue: 'Brak przypisanych użytkowników' })}
                                 </p>
+                            )}
+                        </MDBCardBody>
+                    </MDBCard>
+
+                    {/* Tags */}
+                    <MDBCard className="shadow-sm border-0 mb-4">
+                        <MDBCardHeader className="bg-white border-bottom py-3">
+                            <h6 className="mb-0 fw-bold">
+                                <MDBIcon icon="tags" className="me-2 text-primary" />
+                                {t('workOrder.tags', { defaultValue: 'Tagi' })}
+                            </h6>
+                        </MDBCardHeader>
+                        <MDBCardBody>
+                            {workOrder.tags && workOrder.tags.length > 0 ? (
+                                <div className="d-flex flex-wrap gap-2">
+                                    {workOrder.tags.map((tagAssignment) => (
+                                        <MDBBadge 
+                                            key={tagAssignment.tagId} 
+                                            style={{ 
+                                                backgroundColor: tagAssignment.tag?.color || '#6c757d',
+                                                fontSize: '0.85rem',
+                                                padding: '0.5rem 0.75rem'
+                                            }}
+                                        >
+                                            {tagAssignment.tag?.name}
+                                        </MDBBadge>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-muted mb-0">
+                                    {t('workOrder.noTags', { defaultValue: 'Brak tagów' })}
+                                </p>
+                            )}
+                        </MDBCardBody>
+                    </MDBCard>
+
+                    {/* Planned Dates */}
+                    <MDBCard className="shadow-sm border-0">
+                        <MDBCardHeader className="bg-white border-bottom py-3">
+                            <h6 className="mb-0 fw-bold">
+                                <MDBIcon icon="clock" className="me-2 text-secondary" />
+                                {t('workOrder.plannedDates', { defaultValue: 'Planowane terminy' })}
+                            </h6>
+                        </MDBCardHeader>
+                        <MDBCardBody>
+                            <div className="mb-3">
+                                <small className="text-muted d-block">{t('workOrder.plannedStartDate', { defaultValue: 'Planowany start' })}</small>
+                                <span>{formatDate(workOrder.plannedStartDate) || '-'}</span>
+                            </div>
+                            <div className="mb-3">
+                                <small className="text-muted d-block">{t('workOrder.plannedEndDate', { defaultValue: 'Planowany koniec' })}</small>
+                                <span>{formatDate(workOrder.plannedEndDate) || '-'}</span>
+                            </div>
+                            {workOrder.actualStartDate && (
+                                <div className="mb-3">
+                                    <small className="text-muted d-block">{t('workOrder.actualStartDate', { defaultValue: 'Faktyczny start' })}</small>
+                                    <span className="text-success">{formatDate(workOrder.actualStartDate)}</span>
+                                </div>
+                            )}
+                            {workOrder.actualEndDate && (
+                                <div>
+                                    <small className="text-muted d-block">{t('workOrder.actualEndDate', { defaultValue: 'Faktyczny koniec' })}</small>
+                                    <span className="text-success">{formatDate(workOrder.actualEndDate)}</span>
+                                </div>
                             )}
                         </MDBCardBody>
                     </MDBCard>

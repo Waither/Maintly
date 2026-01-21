@@ -65,10 +65,16 @@ export interface WorkOrderFile {
     uploadedBy?: User;
 }
 
-export interface WorkOrderTag {
+export interface Tag {
     id: number;
     name: string;
-    color: string;
+    color: string | null;
+}
+
+export interface WorkOrderTag {
+    tagId: number;
+    tag: Tag;
+    assignedAt: string;
 }
 
 export interface WorkOrder extends BaseEntity {
@@ -80,6 +86,10 @@ export interface WorkOrder extends BaseEntity {
     equipmentId?: number;
     createdBy: User;
     assignedUsers: WorkOrderAssignment[];
+    plannedStartDate?: string;
+    plannedEndDate?: string;
+    actualStartDate?: string;
+    actualEndDate?: string;
     dueDate?: string;
     completedAt?: string;
     estimatedHours?: number;
@@ -96,6 +106,8 @@ export interface WorkOrderFormData {
     priorityId: number;
     equipmentId?: number;
     assignedUserIds: number[];
+    plannedStartDate?: string;
+    plannedEndDate?: string;
     dueDate?: string;
     estimatedHours?: number;
     tagIds?: number[];

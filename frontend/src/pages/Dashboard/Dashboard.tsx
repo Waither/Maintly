@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MDBRow, MDBCol, MDBCard, MDBCardBody, MDBCardHeader, MDBIcon, MDBBtn } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
-import { PageHeader, StatCard, LoadingSpinner, StatusBadge, PriorityBadge, ErrorState } from '../../components/ui';
+import { PageHeader, StatCard, StatusBadge, PriorityBadge, ErrorState } from '../../components/ui';
 import { dashboardService, workOrderService } from '../../services';
 import { WorkOrder } from '../../types';
 

@@ -34,6 +34,7 @@ interface FormData {
     plannedStartDate: string;
     plannedEndDate: string;
     assignedUserIds: number[];
+    tagIds: number[];
 }
 
 const initialFormData: FormData = {
@@ -45,6 +46,7 @@ const initialFormData: FormData = {
     plannedStartDate: '',
     plannedEndDate: '',
     assignedUserIds: [],
+    tagIds: [],
 };
 
 export const WorkOrderForm = () => {
@@ -65,16 +67,18 @@ export const WorkOrderForm = () => {
     const [priorities, setPriorities] = useState<WorkOrderPriority[]>([]);
     const [equipment, setEquipment] = useState<Equipment[]>([]);
     const [users, setUsers] = useState<User[]>([]);
+    const [tags, setTags] = useState<{ id: number; name: string; color: string | null }[]>([]);
 
     // Load reference data
     useEffect(() => {
         const loadReferenceData = async () => {
             try {
-                const [statusesData, prioritiesData, equipmentResponse, usersResponse] = await Promise.all([
+                const [statusesData, prioritiesData, equipmentResponse, usersResponse, tagsData] = await Promise.all([
                     workOrderService.getWorkOrderStatuses(),
                     workOrderService.getWorkOrderPriorities(),
                     equipmentService.getEquipmentList(1, 100),
                     userService.getUsers(1, 100),
+                    workOrderService.getTags(),
                 ]);
                 
                 // Services now return normalized PaginatedResponse<T> with data array
@@ -82,6 +86,7 @@ export const WorkOrderForm = () => {
                 setPriorities(Array.isArray(prioritiesData) ? prioritiesData : []);
                 setEquipment(equipmentResponse.data || []);
                 setUsers(usersResponse.data || []);
+                setTags(Array.isArray(tagsData) ? tagsData : []);
 
                 // Set default values for new work order
                 if (!isEdit && statusesData.length > 0 && prioritiesData.length > 0) {
@@ -102,6 +107,28 @@ export const WorkOrderForm = () => {
         loadReferenceData();
     }, [isEdit, t, error]);
 
+    /**
+     * Convert ISO date to Polish display format (dd.mm.yyyy, HH:MM)
+     */
+    const formatDateToPolish = (isoDate: string | null | undefined): string => {
+        if (!isoDate) return '';
+        
+        try {
+            const date = new Date(isoDate);
+            if (isNaN(date.getTime())) return '';
+            
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${day}.${month}.${year}, ${hours}:${minutes}`;
+        } catch {
+            return '';
+        }
+    };
+
     // Load existing work order for edit
     useEffect(() => {
         if (!isEdit || !id) return;
@@ -115,9 +142,10 @@ export const WorkOrderForm = () => {
                     statusId: workOrder.status?.id || '',
                     priorityId: workOrder.priority?.id || '',
                     equipmentId: workOrder.equipment?.id || '',
-                    plannedStartDate: workOrder.dueDate ? workOrder.dueDate.split('T')[0] : '',
-                    plannedEndDate: '',
+                    plannedStartDate: formatDateToPolish(workOrder.plannedStartDate),
+                    plannedEndDate: formatDateToPolish(workOrder.plannedEndDate),
                     assignedUserIds: workOrder.assignedUsers?.map(a => a.userId) || [],
+                    tagIds: workOrder.tags?.map(t => t.tagId) || [],
                 });
             } catch (err) {
                 console.error('Failed to load work order:', err);
@@ -162,6 +190,36 @@ export const WorkOrderForm = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    /**
+     * Parse Polish date format (dd.mm.yyyy, HH:MM) to ISO format for backend
+     */
+    const parsePolishDateToISO = (dateStr: string): string | undefined => {
+        if (!dateStr || dateStr.trim() === '') return undefined;
+        
+        // Format from MDBDateTimepicker: "dd.mm.yyyy, HH:MM"
+        const match = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4}),?\s*(\d{2}):(\d{2})$/);
+        if (match) {
+            const [, day, month, year, hours, minutes] = match;
+            return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+        }
+        
+        // Try parsing date only format: "dd.mm.yyyy"
+        const dateOnlyMatch = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+        if (dateOnlyMatch) {
+            const [, day, month, year] = dateOnlyMatch;
+            return `${year}-${month}-${day}T00:00:00`;
+        }
+        
+        // Try ISO format already (from backend)
+        if (dateStr.includes('T') || dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
+            return dateStr;
+        }
+        
+        // Unknown format - log and return undefined
+        console.warn('Unknown date format:', dateStr);
+        return undefined;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -175,22 +233,28 @@ export const WorkOrderForm = () => {
                 statusId: formData.statusId as number,
                 priorityId: formData.priorityId as number,
                 equipmentId: formData.equipmentId as number,
-                plannedStartDate: formData.plannedStartDate || undefined,
-                plannedEndDate: formData.plannedEndDate || undefined,
+                plannedStartDate: parsePolishDateToISO(formData.plannedStartDate),
+                plannedEndDate: parsePolishDateToISO(formData.plannedEndDate),
                 assignedUserIds: formData.assignedUserIds,
+                tagIds: formData.tagIds,
             };
+            
+            console.log('Submitting payload:', payload);
+            console.log('formData.tagIds:', formData.tagIds);
 
             if (isEdit) {
                 await workOrderService.updateWorkOrder(parseInt(id!), payload);
                 success(t('workOrder.updateSuccess', { defaultValue: 'Work order updated successfully' }));
+                // Force navigation to view page (window.location to ensure full reload)
+                window.location.href = `/work-orders/${id}`;
+                return;
             } else {
                 const newWorkOrder = await workOrderService.createWorkOrder(payload);
                 success(t('workOrder.createSuccess', { defaultValue: 'Work order created successfully' }));
+                // For new work order, go to its detail page
                 navigate(`/work-orders/${newWorkOrder.id}`);
                 return;
             }
-            
-            navigate(`/work-orders/${id}`);
         } catch (err: unknown) {
             console.error('Failed to save work order:', err);
             const errorMessage = err instanceof Error && 'response' in err 
@@ -333,10 +397,12 @@ export const WorkOrderForm = () => {
                             <MDBCol md={6}>
                                 <MDBDateTimepicker
                                     label={t('workOrder.plannedStartDate', { defaultValue: 'Planned start date' })}
-                                    format="yyyy-mm-dd"
+                                    datepickerOptions={{ format: 'dd.mm.yyyy' }}
+                                    timepickerOptions={{ format: '24h' }}
                                     value={formData.plannedStartDate}
                                     onChange={(date: string) => handleChange('plannedStartDate', date)}
                                     inputToggle
+                                    appendValidationInfo={false}
                                 />
                             </MDBCol>
 
@@ -344,10 +410,12 @@ export const WorkOrderForm = () => {
                             <MDBCol md={6}>
                                 <MDBDateTimepicker
                                     label={t('workOrder.plannedEndDate', { defaultValue: 'Planned end date' })}
-                                    format="yyyy-mm-dd"
+                                    datepickerOptions={{ format: 'dd.mm.yyyy' }}
+                                    timepickerOptions={{ format: '24h' }}
                                     value={formData.plannedEndDate}
                                     onChange={(date: string) => handleChange('plannedEndDate', date)}
                                     inputToggle
+                                    appendValidationInfo={false}
                                 />
                             </MDBCol>
 
@@ -370,6 +438,29 @@ export const WorkOrderForm = () => {
                                             .filter((item: { value?: unknown }) => item?.value)
                                             .map((item: { value: unknown }) => Number(item.value));
                                         handleChange('assignedUserIds', selectedIds);
+                                    }}
+                                />
+                            </MDBCol>
+                            <MDBCol md={6}>
+                                {/* @ts-expect-error MDB types issue with required props */}
+                                <MDBSelect
+                                    key={`tags-${tags.length}-${formData.tagIds.join(',')}`}
+                                    label={t('workOrder.tags', { defaultValue: 'Tagi' })}
+                                    data={tags.map(tag => ({
+                                        text: tag.name,
+                                        value: tag.id,
+                                        defaultSelected: formData.tagIds.includes(tag.id),
+                                    }))}
+                                    multiple
+                                    search
+                                    onValueChange={(data: unknown) => {
+                                        console.log('Tags onValueChange:', data);
+                                        const selectedItems = Array.isArray(data) ? data : [data];
+                                        const selectedIds = selectedItems
+                                            .filter((item: { value?: unknown }) => item?.value !== undefined && item?.value !== '')
+                                            .map((item: { value: unknown }) => Number(item.value));
+                                        console.log('Tags selectedIds:', selectedIds);
+                                        handleChange('tagIds', selectedIds);
                                     }}
                                 />
                             </MDBCol>

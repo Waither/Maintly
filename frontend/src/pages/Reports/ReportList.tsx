@@ -130,6 +130,21 @@ export const ReportList = () => {
         loadReports();
     }, [loadReports]);
 
+    // Auto-refresh when there are pending/processing reports (polling every 5s)
+    useEffect(() => {
+        const hasPendingReports = reports.some(
+            (r) => r.status === 'pending' || r.status === 'processing'
+        );
+
+        if (!hasPendingReports) return;
+
+        const interval = setInterval(() => {
+            loadReports();
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, [reports, loadReports]);
+
     // Handle generate
     const handleGenerate = async () => {
         if (!generateForm.name.trim()) {
@@ -160,17 +175,30 @@ export const ReportList = () => {
 
     // Handle download
     const handleDownload = async (report: Report) => {
-        if (report.status !== 'completed' || !report.filePath) {
+        if (report.status !== 'completed' || !report.fileName) {
             error(t('report.notReady', { defaultValue: 'Report is not ready for download' }));
             return;
         }
 
         try {
-            const fileName = `${report.name}.${report.format}`;
-            await reportService.downloadReportFile(report.id, fileName);
+            await reportService.downloadReportFile(report.id, report.fileName);
             success(t('report.downloadSuccess', { defaultValue: 'Report downloaded' }));
         } catch (err) {
             error(t('report.downloadError', { defaultValue: 'Failed to download report' }));
+        }
+    };
+
+    // Handle preview (PDF only - opens in new tab)
+    const handlePreview = async (report: Report) => {
+        if (report.status !== 'completed' || !report.fileName) {
+            error(t('report.notReady', { defaultValue: 'Report is not ready for preview' }));
+            return;
+        }
+
+        try {
+            await reportService.previewReport(report.id);
+        } catch (err) {
+            error(t('report.previewError', { defaultValue: 'Failed to preview report' }));
         }
     };
 
@@ -240,8 +268,8 @@ export const ReportList = () => {
             id: report.id,
             name: report.name,
             type: (
-                <MDBBadge color={getTypeColor(report.type)} pill>
-                    {t(`report.type_${report.type}`, { defaultValue: report.type })}
+                <MDBBadge color={getTypeColor(report.reportType || report.type)} pill>
+                    {t(`report.type_${report.reportType || report.type}`, { defaultValue: report.reportType || report.type })}
                 </MDBBadge>
             ),
             format: (
@@ -252,8 +280,8 @@ export const ReportList = () => {
             ),
             status: <StatusBadge status={report.status} />,
             generatedBy: report.generatedBy?.fullName || report.generatedBy?.email || '-',
-            generatedAt: report.generatedAt 
-                ? new Date(report.generatedAt).toLocaleDateString('pl-PL', {
+            generatedAt: report.generatedAt || report.createdAt
+                ? new Date(report.generatedAt || report.createdAt).toLocaleDateString('pl-PL', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
@@ -264,6 +292,20 @@ export const ReportList = () => {
             fileSize: formatFileSize(report.fileSize),
             actions: (
                 <div className="d-flex gap-1">
+                    {report.status === 'completed' && report.format === 'pdf' && (
+                        <MDBBtn
+                            size="sm"
+                            color="info"
+                            floating
+                            onClick={(e: React.MouseEvent) => {
+                                e.stopPropagation();
+                                handlePreview(report);
+                            }}
+                            title={t('common.preview', { defaultValue: 'Preview' })}
+                        >
+                            <MDBIcon icon="eye" />
+                        </MDBBtn>
+                    )}
                     {report.status === 'completed' && (
                         <MDBBtn
                             size="sm"

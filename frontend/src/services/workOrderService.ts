@@ -133,6 +133,14 @@ export const addActivity = async (
     await apiClient.post(`${BASE_URL}/${workOrderId}/activities`, { action, description });
 };
 
+/**
+ * Get all available tags
+ */
+export const getTags = async (): Promise<{ id: number; name: string; color: string | null }[]> => {
+    const response = await apiClient.get('/tags');
+    return response.data.data || response.data;
+};
+
 export default {
     getWorkOrders,
     getWorkOrder,
@@ -145,4 +153,5 @@ export default {
     assignUser,
     unassignUser,
     addActivity,
+    getTags,
 };
