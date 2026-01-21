@@ -88,6 +88,16 @@ export const downloadReportFile = async (id: number, fileName: string): Promise<
 };
 
 /**
+ * Preview report in new tab (for PDF files)
+ */
+export const previewReport = async (id: number): Promise<void> => {
+    const blob = await downloadReport(id);
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, '_blank');
+    // Note: URL will be revoked when tab is closed
+};
+
+/**
  * Delete report
  */
 export const deleteReport = async (id: number): Promise<void> => {
@@ -123,6 +133,7 @@ export default {
     generateReport,
     downloadReport,
     downloadReportFile,
+    previewReport,
     deleteReport,
     getReportTypes,
     getReportFormats,

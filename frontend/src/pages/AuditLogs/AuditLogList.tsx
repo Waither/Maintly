@@ -65,6 +65,7 @@ export const AuditLogList = () => {
     const [entityTypeFilter, setEntityTypeFilter] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [hideSystemLogs, setHideSystemLogs] = useState(true); // Hide system logs by default
     
     // Filter options
     const [actionTypes, setActionTypes] = useState<string[]>([]);
@@ -198,7 +199,12 @@ export const AuditLogList = () => {
 
     // Prepare datatable rows
     const datatableRows: DatatableRow[] = useMemo(() => {
-        return logs.map((log) => ({
+        // Filter out system logs if checkbox is checked
+        const filteredLogs = hideSystemLogs 
+            ? logs.filter(log => log.user !== null && log.user !== undefined)
+            : logs;
+            
+        return filteredLogs.map((log) => ({
             id: log.id,
             timestamp: new Date(log.createdAt).toLocaleDateString('pl-PL', {
                 day: 'numeric',
@@ -246,7 +252,7 @@ export const AuditLogList = () => {
             ),
             _original: log,
         }));
-    }, [logs, t]);
+    }, [logs, t, hideSystemLogs]);
 
     // Stats
     const stats = useMemo(() => ({
@@ -393,6 +399,22 @@ export const AuditLogList = () => {
                             </MDBBtn>
                         </MDBCol>
                     </MDBRow>
+                    <MDBRow className="mt-3">
+                        <MDBCol>
+                            <div className="form-check">
+                                <input
+                                    type="checkbox"
+                                    className="form-check-input"
+                                    id="hideSystemLogs"
+                                    checked={hideSystemLogs}
+                                    onChange={(e) => setHideSystemLogs(e.target.checked)}
+                                />
+                                <label className="form-check-label small" htmlFor="hideSystemLogs">
+                                    {t('auditLog.hideSystemLogs', { defaultValue: 'Hide system logs (show only user actions)' })}
+                                </label>
+                            </div>
+                        </MDBCol>
+                    </MDBRow>
                 </MDBCardBody>
             </MDBCard>
 
@@ -471,38 +493,67 @@ export const AuditLogList = () => {
                                         </MDBCol>
                                     </MDBRow>
                                     
-                                    {detailModal.log.changes && Object.keys(detailModal.log.changes).length > 0 && (
-                                        <div>
-                                            <h6 className="mb-3">
-                                                <MDBIcon icon="exchange-alt" className="me-2 text-primary" />
-                                                {t('auditLog.changesTitle', { defaultValue: 'Changes' })}
-                                            </h6>
-                                            <div className="table-responsive">
-                                                <table className="table table-sm table-bordered">
-                                                    <thead className="table-light">
-                                                        <tr>
-                                                            <th>{t('auditLog.field', { defaultValue: 'Field' })}</th>
-                                                            <th>{t('auditLog.oldValue', { defaultValue: 'Old Value' })}</th>
-                                                            <th>{t('auditLog.newValue', { defaultValue: 'New Value' })}</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {Object.entries(detailModal.log.changes).map(([field, change]) => (
-                                                            <tr key={field}>
-                                                                <td className="fw-medium">{field}</td>
-                                                                <td className="text-danger">
-                                                                    {JSON.stringify(change.old) || '-'}
-                                                                </td>
-                                                                <td className="text-success">
-                                                                    {JSON.stringify(change.new) || '-'}
-                                                                </td>
+                                    {detailModal.log.changes && Object.keys(detailModal.log.changes).length > 0 && (() => {
+                                        const log = detailModal.log!;
+                                        const isCreateOrDelete = log.action.includes('created') || log.action.includes('deleted');
+                                        
+                                        return (
+                                            <div>
+                                                <h6 className="mb-3">
+                                                    <MDBIcon icon={isCreateOrDelete ? "list" : "exchange-alt"} className="me-2 text-primary" />
+                                                    {isCreateOrDelete 
+                                                        ? t('auditLog.dataTitle', { defaultValue: 'Data' })
+                                                        : t('auditLog.changesTitle', { defaultValue: 'Changes' })
+                                                    }
+                                                </h6>
+                                                <div className="table-responsive">
+                                                    <table className="table table-sm table-bordered">
+                                                        <thead className="table-light">
+                                                            <tr>
+                                                                <th>{t('auditLog.field', { defaultValue: 'Field' })}</th>
+                                                                {isCreateOrDelete ? (
+                                                                    <th>{t('auditLog.value', { defaultValue: 'Value' })}</th>
+                                                                ) : (
+                                                                    <>
+                                                                        <th>{t('auditLog.oldValue', { defaultValue: 'Old Value' })}</th>
+                                                                        <th>{t('auditLog.newValue', { defaultValue: 'New Value' })}</th>
+                                                                    </>
+                                                                )}
                                                             </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                                        </thead>
+                                                        <tbody>
+                                                            {Object.entries(log.changes!).map(([field, change]) => {
+                                                                // Handle both formats: {from, to} for updates and direct value for creates
+                                                                const isChangeObject = change && typeof change === 'object' && ('from' in change || 'to' in change);
+                                                                const fromValue = isChangeObject ? change.from : null;
+                                                                const toValue = isChangeObject ? change.to : change;
+                                                                
+                                                                return (
+                                                                    <tr key={field}>
+                                                                        <td className="fw-medium">{field}</td>
+                                                                        {isCreateOrDelete ? (
+                                                                            <td className={log.action.includes('deleted') ? 'text-danger' : 'text-success'}>
+                                                                                {toValue !== null && toValue !== undefined ? JSON.stringify(toValue) : '-'}
+                                                                            </td>
+                                                                        ) : (
+                                                                            <>
+                                                                                <td className="text-danger">
+                                                                                    {fromValue !== null && fromValue !== undefined ? JSON.stringify(fromValue) : '-'}
+                                                                                </td>
+                                                                                <td className="text-success">
+                                                                                    {toValue !== null && toValue !== undefined ? JSON.stringify(toValue) : '-'}
+                                                                                </td>
+                                                                            </>
+                                                                        )}
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        );
+                                    })()}
 
                                     {detailModal.log.metadata && Object.keys(detailModal.log.metadata).length > 0 && (
                                         <div className="mt-4">

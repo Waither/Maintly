@@ -22,14 +22,16 @@ export type ReportStatus =
 
 export interface Report extends BaseEntity {
     name: string;
-    type: ReportType;
+    reportType: ReportType;
+    type?: string; // Alias for reportType from API
     format: ReportFormat;
     status: ReportStatus;
-    filePath?: string;
+    fileName?: string;
     fileSize?: number;
-    generatedBy: User;
+    generatedBy?: User;
     generatedAt?: string;
-    parameters?: Record<string, any>;
+    completedAt?: string;
+    filters?: Record<string, any>;
     errorMessage?: string;
 }
 

@@ -10,7 +10,7 @@ export interface AuditLog {
     action: string;
     entityType: string;
     entityId?: number;
-    changes?: Record<string, { old: any; new: any }>;
+    changes?: Record<string, any>; // Can be {from, to} for updates or direct value for creates
     metadata?: Record<string, any>;
     ipAddress?: string;
     userAgent?: string;
