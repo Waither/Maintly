@@ -76,14 +76,14 @@ class WorkOrder {
     /**
      * @var Collection<int, WorkOrderAssignment>
      */
-    #[ORM\OneToMany(targetEntity: WorkOrderAssignment::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: WorkOrderAssignment::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     #[Ignore]
     private Collection $assignments;
 
     /**
      * @var Collection<int, WorkOrderTag>
      */
-    #[ORM\OneToMany(targetEntity: WorkOrderTag::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: WorkOrderTag::class, mappedBy: 'workOrder', cascade: ['persist', 'remove'], fetch: 'EAGER')]
     #[Ignore]
     private Collection $workOrderTags;
 
@@ -275,10 +275,47 @@ class WorkOrder {
     }
 
     /**
+     * Get assigned users for serialization (frontend expects this format)
+     * @return array<int, array{userId: int, user: User, assignedAt: string}>
+     */
+    public function getAssignedUsers(): array {
+        $result = [];
+        foreach ($this->assignments as $assignment) {
+            $result[] = [
+                'userId' => $assignment->getUser()->getId(),
+                'user' => $assignment->getUser(),
+                'assignedAt' => $assignment->getAssignedAt()->format('Y-m-d H:i:s'),
+            ];
+        }
+        return $result;
+    }
+
+    /**
      * @return Collection<int, WorkOrderTag>
      */
     public function getWorkOrderTags(): Collection {
         return $this->workOrderTags;
+    }
+
+    /**
+     * Get tags for serialization (frontend expects this format)
+     * @return array<int, array{tagId: int, tag: array, assignedAt: string}>
+     */
+    public function getTags(): array {
+        $result = [];
+        foreach ($this->workOrderTags as $workOrderTag) {
+            $tag = $workOrderTag->getTag();
+            $result[] = [
+                'tagId' => $tag->getId(),
+                'tag' => [
+                    'id' => $tag->getId(),
+                    'name' => $tag->getName(),
+                    'color' => $tag->getColor(),
+                ],
+                'assignedAt' => $workOrderTag->getAssignedAt()->format('Y-m-d H:i:s'),
+            ];
+        }
+        return $result;
     }
 
     /**

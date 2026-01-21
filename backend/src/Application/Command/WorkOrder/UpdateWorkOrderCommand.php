@@ -7,6 +7,10 @@ namespace App\Application\Command\WorkOrder;
 use DateTimeInterface;
 
 class UpdateWorkOrderCommand {
+    /**
+     * @param int[]|null $assignedUserIds
+     * @param int[]|null $tagIds
+     */
     public function __construct(
         public readonly int $id,
         public readonly int $updatedBy,
@@ -19,5 +23,7 @@ class UpdateWorkOrderCommand {
         public readonly ?DateTimeInterface $plannedEndDate = null,
         public readonly ?DateTimeInterface $actualStartDate = null,
         public readonly ?DateTimeInterface $actualEndDate = null,
+        public readonly ?array $assignedUserIds = null,
+        public readonly ?array $tagIds = null,
     ) {}
 }

@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Application\Command\WorkOrder;
 
 use App\Entity\Equipment;
+use App\Entity\Tag;
 use App\Entity\User;
 use App\Entity\WorkOrder;
+use App\Entity\WorkOrderAssignment;
+use App\Entity\WorkOrderTag;
 use App\Entity\WorkOrderPriority;
 use App\Entity\WorkOrderStatus;
 use DateTime;
@@ -80,6 +83,46 @@ class UpdateWorkOrderHandler {
 
         $updatedBy = $this->entityManager->getReference(User::class, $command->updatedBy);
         $workOrder->setUpdatedBy($updatedBy);
+
+        // Handle assigned users
+        if ($command->assignedUserIds !== null) {
+            // Remove existing assignments first
+            foreach ($workOrder->getAssignments() as $assignment) {
+                $this->entityManager->remove($assignment);
+            }
+            // Flush to actually delete before adding new ones (unique constraint)
+            $this->entityManager->flush();
+
+            // Add new assignments
+            foreach ($command->assignedUserIds as $userId) {
+                $user = $this->entityManager->getReference(User::class, $userId);
+                $assignment = new WorkOrderAssignment();
+                $assignment->setWorkOrder($workOrder);
+                $assignment->setUser($user);
+                $assignment->setAssignedBy($updatedBy);
+                $this->entityManager->persist($assignment);
+            }
+        }
+
+        // Handle tags
+        if ($command->tagIds !== null && is_array($command->tagIds)) {
+            // Remove existing tags first
+            foreach ($workOrder->getWorkOrderTags() as $workOrderTag) {
+                $this->entityManager->remove($workOrderTag);
+            }
+            // Flush to actually delete before adding new ones (unique constraint)
+            $this->entityManager->flush();
+
+            // Add new tags
+            foreach ($command->tagIds as $tagId) {
+                $tag = $this->entityManager->getReference(Tag::class, $tagId);
+                $workOrderTag = new WorkOrderTag();
+                $workOrderTag->setWorkOrder($workOrder);
+                $workOrderTag->setTag($tag);
+                $workOrderTag->setAssignedBy($updatedBy);
+                $this->entityManager->persist($workOrderTag);
+            }
+        }
 
         $this->entityManager->flush();
 
