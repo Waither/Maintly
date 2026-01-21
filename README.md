@@ -166,8 +166,6 @@ Maintly/
 - **Swagger UI:** http://localhost:8000/api/doc
 - **ERD Diagram:** `/docs/database/ERD.pdf`
 - **API Reference:** `/docs/api/README.md`
-- **Ocena projektu:** `/OCENA-PROJEKTU.md`
-- **Ściągawka:** `/SCIAGA.md`
 
 ---
 
