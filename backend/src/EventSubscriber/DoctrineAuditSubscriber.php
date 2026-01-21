@@ -212,38 +212,45 @@ class DoctrineAuditSubscriber
 
     /**
      * Get entity data for create/delete logging.
+     * Uses reflection to get all entity properties.
      * @return array<string, mixed>
      */
     private function getEntityData(object $entity): array
     {
         $data = [];
+        $reflection = new \ReflectionClass($entity);
 
-        // Get common fields
-        if (method_exists($entity, 'getId')) {
-            $data['id'] = $entity->getId();
-        }
-        if (method_exists($entity, 'getTitle')) {
-            $data['title'] = $entity->getTitle();
-        }
-        if (method_exists($entity, 'getName')) {
-            $data['name'] = $entity->getName();
-        }
-        if (method_exists($entity, 'getEmail')) {
-            $data['email'] = $entity->getEmail();
-        }
-        if (method_exists($entity, 'getStatus')) {
-            $status = $entity->getStatus();
-            if (is_object($status)) {
-                if (method_exists($status, 'getName')) {
-                    $data['status'] = $status->getName();
-                } elseif (method_exists($status, 'getCode')) {
-                    $data['status'] = $status->getCode();
-                } elseif (method_exists($status, 'getId')) {
-                    $data['status'] = $status->getId();
-                }
-            } else {
-                $data['status'] = $status;
+        foreach ($reflection->getProperties() as $property) {
+            $propertyName = $property->getName();
+
+            // Skip excluded fields
+            if (in_array($propertyName, self::EXCLUDED_FIELDS, true)) {
+                continue;
             }
+
+            // Skip collections (OneToMany, ManyToMany relationships)
+            $propertyType = $property->getType();
+            if ($propertyType instanceof \ReflectionNamedType) {
+                $typeName = $propertyType->getName();
+                if ($typeName === 'Doctrine\Common\Collections\Collection' ||
+                    is_subclass_of($typeName, 'Doctrine\Common\Collections\Collection')) {
+                    continue;
+                }
+            }
+
+            // Build getter name
+            $getterName = 'get' . ucfirst($propertyName);
+            $isserName = 'is' . ucfirst($propertyName);
+
+            if (method_exists($entity, $getterName)) {
+                $value = $entity->$getterName();
+            } elseif (method_exists($entity, $isserName)) {
+                $value = $entity->$isserName();
+            } else {
+                continue;
+            }
+
+            $data[$propertyName] = $this->serializeValue($value);
         }
 
         return $data;
