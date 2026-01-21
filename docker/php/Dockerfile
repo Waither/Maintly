@@ -1,15 +1,24 @@
 FROM php:8.4-fpm-alpine
 
-# Install minimal dependencies
+# Install dependencies + libraries for gd/zip
 RUN apk add --no-cache \
     bash \
     mysql-client \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    zip \
+    unzip \
     $PHPIZE_DEPS
 
-# Install PHP extensions (only essentials)
-RUN docker-php-ext-install -j$(nproc) \
+# Configure and install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
     pdo_mysql \
-    opcache
+    opcache \
+    gd \
+    zip
 
 # Install PCOV for code coverage (lightweight alternative to Xdebug)
 RUN pecl install pcov \

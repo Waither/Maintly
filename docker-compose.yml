@@ -7,14 +7,18 @@ services:
     container_name: maintly-backend
     volumes:
       - ./backend:/var/www/html
-      # Cache/logs in container volume (not synced with Windows)
-      - backend-cache:/var/www/html/var/cache
-      - backend-logs:/var/www/html/var/log
+      # ⚡ PERFORMANCE: vendor in Linux FS (not synced with Windows)
+      - backend-vendor:/var/www/html/vendor
+    # 🚀 TURBO: cache/logs in RAM (tmpfs)
+    tmpfs:
+      - /var/www/html/var/cache:mode=1777
+      - /var/www/html/var/log:mode=1777
     environment:
       DATABASE_URL: "mysql://maintly:secret@mysql:3306/maintly?serverVersion=8.4"
-      APP_ENV: "dev"
+      APP_ENV: "prod"
+      APP_DEBUG: "0"
       PHP_OPCACHE_ENABLE: "1"
-      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "1"
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "0"
     depends_on:
       - mysql
     networks:
@@ -95,8 +99,6 @@ services:
 
 volumes:
   mysql-data:
-  backend-cache:  # Symfony cache - isolated from Windows
-  backend-logs:   # Symfony logs - isolated from Windows
   backend-vendor: # ⚡ Composer vendor - isolated from Windows (SZYBKOŚĆ!)
   frontend-node-modules: # ⚡ npm node_modules - isolated from Windows (SZYBKOŚĆ!)
 

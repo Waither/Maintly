@@ -233,9 +233,17 @@ class DoctrineAuditSubscriber
         }
         if (method_exists($entity, 'getStatus')) {
             $status = $entity->getStatus();
-            $data['status'] = is_object($status) && method_exists($status, 'getCode') 
-                ? $status->getCode() 
-                : (string) $status;
+            if (is_object($status)) {
+                if (method_exists($status, 'getName')) {
+                    $data['status'] = $status->getName();
+                } elseif (method_exists($status, 'getCode')) {
+                    $data['status'] = $status->getCode();
+                } elseif (method_exists($status, 'getId')) {
+                    $data['status'] = $status->getId();
+                }
+            } else {
+                $data['status'] = $status;
+            }
         }
 
         return $data;
