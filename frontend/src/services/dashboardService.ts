@@ -35,7 +35,8 @@ export interface DashboardData {
  */
 export const getDashboardStats = async (): Promise<DashboardStats> => {
     const response = await apiClient.get('/dashboard/stats');
-    return response.data.data || response.data;
+    // Backend returns stats directly, not wrapped in data property
+    return response.data;
 };
 
 /**

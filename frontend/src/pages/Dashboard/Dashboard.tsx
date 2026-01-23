@@ -53,9 +53,14 @@ export const Dashboard = () => {
         try {
             // Load stats and recent work orders in parallel
             const [statsData, workOrdersData] = await Promise.all([
-                dashboardService.getDashboardStats().catch(() => null),
+                dashboardService.getDashboardStats().catch((err) => {
+                    console.error('Dashboard stats error:', err);
+                    return null;
+                }),
                 workOrderService.getWorkOrders(1, 5).catch(() => ({ data: [] }))
             ]);
+            
+            console.log('Dashboard stats received:', statsData);
             
             // Map API response to our format
             if (statsData) {
@@ -83,12 +88,12 @@ export const Dashboard = () => {
                     },
                 });
             } else {
-                // Fallback mock data if API not available
+                // API failed - show zeros instead of fake data
                 setStats({
-                    workOrders: { total: 24, new: 5, inProgress: 8, completed: 10, overdue: 1 },
-                    equipment: { total: 45, active: 38, maintenance: 7 },
-                    users: { total: 12, active: 10 },
-                    reports: { total: 8, pending: 2 },
+                    workOrders: { total: 0, new: 0, inProgress: 0, completed: 0, overdue: 0 },
+                    equipment: { total: 0, active: 0, maintenance: 0 },
+                    users: { total: 0, active: 0 },
+                    reports: { total: 0, pending: 0 },
                 });
             }
             

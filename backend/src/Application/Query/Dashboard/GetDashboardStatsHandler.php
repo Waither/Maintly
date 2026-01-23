@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Application\Query\Dashboard;
 
 use App\Repository\EquipmentRepository;
+use App\Repository\ReportRepository;
+use App\Repository\UserRepository;
 use App\Repository\WorkOrderActivityRepository;
 use App\Repository\WorkOrderRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -15,6 +17,8 @@ class GetDashboardStatsHandler {
         private WorkOrderRepository $workOrderRepository,
         private EquipmentRepository $equipmentRepository,
         private WorkOrderActivityRepository $activityRepository,
+        private UserRepository $userRepository,
+        private ReportRepository $reportRepository,
     ) {}
 
     /**
@@ -27,6 +31,12 @@ class GetDashboardStatsHandler {
         // Equipment statistics
         $equipmentStats = $this->getEquipmentStats();
 
+        // Users statistics
+        $userStats = $this->getUserStats();
+
+        // Reports statistics
+        $reportStats = $this->getReportStats();
+
         // Top equipment by work orders count
         $topEquipment = $this->getTopEquipment($query->userId);
 
@@ -36,6 +46,8 @@ class GetDashboardStatsHandler {
         return [
             'workOrders' => $workOrderStats,
             'equipment' => $equipmentStats,
+            'users' => $userStats,
+            'reports' => $reportStats,
             'topEquipment' => $topEquipment,
             'recentActivities' => $recentActivities,
         ];
@@ -91,6 +103,50 @@ class GetDashboardStatsHandler {
 
         return [
             'total' => (int) $total,
+        ];
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function getUserStats(): array {
+        $total = (int) $this->userRepository->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $active = (int) $this->userRepository->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.isActive = :active')
+            ->setParameter('active', true)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'total' => $total,
+            'active' => $active,
+        ];
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function getReportStats(): array {
+        $total = (int) $this->reportRepository->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $pending = (int) $this->reportRepository->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->where('r.status = :status')
+            ->setParameter('status', 'pending')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'total' => $total,
+            'pending' => $pending,
         ];
     }
 
