@@ -151,26 +151,26 @@ export const TopNavbar = ({
                             <MDBDropdownItem 
                                 link 
                                 onClick={() => navigate('/profile')}
-                                className="d-flex align-items-center gap-2"
+                                className="d-flex align-items-center"
                             >
-                                <MDBIcon far icon="user" />
+                                <MDBIcon far icon="user" className="me-2" />
                                 {t('nav.profile', { defaultValue: 'Mój profil' })}
                             </MDBDropdownItem>
                             <MDBDropdownItem 
                                 link
                                 onClick={() => navigate('/settings')}
-                                className="d-flex align-items-center gap-2"
+                                className="d-flex align-items-center"
                             >
-                                <MDBIcon icon="cog" />
+                                <MDBIcon icon="cog" className="me-2" />
                                 {t('nav.settings', { defaultValue: 'Ustawienia' })}
                             </MDBDropdownItem>
                             <MDBDropdownItem divider />
                             <MDBDropdownItem 
                                 link
                                 onClick={handleLogout}
-                                className="d-flex align-items-center gap-2 text-danger"
+                                className="d-flex align-items-center text-danger"
                             >
-                                <MDBIcon icon="sign-out-alt" />
+                                <MDBIcon icon="sign-out-alt" className="me-2" />
                                 {t('auth.logout', { defaultValue: 'Wyloguj' })}
                             </MDBDropdownItem>
                         </MDBDropdownMenu>
