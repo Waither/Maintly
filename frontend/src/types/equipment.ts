@@ -44,9 +44,12 @@ export interface Equipment extends BaseEntity {
     costCenter?: number;
     qrCodeData?: string;
     parentEquipmentId?: number;
+    parentEquipmentName?: string;
     parentEquipment?: Equipment;
     directWorkTime?: number;
     totalWorkTime?: number;
+    childrenCount?: number;
+    workOrdersCount?: number;
     children?: Equipment[];
     tags?: EquipmentTag[];
     files?: EquipmentFile[];

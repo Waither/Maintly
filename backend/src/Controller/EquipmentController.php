@@ -78,6 +78,7 @@ class EquipmentController extends AbstractController {
             'costCenter' => $eq->getCostCenter(),
             'qrCodeData' => $eq->getQrCodeData(),
             'parentEquipmentId' => $eq->getParentEquipment()?->getId(),
+            'parentEquipmentName' => $eq->getParentEquipment()?->getName(),
             'directWorkTime' => $eq->getDirectWorkTime(),
             'totalWorkTime' => $eq->getTotalWorkTime(),
             'createdAt' => $eq->getCreatedAt()?->format('Y-m-d H:i:s'),
@@ -137,10 +138,20 @@ class EquipmentController extends AbstractController {
             'costCenter' => $equipment->getCostCenter(),
             'qrCodeData' => $equipment->getQrCodeData(),
             'parentEquipmentId' => $equipment->getParentEquipment()?->getId(),
+            'parentEquipmentName' => $equipment->getParentEquipment()?->getName(),
             'directWorkTime' => $equipment->getDirectWorkTime(),
             'totalWorkTime' => $equipment->getTotalWorkTime(),
             'createdAt' => $equipment->getCreatedAt()?->format('Y-m-d H:i:s'),
             'updatedAt' => $equipment->getUpdatedAt()?->format('Y-m-d H:i:s'),
+            'createdBy' => $equipment->getCreatedBy() ? [
+                'id' => $equipment->getCreatedBy()->getId(),
+                'name' => $equipment->getCreatedBy()->getFirstName() . ' ' . $equipment->getCreatedBy()->getLastName(),
+            ] : null,
+            'updatedBy' => $equipment->getUpdatedBy() ? [
+                'id' => $equipment->getUpdatedBy()->getId(),
+                'name' => $equipment->getUpdatedBy()->getFirstName() . ' ' . $equipment->getUpdatedBy()->getLastName(),
+            ] : null,
+            'childrenCount' => $equipment->getChildren()->count(),
             'tags' => array_map(fn ($et) => [
                 'id' => $et->getTag()->getId(),
                 'name' => $et->getTag()->getName(),
@@ -153,6 +164,18 @@ class EquipmentController extends AbstractController {
                 'fileSize' => $file->getFileSize(),
                 'uploadedAt' => $file->getUploadedAt()?->format('Y-m-d H:i:s'),
             ], $equipment->getFiles()->toArray()),
+            'children' => array_map(fn ($child) => [
+                'id' => $child->getId(),
+                'name' => $child->getName(),
+                'costCenter' => $child->getCostCenter(),
+                'directWorkTime' => $child->getDirectWorkTime(),
+            ], $equipment->getChildren()->toArray()),
+            'customValues' => array_map(fn ($cv) => [
+                'id' => $cv->getId(),
+                'fieldName' => $cv->getCustomField()?->getFieldName(),
+                'fieldType' => $cv->getCustomField()?->getFieldType(),
+                'value' => $cv->getValue(),
+            ], $equipment->getCustomValues()->toArray()),
         ];
 
         return $this->successResponse($data);

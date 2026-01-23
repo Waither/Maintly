@@ -105,12 +105,12 @@ export const EquipmentForm = () => {
         const newErrors: Record<string, string> = {};
 
         if (!formData.name.trim()) {
-            newErrors.name = t('validation.required', { defaultValue: 'This field is required' });
+            newErrors.name = t('validation.required', { defaultValue: 'To pole jest wymagane' });
         }
         if (!formData.costCenter.trim()) {
-            newErrors.costCenter = t('validation.required', { defaultValue: 'This field is required' });
+            newErrors.costCenter = t('validation.required', { defaultValue: 'To pole jest wymagane' });
         } else if (!/^\d+$/.test(formData.costCenter.trim())) {
-            newErrors.costCenter = t('validation.numberOnly', { defaultValue: 'Must be a number' });
+            newErrors.costCenter = t('validation.numberOnly', { defaultValue: 'Musi być liczbą' });
         }
 
         setErrors(newErrors);
@@ -133,16 +133,16 @@ export const EquipmentForm = () => {
 
             if (isEdit && id) {
                 await equipmentService.updateEquipment(parseInt(id), payload);
-                success(t('equipment.updateSuccess', { defaultValue: 'Equipment updated successfully' }));
+                success(t('equipment.updateSuccess', { defaultValue: 'Sprzęt został zaktualizowany' }));
             } else {
                 await equipmentService.createEquipment(payload);
-                success(t('equipment.createSuccess', { defaultValue: 'Equipment created successfully' }));
+                success(t('equipment.createSuccess', { defaultValue: 'Sprzęt został utworzony' }));
             }
             navigate('/equipment');
         } catch (err: unknown) {
             console.error('Failed to save equipment:', err);
             const axiosErr = err as { response?: { data?: { message?: string } } };
-            error(axiosErr.response?.data?.message || t('equipment.saveError', { defaultValue: 'Failed to save equipment' }));
+            error(axiosErr.response?.data?.message || t('equipment.saveError', { defaultValue: 'Nie udało się zapisać sprzętu' }));
         } finally {
             setSaving(false);
         }
@@ -159,7 +159,7 @@ export const EquipmentForm = () => {
     // Parent select data
     const parentSelectData = useMemo((): SelectData[] => {
         const noneOption: SelectData = {
-            text: t('equipment.noParent', { defaultValue: '— No parent —' }),
+            text: t('equipment.noParent', { defaultValue: '— Brak elementu nadrzędnego —' }),
             value: '',
             defaultSelected: !formData.parentEquipmentId,
         };
@@ -182,12 +182,12 @@ export const EquipmentForm = () => {
     return (
         <div>
             <PageHeader
-                title={isEdit ? t('equipment.edit', { defaultValue: 'Edit Equipment' }) : t('equipment.create', { defaultValue: 'Add Equipment' })}
-                subtitle={isEdit ? `#${id}` : t('equipment.createSubtitle', { defaultValue: 'Fill in the details below' })}
+                title={isEdit ? t('equipment.edit', { defaultValue: 'Edytuj sprzęt' }) : t('equipment.create', { defaultValue: 'Dodaj sprzęt' })}
+                subtitle={isEdit ? `#${id}` : t('equipment.createSubtitle', { defaultValue: 'Wypełnij poniższe dane' })}
                 breadcrumbs={[
-                    { label: t('nav.dashboard', { defaultValue: 'Dashboard' }), path: '/' },
-                    { label: t('nav.equipment', { defaultValue: 'Equipment' }), path: '/equipment' },
-                    { label: isEdit ? t('common.edit', { defaultValue: 'Edit' }) : t('common.new', { defaultValue: 'New' }) },
+                    { label: t('nav.dashboard', { defaultValue: 'Pulpit' }), path: '/' },
+                    { label: t('nav.equipment', { defaultValue: 'Sprzęt' }), path: '/equipment' },
+                    { label: isEdit ? t('common.edit', { defaultValue: 'Edycja' }) : t('common.new', { defaultValue: 'Nowy' }) },
                 ]}
                 backLink="/equipment"
             />
@@ -197,13 +197,13 @@ export const EquipmentForm = () => {
                     <MDBCardBody className="p-4">
                         <h5 className="mb-4">
                             <MDBIcon icon="info-circle" className="me-2 text-primary" />
-                            {t('equipment.basicInfo', { defaultValue: 'Basic Information' })}
+                            {t('equipment.basicInfo', { defaultValue: 'Podstawowe informacje' })}
                         </h5>
                         
                         <MDBRow className="g-3">
                             <MDBCol md="6">
                                 <MDBInput
-                                    label={t('equipment.name', { defaultValue: 'Name' }) + ' *'}
+                                    label={t('equipment.name', { defaultValue: 'Nazwa' }) + ' *'}
                                     value={formData.name}
                                     onChange={handleChange('name')}
                                     className={errors.name ? 'is-invalid' : ''}
@@ -213,7 +213,7 @@ export const EquipmentForm = () => {
                             <MDBCol md="6">
                                 <MDBInput
                                     type="number"
-                                    label={t('equipment.costCenter', { defaultValue: 'Cost Center' }) + ' *'}
+                                    label={t('equipment.costCenter', { defaultValue: 'Centrum kosztów' }) + ' *'}
                                     value={formData.costCenter}
                                     onChange={handleChange('costCenter')}
                                     className={errors.costCenter ? 'is-invalid' : ''}
@@ -222,12 +222,12 @@ export const EquipmentForm = () => {
                             </MDBCol>
                             <MDBCol md="12">
                                 <label className="form-label small text-muted">
-                                    {t('equipment.parentEquipment', { defaultValue: 'Parent Equipment' })}
+                                    {t('equipment.parentEquipment', { defaultValue: 'Element nadrzędny' })}
                                 </label>
                                 {loadingParents ? (
                                     <div className="form-control bg-light d-flex align-items-center">
                                         <span className="spinner-border spinner-border-sm me-2" />
-                                        {t('common.loading', { defaultValue: 'Loading...' })}
+                                        {t('common.loading', { defaultValue: 'Ładowanie...' })}
                                     </div>
                                 ) : (
                                     /* @ts-expect-error MDB types issue */
@@ -235,11 +235,11 @@ export const EquipmentForm = () => {
                                         data={parentSelectData}
                                         onValueChange={handleParentChange}
                                         search
-                                        searchLabel={t('common.search', { defaultValue: 'Search...' })}
+                                        searchLabel={t('common.search', { defaultValue: 'Szukaj...' })}
                                     />
                                 )}
                                 <small className="text-muted">
-                                    {t('equipment.parentHelp', { defaultValue: 'Select if this equipment is part of another' })}
+                                    {t('equipment.parentHelp', { defaultValue: 'Wybierz jeśli ten sprzęt jest częścią innego' })}
                                 </small>
                             </MDBCol>
                         </MDBRow>
@@ -255,7 +255,7 @@ export const EquipmentForm = () => {
                         disabled={saving}
                     >
                         <MDBIcon icon="times" className="me-2" />
-                        {t('common.cancel', { defaultValue: 'Cancel' })}
+                        {t('common.cancel', { defaultValue: 'Anuluj' })}
                     </MDBBtn>
                     <MDBBtn 
                         type="submit" 
@@ -265,14 +265,14 @@ export const EquipmentForm = () => {
                         {saving ? (
                             <>
                                 <span className="spinner-border spinner-border-sm me-2" />
-                                {t('common.saving', { defaultValue: 'Saving...' })}
+                                {t('common.saving', { defaultValue: 'Zapisywanie...' })}
                             </>
                         ) : (
                             <>
                                 <MDBIcon icon="save" className="me-2" />
                                 {isEdit 
-                                    ? t('common.save', { defaultValue: 'Save' }) 
-                                    : t('common.create', { defaultValue: 'Create' })
+                                    ? t('common.save', { defaultValue: 'Zapisz' }) 
+                                    : t('common.create', { defaultValue: 'Utwórz' })
                                 }
                             </>
                         )}
