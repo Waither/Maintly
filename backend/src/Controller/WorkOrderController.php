@@ -333,6 +333,13 @@ class WorkOrderController extends AbstractController {
         schema: new OA\Schema(type: 'string'),
         description: 'Filter by priority name (e.g. low, medium, high, critical)',
     )]
+    #[OA\Parameter(
+        name: 'equipment',
+        in: 'query',
+        required: false,
+        schema: new OA\Schema(type: 'integer'),
+        description: 'Filter by equipment ID',
+    )]
     #[OA\Response(response: 401, description: 'Unauthorized')]
     #[OA\Response(response: 403, description: 'Access denied')]
     public function list(Request $request): JsonResponse {
@@ -348,11 +355,13 @@ class WorkOrderController extends AbstractController {
         // Get filter parameters
         $statusName = $request->query->get('status');
         $priorityName = $request->query->get('priority');
+        $equipmentId = $request->query->get('equipment') ? (int) $request->query->get('equipment') : null;
 
         $envelope = $this->messageBus->dispatch(new GetAllWorkOrdersQuery(
             filterByUserId: $filterByUserId,
             statusName: $statusName,
             priorityName: $priorityName,
+            equipmentId: $equipmentId,
         ));
         $workOrders = $envelope->last(HandledStamp::class)->getResult();
 

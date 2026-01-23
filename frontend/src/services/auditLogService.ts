@@ -60,36 +60,29 @@ export const getAuditLogStats = async (filters?: AuditLogFilters): Promise<Audit
 };
 
 /**
- * Get available action types for filtering
+ * Get available action types for filtering (from API)
  */
 export const getActionTypes = async (): Promise<string[]> => {
-    // Common actions - could be fetched from API
-    return [
-        'user.login',
-        'user.logout',
-        'work_order.created',
-        'work_order.updated',
-        'work_order.deleted',
-        'equipment.created',
-        'equipment.updated',
-        'equipment.deleted',
-        'report.generated',
-        'settings.updated',
-    ];
+    try {
+        const response = await apiClient.get(`${BASE_URL}/meta/actions`);
+        return response.data.data || response.data || [];
+    } catch (err) {
+        console.error('Failed to fetch action types:', err);
+        return [];
+    }
 };
 
 /**
- * Get available entity types for filtering
+ * Get available entity types for filtering (from API)
  */
 export const getEntityTypes = async (): Promise<string[]> => {
-    return [
-        'User',
-        'WorkOrder',
-        'Equipment',
-        'Report',
-        'Notification',
-        'Settings',
-    ];
+    try {
+        const response = await apiClient.get(`${BASE_URL}/meta/entities`);
+        return response.data.data || response.data || [];
+    } catch (err) {
+        console.error('Failed to fetch entity types:', err);
+        return [];
+    }
 };
 
 export default {

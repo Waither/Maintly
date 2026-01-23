@@ -47,7 +47,7 @@ class WorkOrderRepository extends ServiceEntityRepository {
      *
      * @return WorkOrder[]
      */
-    public function findWithFilters(?int $userId = null, ?string $statusName = null, ?string $priorityName = null): array {
+    public function findWithFilters(?int $userId = null, ?string $statusName = null, ?string $priorityName = null, ?int $equipmentId = null): array {
         $qb = $this->createQueryBuilder('w')
             ->leftJoin('w.status', 's')
             ->leftJoin('w.priority', 'p')
@@ -66,6 +66,11 @@ class WorkOrderRepository extends ServiceEntityRepository {
         if ($priorityName !== null && $priorityName !== '') {
             $qb->andWhere('p.name = :priorityName')
                ->setParameter('priorityName', $priorityName);
+        }
+
+        if ($equipmentId !== null) {
+            $qb->andWhere('w.equipment = :equipmentId')
+               ->setParameter('equipmentId', $equipmentId);
         }
 
         return $qb->orderBy('w.createdAt', 'DESC')

@@ -161,4 +161,30 @@ class AuditLogController extends AbstractController {
             message: 'audit.retrieved',
         );
     }
+
+    /**
+     * Get distinct action types from audit logs.
+     */
+    #[Route('/meta/actions', name: 'actions', methods: ['GET'])]
+    public function getActions(): JsonResponse {
+        $actions = $this->auditLogRepository->getDistinctActions();
+        
+        return $this->successResponse(
+            data: $actions,
+            message: 'audit.actions.retrieved',
+        );
+    }
+
+    /**
+     * Get distinct entity types from audit logs.
+     */
+    #[Route('/meta/entities', name: 'entities', methods: ['GET'])]
+    public function getEntities(): JsonResponse {
+        $entities = $this->auditLogRepository->getDistinctEntityTypes();
+        
+        return $this->successResponse(
+            data: $entities,
+            message: 'audit.entities.retrieved',
+        );
+    }
 }

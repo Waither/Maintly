@@ -21,6 +21,7 @@ class GetAllWorkOrdersHandler {
             userId: $query->filterByUserId,
             statusName: $query->statusName,
             priorityName: $query->priorityName,
+            equipmentId: $query->equipmentId,
         );
     }
 }

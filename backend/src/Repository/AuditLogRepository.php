@@ -56,12 +56,13 @@ class AuditLogRepository extends ServiceEntityRepository {
         // Filter by date range
         if (isset($filters['startDate'])) {
             $qb->andWhere('a.createdAt >= :startDate')
-                ->setParameter('startDate', new DateTimeImmutable($filters['startDate']));
+                ->setParameter('startDate', new DateTimeImmutable($filters['startDate'] . ' 00:00:00'));
         }
 
         if (isset($filters['endDate'])) {
+            // Include the whole end day (until 23:59:59)
             $qb->andWhere('a.createdAt <= :endDate')
-                ->setParameter('endDate', new DateTimeImmutable($filters['endDate']));
+                ->setParameter('endDate', new DateTimeImmutable($filters['endDate'] . ' 23:59:59'));
         }
 
         // Filter by IP address
@@ -169,5 +170,36 @@ class AuditLogRepository extends ServiceEntityRepository {
             ->setParameter('date', $date)
             ->getQuery()
             ->execute();
+    }
+
+    /**
+     * Get distinct action types.
+     *
+     * @return string[]
+     */
+    public function getDistinctActions(): array {
+        $result = $this->createQueryBuilder('a')
+            ->select('DISTINCT a.action')
+            ->orderBy('a.action', 'ASC')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($result, 'action');
+    }
+
+    /**
+     * Get distinct entity types.
+     *
+     * @return string[]
+     */
+    public function getDistinctEntityTypes(): array {
+        $result = $this->createQueryBuilder('a')
+            ->select('DISTINCT a.entityType')
+            ->where('a.entityType IS NOT NULL')
+            ->orderBy('a.entityType', 'ASC')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($result, 'entityType');
     }
 }

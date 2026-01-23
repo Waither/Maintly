@@ -23,8 +23,8 @@ import {
     useToast,
     MDBDataTable
 } from '../../components/ui';
-import { workOrderService } from '../../services';
-import { WorkOrder, WorkOrderStatus, WorkOrderPriority } from '../../types';
+import { workOrderService, equipmentService } from '../../services';
+import { WorkOrder, WorkOrderStatus, WorkOrderPriority, Equipment } from '../../types';
 
 // Type for MDBDatatable row data
 interface DatatableRow {
@@ -61,6 +61,7 @@ export const WorkOrderList = () => {
     // Filters
     const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || '');
     const [priorityFilter, setPriorityFilter] = useState(searchParams.get('priority') || '');
+    const [equipmentFilter, setEquipmentFilter] = useState(searchParams.get('equipment') || '');
 
     // Delete modal
     const [deleteModal, setDeleteModal] = useState<{ open: boolean; workOrder: WorkOrder | null }>({
@@ -72,6 +73,7 @@ export const WorkOrderList = () => {
     // Statuses and priorities for filters
     const [statuses, setStatuses] = useState<WorkOrderStatus[]>([]);
     const [priorities, setPriorities] = useState<WorkOrderPriority[]>([]);
+    const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
 
     // Mock user permissions - will be replaced with auth context
     const userPermissions = {
@@ -87,6 +89,7 @@ export const WorkOrderList = () => {
             const filters: Record<string, string> = {};
             if (statusFilter) filters.status = statusFilter;
             if (priorityFilter) filters.priority = priorityFilter;
+            if (equipmentFilter) filters.equipment = equipmentFilter;
 
             // Load all work orders for client-side datatable filtering
             const response = await workOrderService.getWorkOrders(1, 1000, filters);
@@ -97,18 +100,20 @@ export const WorkOrderList = () => {
         } finally {
             setLoading(false);
         }
-    }, [statusFilter, priorityFilter, t, error]);
+    }, [statusFilter, priorityFilter, equipmentFilter, t, error]);
 
     // Load statuses and priorities
     useEffect(() => {
         const loadFilters = async () => {
             try {
-                const [statusesData, prioritiesData] = await Promise.all([
+                const [statusesData, prioritiesData, equipmentData] = await Promise.all([
                     workOrderService.getWorkOrderStatuses(),
                     workOrderService.getWorkOrderPriorities(),
+                    equipmentService.getEquipmentList(1, 1000),
                 ]);
                 setStatuses(Array.isArray(statusesData) ? statusesData : []);
                 setPriorities(Array.isArray(prioritiesData) ? prioritiesData : []);
+                setEquipmentList(equipmentData.data || []);
             } catch (err) {
                 console.error('Failed to load filters:', err);
             }
@@ -125,8 +130,9 @@ export const WorkOrderList = () => {
         const params = new URLSearchParams();
         if (statusFilter) params.set('status', statusFilter);
         if (priorityFilter) params.set('priority', priorityFilter);
+        if (equipmentFilter) params.set('equipment', equipmentFilter);
         setSearchParams(params);
-    }, [statusFilter, priorityFilter, setSearchParams]);
+    }, [statusFilter, priorityFilter, equipmentFilter, setSearchParams]);
 
     // Handlers
     const handleDelete = async () => {
@@ -148,6 +154,7 @@ export const WorkOrderList = () => {
     const clearFilters = () => {
         setStatusFilter('');
         setPriorityFilter('');
+        setEquipmentFilter('');
     };
 
     // Prepare MDBSelect data for statuses
@@ -184,6 +191,23 @@ export const WorkOrderList = () => {
         return [allOption, ...priorityOptions];
     }, [priorities, priorityFilter, t]);
 
+    // Prepare MDBSelect data for equipment
+    const equipmentSelectData = useMemo((): SelectData[] => {
+        const allOption: SelectData = {
+            text: t('workOrder.allEquipment', { defaultValue: 'Cały sprzęt' }),
+            value: '',
+            defaultSelected: equipmentFilter === '',
+        };
+        
+        const equipmentOptions: SelectData[] = equipmentList.map(eq => ({
+            text: eq.name,
+            value: eq.id.toString(),
+            defaultSelected: equipmentFilter === eq.id.toString(),
+        }));
+
+        return [allOption, ...equipmentOptions];
+    }, [equipmentList, equipmentFilter, t]);
+
     // Handle select changes - using unknown type to match MDB callback signature
     const handleStatusChange = (data: unknown) => {
         const selected = Array.isArray(data) ? data[0] : data;
@@ -195,6 +219,12 @@ export const WorkOrderList = () => {
         const selected = Array.isArray(data) ? data[0] : data;
         const value = (selected as SelectData)?.value || '';
         setPriorityFilter(value);
+    };
+
+    const handleEquipmentChange = (data: unknown) => {
+        const selected = Array.isArray(data) ? data[0] : data;
+        const value = (selected as SelectData)?.value || '';
+        setEquipmentFilter(value);
     };
 
     // Prepare datatable columns
@@ -379,7 +409,7 @@ export const WorkOrderList = () => {
             <MDBCard className="mb-4 shadow-sm border-0 filter-section">
                 <MDBCardBody>
                     <MDBRow className="g-3 align-items-end">
-                        <MDBCol lg="4" md="6" sm="12">
+                        <MDBCol lg="3" md="6" sm="12">
                             <label className="form-label small text-muted">
                                 {t('workOrder.filterByStatus', { defaultValue: 'Filtruj wg statusu' })}
                             </label>
@@ -391,7 +421,7 @@ export const WorkOrderList = () => {
                                 searchLabel={t('common.search', { defaultValue: 'Szukaj...' })}
                             />
                         </MDBCol>
-                        <MDBCol lg="4" md="6" sm="12">
+                        <MDBCol lg="3" md="6" sm="12">
                             <label className="form-label small text-muted">
                                 {t('workOrder.filterByPriority', { defaultValue: 'Filtruj wg priorytetu' })}
                             </label>
@@ -400,19 +430,31 @@ export const WorkOrderList = () => {
                                 data={prioritySelectData}
                                 onValueChange={handlePriorityChange}
                                 search
-                                searchLabel={t('common.search', { defaultValue: 'Search...' })}
+                                searchLabel={t('common.search', { defaultValue: 'Szukaj...' })}
                             />
                         </MDBCol>
-                        <MDBCol lg="4" md="12" sm="12">
+                        <MDBCol lg="3" md="6" sm="12">
+                            <label className="form-label small text-muted">
+                                {t('workOrder.filterByEquipment', { defaultValue: 'Filtruj wg sprzętu' })}
+                            </label>
+                            {/* @ts-expect-error MDB types missing some required props */}
+                            <MDBSelect
+                                data={equipmentSelectData}
+                                onValueChange={handleEquipmentChange}
+                                search
+                                searchLabel={t('common.search', { defaultValue: 'Szukaj...' })}
+                            />
+                        </MDBCol>
+                        <MDBCol lg="3" md="6" sm="12">
                             <MDBBtn 
                                 type="button" 
                                 color="light"
                                 onClick={clearFilters}
-                                disabled={!statusFilter && !priorityFilter}
-                                className="w-100 w-lg-auto"
+                                disabled={!statusFilter && !priorityFilter && !equipmentFilter}
+                                className="w-100"
                             >
                                 <MDBIcon icon="times" className="me-2" />
-                                {t('common.clearFilters', { defaultValue: 'Clear filters' })}
+                                {t('common.clearFilters', { defaultValue: 'Wyczyść filtry' })}
                             </MDBBtn>
                         </MDBCol>
                     </MDBRow>
