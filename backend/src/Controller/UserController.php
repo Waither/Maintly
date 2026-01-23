@@ -93,12 +93,20 @@ class UserController extends AbstractController {
 
             // Transform users to array
             $data = array_map(function (User $user) {
+                $role = $user->getUserRole();
                 return [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
                     'firstName' => $user->getFirstName(),
                     'lastName' => $user->getLastName(),
-                    'role' => $user->getUserRole()?->getName(),
+                    'fullName' => $user->getFullName(),
+                    'phone' => $user->getPhone(),
+                    'isActive' => $user->isActive(),
+                    'lastLoginAt' => $user->getLastLoginAt()?->format('Y-m-d H:i:s'),
+                    'userRole' => $role ? [
+                        'id' => $role->getId(),
+                        'name' => $role->getName(),
+                    ] : null,
                     'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
                 ];
             }, $result['users']);
@@ -272,7 +280,11 @@ class UserController extends AbstractController {
                 'email' => $user->getEmail(),
                 'firstName' => $user->getFirstName(),
                 'lastName' => $user->getLastName(),
-                'role' => $role ? [
+                'fullName' => $user->getFullName(),
+                'phone' => $user->getPhone(),
+                'isActive' => $user->isActive(),
+                'lastLoginAt' => $user->getLastLoginAt()?->format('Y-m-d H:i:s'),
+                'userRole' => $role ? [
                     'id' => $role->getId(),
                     'name' => $role->getName(),
                 ] : null,
@@ -354,6 +366,8 @@ class UserController extends AbstractController {
                 password: $data['password'] ?? null,
                 firstName: $data['firstName'] ?? null,
                 lastName: $data['lastName'] ?? null,
+                phone: $data['phone'] ?? null,
+                isActive: isset($data['isActive']) ? (bool) $data['isActive'] : null,
                 roleId: $data['roleId'] ?? null,
             );
 
@@ -374,6 +388,42 @@ class UserController extends AbstractController {
         }
         catch (Exception $e) {
             return $this->serverErrorResponse('error.update_user_failed');
+        }
+    }
+
+    /**
+     * Toggle user active status
+     */
+    #[Route('/{id}/toggle-status', name: 'toggle_status', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/users/{id}/toggle-status',
+        summary: 'Toggle user active/inactive status',
+        tags: ['Users'],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User status toggled successfully',
+            ),
+            new OA\Response(response: 404, description: 'user.not_found'),
+        ],
+    )]
+    public function toggleStatus(int $id): JsonResponse {
+        try {
+            $user = $this->userRepository->find($id);
+            if (!$user) {
+                return $this->notFoundResponse('user.not_found');
+            }
+
+            $user->setIsActive(!$user->isActive());
+            $this->userRepository->save($user, true);
+
+            return $this->successResponse([
+                'id' => $user->getId(),
+                'isActive' => $user->isActive(),
+            ], 200, $user->isActive() ? 'user.activated' : 'user.deactivated');
+        }
+        catch (Exception $e) {
+            return $this->serverErrorResponse('error.toggle_status_failed');
         }
     }
 

@@ -348,9 +348,6 @@ class WorkOrderController extends AbstractController {
         // Get filter parameters
         $statusName = $request->query->get('status');
         $priorityName = $request->query->get('priority');
-        
-        // Debug logging
-        error_log("WorkOrder list: status={$statusName}, priority={$priorityName}");
 
         $envelope = $this->messageBus->dispatch(new GetAllWorkOrdersQuery(
             filterByUserId: $filterByUserId,

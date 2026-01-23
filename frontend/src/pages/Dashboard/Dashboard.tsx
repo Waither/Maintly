@@ -59,18 +59,19 @@ export const Dashboard = () => {
             
             // Map API response to our format
             if (statsData) {
+                // Backend returns: pending (open), inProgress, completed, cancelled, onHold
                 setStats({
                     workOrders: {
                         total: statsData.workOrders?.total || 0,
-                        new: statsData.workOrders?.byStatus?.new || 0,
-                        inProgress: statsData.workOrders?.byStatus?.in_progress || 0,
-                        completed: statsData.workOrders?.byStatus?.completed || 0,
-                        overdue: statsData.workOrders?.overdueCount || 0,
+                        new: statsData.workOrders?.pending || 0, // 'pending' = 'open' status
+                        inProgress: statsData.workOrders?.inProgress || 0,
+                        completed: statsData.workOrders?.completed || 0,
+                        overdue: statsData.workOrders?.onHold || 0, // Using onHold as overdue indicator
                     },
                     equipment: {
                         total: statsData.equipment?.total || 0,
-                        active: statsData.equipment?.byStatus?.active || 0,
-                        maintenance: statsData.equipment?.byStatus?.maintenance || 0,
+                        active: statsData.equipment?.total || 0, // No active/maintenance split in backend
+                        maintenance: 0,
                     },
                     users: {
                         total: statsData.users?.total || 0,
@@ -248,14 +249,14 @@ export const Dashboard = () => {
                                                 >
                                                     <td className="fw-semibold">{wo.title}</td>
                                                     <td>
-                                                        <StatusBadge status={wo.status?.code || 'new'} />
+                                                        <StatusBadge status={wo.status?.name || 'open'} />
                                                     </td>
                                                     <td>
-                                                        <PriorityBadge priority={wo.priority?.code || 'medium'} />
+                                                        <PriorityBadge priority={wo.priority?.name || 'medium'} />
                                                     </td>
                                                     <td className="text-muted">
-                                                        {wo.dueDate 
-                                                            ? new Date(wo.dueDate).toLocaleDateString('pl-PL')
+                                                        {wo.plannedEndDate 
+                                                            ? new Date(wo.plannedEndDate).toLocaleDateString('pl-PL')
                                                             : '-'
                                                         }
                                                     </td>

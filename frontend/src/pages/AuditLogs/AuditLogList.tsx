@@ -222,7 +222,11 @@ export const AuditLogList = () => {
                     >
                         {log.user.firstName?.[0]}{log.user.lastName?.[0]}
                     </div>
-                    <span className="small">{log.user.fullName || log.user.email}</span>
+                    <span className="small">
+                        {log.user.firstName && log.user.lastName 
+                            ? `${log.user.firstName} ${log.user.lastName}`
+                            : log.user.email}
+                    </span>
                 </div>
             ) : (
                 <span className="text-muted small">{t('auditLog.system', { defaultValue: 'System' })}</span>

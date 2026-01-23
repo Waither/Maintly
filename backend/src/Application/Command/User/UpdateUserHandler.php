@@ -51,6 +51,16 @@ final readonly class UpdateUserHandler {
             $user->setLastName($command->lastName);
         }
 
+        // Update phone if provided
+        if ($command->phone !== null) {
+            $user->setPhone($command->phone);
+        }
+
+        // Update isActive if provided
+        if ($command->isActive !== null) {
+            $user->setIsActive($command->isActive);
+        }
+
         // Update role if provided
         if ($command->roleId !== null) {
             $role = $this->roleRepository->find($command->roleId);

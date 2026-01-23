@@ -264,21 +264,29 @@ export const UserDetail = () => {
                         </MDBCardHeader>
                         <MDBCardBody>
                             <div className="d-flex flex-wrap gap-2">
-                                {user.roles?.map((role) => (
-                                    <MDBBadge 
-                                        key={role.id} 
-                                        color={role.name === 'ROLE_ADMIN' ? 'danger' : role.name === 'ROLE_MANAGER' ? 'warning' : 'info'}
-                                        className="py-2 px-3"
-                                    >
-                                        <MDBIcon 
-                                            icon={role.name === 'ROLE_ADMIN' ? 'crown' : role.name === 'ROLE_MANAGER' ? 'user-tie' : 'user'} 
-                                            className="me-2" 
-                                        />
-                                        {role.name.replace('ROLE_', '').toLowerCase().replace(/^\w/, c => c.toUpperCase())}
-                                    </MDBBadge>
-                                )) || (
-                                    <span className="text-muted">{t('user.noRoles', { defaultValue: 'No roles assigned' })}</span>
-                                )}
+                                {(() => {
+                                    const role = (user as any).userRole;
+                                    if (!role) {
+                                        return <span className="text-muted">{t('user.noRoles', { defaultValue: 'No role assigned' })}</span>;
+                                    }
+                                    const roleName = role.name || '';
+                                    const isAdmin = roleName === 'admin' || roleName === 'ROLE_ADMIN';
+                                    const isManager = roleName === 'manager' || roleName === 'ROLE_MANAGER';
+                                    const displayName = roleName.replace('ROLE_', '').toLowerCase().replace(/^\w/, (c: string) => c.toUpperCase());
+                                    
+                                    return (
+                                        <MDBBadge 
+                                            color={isAdmin ? 'danger' : isManager ? 'warning' : 'info'}
+                                            className="py-2 px-3"
+                                        >
+                                            <MDBIcon 
+                                                icon={isAdmin ? 'crown' : isManager ? 'user-tie' : 'user'} 
+                                                className="me-2" 
+                                            />
+                                            {displayName}
+                                        </MDBBadge>
+                                    );
+                                })()}
                             </div>
                         </MDBCardBody>
                     </MDBCard>

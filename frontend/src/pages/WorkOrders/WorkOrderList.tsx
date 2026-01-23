@@ -87,8 +87,6 @@ export const WorkOrderList = () => {
             const filters: Record<string, string> = {};
             if (statusFilter) filters.status = statusFilter;
             if (priorityFilter) filters.priority = priorityFilter;
-            
-            console.log('Loading work orders with filters:', filters, 'statusFilter:', statusFilter, 'priorityFilter:', priorityFilter);
 
             // Load all work orders for client-side datatable filtering
             const response = await workOrderService.getWorkOrders(1, 1000, filters);
@@ -190,14 +188,12 @@ export const WorkOrderList = () => {
     const handleStatusChange = (data: unknown) => {
         const selected = Array.isArray(data) ? data[0] : data;
         const value = (selected as SelectData)?.value || '';
-        console.log('Status change:', data, '-> value:', value);
         setStatusFilter(value);
     };
 
     const handlePriorityChange = (data: unknown) => {
         const selected = Array.isArray(data) ? data[0] : data;
         const value = (selected as SelectData)?.value || '';
-        console.log('Priority change:', data, '-> value:', value);
         setPriorityFilter(value);
     };
 
@@ -217,7 +213,8 @@ export const WorkOrderList = () => {
     // Prepare datatable rows
     const datatableRows: DatatableRow[] = useMemo(() => {
         return workOrders.map((wo) => {
-            const isOverdue = wo.dueDate && new Date(wo.dueDate) < new Date() && wo.status?.name !== 'completed';
+            const dueDate = wo.plannedEndDate || wo.dueDate;
+            const isOverdue = dueDate && new Date(dueDate) < new Date() && wo.status?.name !== 'completed';
             
             return {
                 id: wo.id,
@@ -227,9 +224,9 @@ export const WorkOrderList = () => {
                 equipment: wo.equipment?.name || '-',
                 createdBy: wo.createdBy?.fullName || wo.createdBy?.email || '-',
                 createdAt: new Date(wo.createdAt).toLocaleDateString('pl-PL'),
-                dueDate: wo.dueDate ? (
+                dueDate: dueDate ? (
                     <span className={isOverdue ? 'text-danger fw-semibold' : ''}>
-                        {new Date(wo.dueDate).toLocaleDateString('pl-PL')}
+                        {new Date(dueDate).toLocaleDateString('pl-PL')}
                         {isOverdue && <MDBIcon icon="exclamation-circle" className="ms-1" />}
                     </span>
                 ) : '-',

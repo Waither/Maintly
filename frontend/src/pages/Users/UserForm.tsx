@@ -88,6 +88,8 @@ export const UserForm = () => {
         const loadUser = async () => {
             try {
                 const user = await userService.getUser(parseInt(id));
+                // Backend returns userRole (single object), not roles array
+                const userRole = (user as any).userRole;
                 setFormData({
                     email: user.email || '',
                     firstName: user.firstName || '',
@@ -96,7 +98,7 @@ export const UserForm = () => {
                     password: '',
                     confirmPassword: '',
                     isActive: user.isActive ?? true,
-                    roleIds: user.roles?.map(r => r.id) || [],
+                    roleIds: userRole?.id ? [userRole.id] : [],
                 });
             } catch (err: any) {
                 console.error('Failed to load user:', err);
@@ -162,7 +164,7 @@ export const UserForm = () => {
                 lastName: formData.lastName,
                 phone: formData.phone || undefined,
                 isActive: formData.isActive,
-                roles: formData.roleIds,
+                roleId: formData.roleIds[0] || null, // Backend expects single roleId
             };
 
             // Include password only if provided
@@ -204,11 +206,12 @@ export const UserForm = () => {
     }, [roles, formData.roleIds]);
 
     const handleRoleChange = (data: unknown) => {
-        const selected = Array.isArray(data) ? data : [data];
-        const ids = selected
-            .map((s: any) => typeof s?.value === 'number' ? s.value : parseInt(s?.value))
-            .filter((id: number) => !isNaN(id));
-        setFormData(prev => ({ ...prev, roleIds: ids }));
+        // Single select - data is single object, not array
+        const selected = data as any;
+        const id = typeof selected?.value === 'number' ? selected.value : parseInt(selected?.value);
+        if (!isNaN(id)) {
+            setFormData(prev => ({ ...prev, roleIds: [id] }));
+        }
         if (errors.roles) {
             setErrors(prev => ({ ...prev, roles: '' }));
         }
@@ -323,14 +326,12 @@ export const UserForm = () => {
                         <MDBRow className="g-3">
                             <MDBCol md="6">
                                 <label className="form-label small text-muted">
-                                    {t('user.roles', { defaultValue: 'Roles' })} *
+                                    {t('user.role', { defaultValue: 'Role' })} *
                                 </label>
                                 {/* @ts-expect-error MDB types issue */}
                                 <MDBSelect
                                     data={roleSelectData}
                                     onValueChange={handleRoleChange}
-                                    multiple
-                                    selectAll={false}
                                 />
                                 {errors.roles && <div className="invalid-feedback d-block">{errors.roles}</div>}
                             </MDBCol>

@@ -47,7 +47,7 @@ export const getUser = async (id: number): Promise<User> => {
  * Get current authenticated user
  */
 export const getCurrentUser = async (): Promise<User> => {
-    const response = await apiClient.get(`${BASE_URL}/me`);
+    const response = await apiClient.get('/me');
     return response.data.data || response.data;
 };
 
@@ -75,22 +75,30 @@ export const deleteUser = async (id: number): Promise<void> => {
 };
 
 /**
- * Get all roles
+ * Get all roles for select/dropdown
  */
 export const getRoles = async (): Promise<UserRole[]> => {
-    const response = await apiClient.get('/user-roles');
-    return response.data.data || response.data;
+    const response = await apiClient.get('/roles/select');
+    // Response: { status: 'success', data: [{ value: 1, label: 'admin' }, ...] }
+    const data = response.data?.data || response.data;
+    // Map from { value, label } to { id, name }
+    if (Array.isArray(data)) {
+        return data.map((item: any) => ({
+            id: item.value || item.id,
+            name: item.label || item.name,
+        }));
+    }
+    return [];
 };
 
 /**
- * Change user password
+ * Change current user's password (uses /me/password)
  */
 export const changePassword = async (
-    userId: number, 
     currentPassword: string, 
     newPassword: string
 ): Promise<void> => {
-    await apiClient.patch(`${BASE_URL}/${userId}/password`, { 
+    await apiClient.patch('/me/password', { 
         currentPassword, 
         newPassword 
     });

@@ -12,6 +12,8 @@ final readonly class UpdateUserCommand {
         public ?string $password = null,
         public ?string $firstName = null,
         public ?string $lastName = null,
+        public ?string $phone = null,
+        public ?bool $isActive = null,
         public ?int $roleId = null,
     ) {}
 }

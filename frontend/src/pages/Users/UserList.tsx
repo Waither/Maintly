@@ -123,138 +123,145 @@ export const UserList = () => {
         { label: t('common.actions', { defaultValue: 'Actions' }), field: 'actions', sort: false, width: 160 },
     ], [t]);
 
+    // Stats calculation
+    const stats = useMemo(() => {
+        const total = users.length;
+        const active = users.filter((u: User) => u.isActive).length;
+        const inactive = users.filter((u: User) => !u.isActive).length;
+        const admins = users.filter((u: User) => {
+            const userRole = (u as any).userRole;
+            const roleName = userRole?.name || (u.roles?.[0]?.name) || '';
+            return roleName === 'admin' || roleName === 'ROLE_ADMIN';
+        }).length;
+        return { total, active, inactive, admins };
+    }, [users]);
+
+    // Row click handler
+    const handleRowClick = (row: any) => {
+        navigate(`/users/${row.id}`);
+    };
+
     // Prepare datatable rows
     const datatableRows: DatatableRow[] = useMemo(() => {
-        return users.map((user) => ({
-            id: user.id,
-            avatar: (
-                <div 
-                    className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
-                    style={{ width: 36, height: 36 }}
-                >
-                    {user.avatar ? (
-                        <img src={user.avatar} alt={user.fullName} className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} />
-                    ) : (
-                        <span className="fw-bold">{user.firstName?.[0]?.toUpperCase()}{user.lastName?.[0]?.toUpperCase()}</span>
-                    )}
-                </div>
-            ),
-            fullName: user.fullName || `${user.firstName} ${user.lastName}`,
-            email: user.email,
-            phone: user.phone || '-',
-            roles: (
-                <div className="d-flex flex-wrap gap-1">
-                    {user.roles?.map((role) => (
-                        <MDBBadge 
-                            key={role.id} 
-                            color={role.name === 'ROLE_ADMIN' ? 'danger' : role.name === 'ROLE_MANAGER' ? 'warning' : 'info'} 
-                            pill
-                            className="text-capitalize"
-                        >
-                            {role.name.replace('ROLE_', '').toLowerCase()}
-                        </MDBBadge>
-                    )) || '-'}
-                </div>
-            ),
-            status: (
-                <MDBBadge color={user.isActive ? 'success' : 'secondary'} pill>
-                    {user.isActive 
-                        ? t('user.active', { defaultValue: 'Active' }) 
-                        : t('user.inactive', { defaultValue: 'Inactive' })
-                    }
-                </MDBBadge>
-            ),
-            lastLogin: user.lastLoginAt 
-                ? new Date(user.lastLoginAt).toLocaleDateString('pl-PL', { 
-                    day: 'numeric',
-                    month: 'short',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  }) 
-                : '-',
-            actions: (
-                <div className="d-flex gap-1">
-                    <MDBBtn
-                        size="sm"
-                        color="info"
-                        floating
-                        onClick={(e: React.MouseEvent) => {
-                            e.stopPropagation();
-                            navigate(`/users/${user.id}`);
-                        }}
-                        title={t('common.view', { defaultValue: 'View' })}
+        return users.map((user: User) => {
+            // Backend returns userRole as single object, not roles array
+            const userRole = (user as any).userRole;
+            const roleName = userRole?.name || (user.roles?.[0]?.name) || '';
+            const roleDisplayName = roleName.replace('ROLE_', '').toLowerCase();
+            const roleColor = roleName === 'admin' || roleName === 'ROLE_ADMIN' ? 'danger' 
+                            : roleName === 'manager' || roleName === 'ROLE_MANAGER' ? 'warning' 
+                            : 'info';
+
+            return {
+                id: user.id,
+                avatar: (
+                    <div 
+                        className="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white"
+                        style={{ width: 36, height: 36 }}
                     >
-                        <MDBIcon icon="eye" />
-                    </MDBBtn>
-                    {userPermissions.canEdit && (
-                        <>
-                            <MDBBtn
-                                size="sm"
-                                color="warning"
-                                floating
-                                onClick={(e: React.MouseEvent) => {
-                                    e.stopPropagation();
-                                    navigate(`/users/${user.id}/edit`);
-                                }}
-                                title={t('common.edit', { defaultValue: 'Edit' })}
-                            >
-                                <MDBIcon icon="edit" />
-                            </MDBBtn>
-                            <MDBBtn
-                                size="sm"
-                                color={user.isActive ? 'secondary' : 'success'}
-                                floating
-                                onClick={(e: React.MouseEvent) => {
-                                    e.stopPropagation();
-                                    handleToggleActive(user);
-                                }}
-                                title={user.isActive 
-                                    ? t('user.deactivate', { defaultValue: 'Deactivate' }) 
-                                    : t('user.activate', { defaultValue: 'Activate' })
-                                }
-                            >
-                                <MDBIcon icon={user.isActive ? 'user-slash' : 'user-check'} />
-                            </MDBBtn>
-                        </>
-                    )}
-                    {userPermissions.canDelete && (
+                        {user.avatar ? (
+                            <img src={user.avatar} alt={user.fullName} className="rounded-circle" style={{ width: 36, height: 36, objectFit: 'cover' }} />
+                        ) : (
+                            <span className="fw-bold">{user.firstName?.[0]?.toUpperCase()}{user.lastName?.[0]?.toUpperCase()}</span>
+                        )}
+                    </div>
+                ),
+                fullName: user.fullName || `${user.firstName} ${user.lastName}`,
+                email: user.email,
+                phone: user.phone || '-',
+                roles: (
+                    <MDBBadge 
+                        color={roleColor} 
+                        pill
+                        className="text-capitalize"
+                    >
+                        {roleDisplayName || '-'}
+                    </MDBBadge>
+                ),
+                status: (
+                    <MDBBadge color={user.isActive ? 'success' : 'secondary'} pill>
+                        {user.isActive 
+                            ? t('user.active', { defaultValue: 'Active' }) 
+                            : t('user.inactive', { defaultValue: 'Inactive' })
+                        }
+                    </MDBBadge>
+                ),
+                lastLogin: user.lastLoginAt 
+                    ? new Date(user.lastLoginAt).toLocaleDateString('pl-PL', { 
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) 
+                    : '-',
+                actions: (
+                    <div className="d-flex gap-1">
                         <MDBBtn
                             size="sm"
-                            color="danger"
+                            color="info"
                             floating
                             onClick={(e: React.MouseEvent) => {
                                 e.stopPropagation();
-                                setDeleteModal({ open: true, user });
+                                navigate(`/users/${user.id}`);
                             }}
-                            title={t('common.delete', { defaultValue: 'Delete' })}
+                            title={t('common.view', { defaultValue: 'View' })}
                         >
-                            <MDBIcon icon="trash" />
+                            <MDBIcon icon="eye" />
                         </MDBBtn>
-                    )}
-                </div>
-            ),
-            _original: user,
-        }));
-    }, [users, navigate, userPermissions, t]);
-
-    // Handle row click
-    const handleRowClick = (row: unknown) => {
-        const typedRow = row as DatatableRow;
-        if (typedRow._original) {
-            navigate(`/users/${typedRow._original.id}`);
-        }
-    };
-
-    // Stats
-    const stats = useMemo(() => ({
-        total: users.length,
-        active: users.filter(u => u.isActive).length,
-        admins: users.filter(u => u.roles?.some(r => r.name === 'ROLE_ADMIN')).length,
-        inactive: users.filter(u => !u.isActive).length,
-    }), [users]);
+                        {userPermissions.canEdit && (
+                            <>
+                                <MDBBtn
+                                    size="sm"
+                                    color="warning"
+                                    floating
+                                    onClick={(e: React.MouseEvent) => {
+                                        e.stopPropagation();
+                                        navigate(`/users/${user.id}/edit`);
+                                    }}
+                                    title={t('common.edit', { defaultValue: 'Edit' })}
+                                >
+                                    <MDBIcon icon="edit" />
+                                </MDBBtn>
+                                <MDBBtn
+                                    size="sm"
+                                    color={user.isActive ? 'secondary' : 'success'}
+                                    floating
+                                    onClick={(e: React.MouseEvent) => {
+                                        e.stopPropagation();
+                                        handleToggleActive(user);
+                                    }}
+                                    title={user.isActive 
+                                        ? t('user.deactivate', { defaultValue: 'Deactivate' }) 
+                                        : t('user.activate', { defaultValue: 'Activate' })
+                                    }
+                                >
+                                    <MDBIcon icon={user.isActive ? 'user-slash' : 'user-check'} />
+                                </MDBBtn>
+                            </>
+                        )}
+                        {userPermissions.canDelete && (
+                            <MDBBtn
+                                size="sm"
+                                color="danger"
+                                floating
+                                onClick={(e: React.MouseEvent) => {
+                                    e.stopPropagation();
+                                    setDeleteModal({ open: true, user });
+                                }}
+                                title={t('common.delete', { defaultValue: 'Delete' })}
+                            >
+                                <MDBIcon icon="trash" />
+                            </MDBBtn>
+                        )}
+                    </div>
+                ),
+                _original: user,
+            };
+        });
+    }, [users, navigate, userPermissions, t, handleToggleActive]);
 
     return (
-        <div>
+        <div className="p-4">
             <PageHeader
                 title={t('user.list', { defaultValue: 'Users' })}
                 subtitle={t('user.listSubtitle', { 
