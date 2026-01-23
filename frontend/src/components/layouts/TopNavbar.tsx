@@ -16,8 +16,8 @@ import {
     MDBBadge
 } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
-import { removeAuthToken } from '../../lib/axios';
 import { LanguageSwitcher } from '../LanguageSwitcher';
+import { useAuth } from '../../contexts';
 
 interface TopNavbarProps {
     sidebarCollapsed: boolean;
@@ -34,21 +34,22 @@ export const TopNavbar = ({
 }: TopNavbarProps) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { user, logout } = useAuth();
 
     const handleLogout = () => {
-        removeAuthToken();
-        navigate('/login');
+        logout();
     };
 
-    // Mock user data - will be replaced with context
-    const user = {
-        firstName: 'Admin',
-        lastName: 'User',
-        email: 'admin@maintly.com',
-        avatar: null as string | null,
+    // Fallback user data if not loaded yet
+    const displayUser = user || {
+        firstName: '',
+        lastName: '',
+        email: '',
     };
 
-    const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+    const initials = displayUser.firstName && displayUser.lastName
+        ? `${displayUser.firstName.charAt(0)}${displayUser.lastName.charAt(0)}`.toUpperCase()
+        : '?';
 
     // Calculate left position for navbar
     const getNavbarLeft = () => {
@@ -122,29 +123,20 @@ export const TopNavbar = ({
                             className="btn btn-link text-dark p-0 d-flex align-items-center gap-2"
                             style={{ textDecoration: 'none' }}
                         >
-                            {/* Avatar */}
-                            {user.avatar ? (
-                                <img 
-                                    src={user.avatar} 
-                                    alt={`${user.firstName} ${user.lastName}`}
-                                    className="rounded-circle"
-                                    style={{ width: '36px', height: '36px', objectFit: 'cover' }}
-                                />
-                            ) : (
-                                <div 
-                                    className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-                                    style={{ width: '36px', height: '36px', fontSize: '14px', fontWeight: 600 }}
-                                >
-                                    {initials}
-                                </div>
-                            )}
+                            {/* Avatar - always show initials for now */}
+                            <div 
+                                className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                                style={{ width: '36px', height: '36px', fontSize: '14px', fontWeight: 600 }}
+                            >
+                                {initials}
+                            </div>
                             {/* Hide name on small screens */}
                             <div className="d-none d-lg-block text-start">
                                 <div className="fw-semibold" style={{ fontSize: '14px', lineHeight: '1.2' }}>
-                                    {user.firstName} {user.lastName}
+                                    {displayUser.firstName} {displayUser.lastName}
                                 </div>
                                 <div className="text-muted" style={{ fontSize: '12px' }}>
-                                    {user.email}
+                                    {displayUser.email}
                                 </div>
                             </div>
                             <MDBIcon icon="chevron-down" size="sm" className="text-muted d-none d-md-block" />

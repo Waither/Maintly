@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Navigate, useLocation } from 'react-router-dom';
 import { MDBContainer, MDBCard, MDBCardBody, MDBInput, MDBBtn } from 'mdb-react-ui-kit';
 import apiClient, { setAuthToken, getAuthToken } from '../../lib/axios';
+import { useAuth } from '../../contexts';
 
 /**
  * Login Page
@@ -16,6 +17,7 @@ export const Login = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { refreshUser, user } = useAuth();
 
     // Get return URL from:
     // 1. Router state (ProtectedRoute redirect)
@@ -25,9 +27,9 @@ export const Login = () => {
         || sessionStorage.getItem('returnUrl') 
         || '/';
 
-    // Check if user is already logged in BEFORE rendering
+    // Check if user is already logged in (both token AND user loaded)
     const token = getAuthToken();
-    if (token) {
+    if (token && user) {
         return <Navigate to="/" replace />;
     }
 
@@ -46,6 +48,9 @@ export const Login = () => {
 
             // Save token to localStorage
             setAuthToken(response.data.token);
+
+            // Refresh user data in AuthContext
+            await refreshUser();
 
             // Clear return URL from sessionStorage
             sessionStorage.removeItem('returnUrl');

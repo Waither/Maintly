@@ -38,7 +38,7 @@ class DoctrineAuditSubscriber
     ];
 
     /**
-     * Fields to exclude from change tracking (sensitive data).
+     * Fields to exclude from change tracking (sensitive or auto-updated data).
      */
     private const EXCLUDED_FIELDS = [
         'password',
@@ -46,6 +46,7 @@ class DoctrineAuditSubscriber
         'apiToken',
         'salt',
         'plainPassword',
+        'lastLoginAt',  // Auto-updated on every login, not interesting for audit
     ];
 
     /**

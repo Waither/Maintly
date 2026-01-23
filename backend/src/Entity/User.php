@@ -34,6 +34,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
     #[ORM\Column(length: 100)]
     private ?string $lastName = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $phone = null;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $isActive = true;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?DateTimeImmutable $lastLoginAt = null;
+
     #[ORM\Column]
     #[Ignore]
     private ?DateTimeImmutable $createdAt = null;
@@ -120,6 +129,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface {
 
     public function setLastName(string $lastName): self {
         $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    public function getFullName(): string {
+        return trim($this->firstName . ' ' . $this->lastName);
+    }
+
+    public function getPhone(): ?string {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self {
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function isActive(): bool {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $isActive): self {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    public function getLastLoginAt(): ?DateTimeImmutable {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): self {
+        $this->lastLoginAt = $lastLoginAt;
 
         return $this;
     }

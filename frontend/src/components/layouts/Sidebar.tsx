@@ -2,17 +2,19 @@
  * Sidebar Component
  * Main navigation sidebar with menu items
  * Responsive - overlay on mobile, fixed on desktop
+ * Role-based menu filtering
  */
 
 import { NavLink, useLocation } from 'react-router-dom';
 import { MDBIcon } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
+import { useAuth, type Permissions } from '../../contexts';
 
 interface MenuItem {
     path: string;
     icon: string;
     label: string;
-    adminOnly?: boolean;
+    permissionKey?: keyof Permissions;
 }
 
 interface SidebarProps {
@@ -26,6 +28,7 @@ interface SidebarProps {
 export const Sidebar = ({ isCollapsed, onToggle, isMobile = false, isOpen = false, onClose }: SidebarProps) => {
     const { t } = useTranslation();
     const location = useLocation();
+    const { permissions } = useAuth();
 
     const menuItems: MenuItem[] = [
         { 
@@ -36,31 +39,40 @@ export const Sidebar = ({ isCollapsed, onToggle, isMobile = false, isOpen = fals
         { 
             path: '/work-orders', 
             icon: 'clipboard-list', 
-            label: t('nav.workOrders', { defaultValue: 'Work Orders' }) 
+            label: t('nav.workOrders', { defaultValue: 'Work Orders' }),
+            permissionKey: 'canAccessWorkOrders'
         },
         { 
             path: '/equipment', 
             icon: 'cogs', 
-            label: t('nav.equipment', { defaultValue: 'Equipment' }) 
+            label: t('nav.equipment', { defaultValue: 'Equipment' }),
+            permissionKey: 'canAccessEquipment'
         },
         { 
             path: '/reports', 
             icon: 'file-alt', 
-            label: t('nav.reports', { defaultValue: 'Reports' }) 
+            label: t('nav.reports', { defaultValue: 'Reports' }),
+            permissionKey: 'canAccessReports'
         },
         { 
             path: '/users', 
             icon: 'users', 
             label: t('nav.users', { defaultValue: 'Users' }),
-            adminOnly: true
+            permissionKey: 'canAccessUsers'
         },
         { 
             path: '/audit-logs', 
             icon: 'history', 
             label: t('nav.auditLogs', { defaultValue: 'Audit Logs' }),
-            adminOnly: true
+            permissionKey: 'canAccessAuditLogs'
         },
     ];
+
+    // Filter menu items based on permissions
+    const visibleMenuItems = menuItems.filter(item => {
+        if (!item.permissionKey) return true; // No permission required
+        return permissions[item.permissionKey];
+    });
 
     const isActive = (path: string) => {
         if (path === '/') {
@@ -134,7 +146,7 @@ export const Sidebar = ({ isCollapsed, onToggle, isMobile = false, isOpen = fals
             {/* Navigation Menu */}
             <nav className="flex-grow-1 py-3">
                 <ul className="nav flex-column">
-                    {menuItems.map((item) => (
+                    {visibleMenuItems.map((item) => (
                         <li key={item.path} className="nav-item">
                             <NavLink
                                 to={item.path}

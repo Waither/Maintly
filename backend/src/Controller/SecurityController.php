@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\HandledStamp;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 #[Route('/api', name: 'api_security_')]
@@ -21,6 +22,7 @@ class SecurityController extends AbstractController {
     public function __construct(
         private UserRepository $userRepository,
         private MessageBusInterface $commandBus,
+        private UserPasswordHasherInterface $passwordHasher,
     ) {}
 
     /**
@@ -289,8 +291,12 @@ class SecurityController extends AbstractController {
                     'email' => $user->getEmail(),
                     'firstName' => $user->getFirstName(),
                     'lastName' => $user->getLastName(),
+                    'phone' => $user->getPhone(),
                     'role' => $user->getUserRole()?->getName(),
+                    'fullName' => $user->getFirstName() . ' ' . $user->getLastName(),
+                    'isActive' => $user->isActive(),
                     'createdAt' => $user->getCreatedAt()?->format('Y-m-d H:i:s'),
+                    'lastLoginAt' => $user->getLastLoginAt()?->format('Y-m-d H:i:s'),
                 ],
             ]);
         }
@@ -299,6 +305,83 @@ class SecurityController extends AbstractController {
                 'status' => 'error',
                 'code' => 500,
                 'message' => 'error.fetch_user_info_failed',
+            ], 500);
+        }
+    }
+
+    /**
+     * Change current user's password
+     */
+    #[Route('/me/password', name: 'me_password', methods: ['PATCH'])]
+    #[OA\Patch(
+        path: '/api/me/password',
+        summary: 'Change current user password',
+        tags: ['Authenticated'],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['currentPassword', 'newPassword'],
+                properties: [
+                    new OA\Property(property: 'currentPassword', type: 'string'),
+                    new OA\Property(property: 'newPassword', type: 'string', minLength: 8),
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(response: 200, description: 'Password changed successfully'),
+            new OA\Response(response: 400, description: 'Invalid current password'),
+            new OA\Response(response: 401, description: 'Not authenticated'),
+        ],
+    )]
+    public function changePassword(Request $request): JsonResponse {
+        try {
+            $user = $this->getUser();
+
+            if (!$user instanceof User) {
+                return $this->json([
+                    'status' => 'error',
+                    'code' => 401,
+                    'message' => 'permission.not_authenticated',
+                ], 401);
+            }
+
+            $data = json_decode($request->getContent(), true);
+            $currentPassword = $data['currentPassword'] ?? '';
+            $newPassword = $data['newPassword'] ?? '';
+
+            // Validate new password length
+            if (strlen($newPassword) < 8) {
+                return $this->json([
+                    'status' => 'error',
+                    'code' => 400,
+                    'message' => 'validation.password_min_length',
+                ], 400);
+            }
+
+            // Verify current password
+            if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
+                return $this->json([
+                    'status' => 'error',
+                    'code' => 400,
+                    'message' => 'validation.wrong_current_password',
+                ], 400);
+            }
+
+            // Hash and save new password
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
+            $user->setPassword($hashedPassword);
+            $this->userRepository->save($user);
+
+            return $this->json([
+                'status' => 'success',
+                'message' => 'password.changed_successfully',
+            ]);
+        }
+        catch (Exception $e) {
+            return $this->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => 'error.password_change_failed',
             ], 500);
         }
     }
