@@ -319,9 +319,23 @@ class WorkOrderController extends AbstractController {
             items: new OA\Items(ref: new Model(type: \App\Entity\WorkOrder::class)),
         ),
     )]
+    #[OA\Parameter(
+        name: 'status',
+        in: 'query',
+        required: false,
+        schema: new OA\Schema(type: 'string'),
+        description: 'Filter by status name (e.g. open, in_progress, completed)',
+    )]
+    #[OA\Parameter(
+        name: 'priority',
+        in: 'query',
+        required: false,
+        schema: new OA\Schema(type: 'string'),
+        description: 'Filter by priority name (e.g. low, medium, high, critical)',
+    )]
     #[OA\Response(response: 401, description: 'Unauthorized')]
     #[OA\Response(response: 403, description: 'Access denied')]
-    public function list(): JsonResponse {
+    public function list(Request $request): JsonResponse {
         /** @var User $user */
         $user = $this->getUser();
 
@@ -331,7 +345,18 @@ class WorkOrderController extends AbstractController {
             $filterByUserId = $user->getId();
         }
 
-        $envelope = $this->messageBus->dispatch(new GetAllWorkOrdersQuery($filterByUserId));
+        // Get filter parameters
+        $statusName = $request->query->get('status');
+        $priorityName = $request->query->get('priority');
+        
+        // Debug logging
+        error_log("WorkOrder list: status={$statusName}, priority={$priorityName}");
+
+        $envelope = $this->messageBus->dispatch(new GetAllWorkOrdersQuery(
+            filterByUserId: $filterByUserId,
+            statusName: $statusName,
+            priorityName: $priorityName,
+        ));
         $workOrders = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json($workOrders, 200, [], [

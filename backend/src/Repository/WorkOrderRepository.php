@@ -41,4 +41,35 @@ class WorkOrderRepository extends ServiceEntityRepository {
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Find work orders with optional filters.
+     *
+     * @return WorkOrder[]
+     */
+    public function findWithFilters(?int $userId = null, ?string $statusName = null, ?string $priorityName = null): array {
+        $qb = $this->createQueryBuilder('w')
+            ->leftJoin('w.status', 's')
+            ->leftJoin('w.priority', 'p')
+            ->where('w.deletedAt IS NULL');
+
+        if ($userId !== null) {
+            $qb->andWhere('w.createdBy = :userId')
+               ->setParameter('userId', $userId);
+        }
+
+        if ($statusName !== null && $statusName !== '') {
+            $qb->andWhere('s.name = :statusName')
+               ->setParameter('statusName', $statusName);
+        }
+
+        if ($priorityName !== null && $priorityName !== '') {
+            $qb->andWhere('p.name = :priorityName')
+               ->setParameter('priorityName', $priorityName);
+        }
+
+        return $qb->orderBy('w.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

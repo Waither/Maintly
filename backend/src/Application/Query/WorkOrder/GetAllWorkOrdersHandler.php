@@ -17,12 +17,10 @@ class GetAllWorkOrdersHandler {
      * @return array<int, \App\Entity\WorkOrder>
      */
     public function __invoke(GetAllWorkOrdersQuery $query): array {
-        if ($query->filterByUserId !== null) {
-            // For provider role - return only work orders created by this user
-            return $this->workOrderRepository->findByCreator($query->filterByUserId);
-        }
-
-        // For admin, manager, technician, reporter - return all active work orders
-        return $this->workOrderRepository->findAllActive();
+        return $this->workOrderRepository->findWithFilters(
+            userId: $query->filterByUserId,
+            statusName: $query->statusName,
+            priorityName: $query->priorityName,
+        );
     }
 }

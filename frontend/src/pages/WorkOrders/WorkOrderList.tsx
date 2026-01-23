@@ -87,6 +87,8 @@ export const WorkOrderList = () => {
             const filters: Record<string, string> = {};
             if (statusFilter) filters.status = statusFilter;
             if (priorityFilter) filters.priority = priorityFilter;
+            
+            console.log('Loading work orders with filters:', filters, 'statusFilter:', statusFilter, 'priorityFilter:', priorityFilter);
 
             // Load all work orders for client-side datatable filtering
             const response = await workOrderService.getWorkOrders(1, 1000, filters);
@@ -188,12 +190,14 @@ export const WorkOrderList = () => {
     const handleStatusChange = (data: unknown) => {
         const selected = Array.isArray(data) ? data[0] : data;
         const value = (selected as SelectData)?.value || '';
+        console.log('Status change:', data, '-> value:', value);
         setStatusFilter(value);
     };
 
     const handlePriorityChange = (data: unknown) => {
         const selected = Array.isArray(data) ? data[0] : data;
         const value = (selected as SelectData)?.value || '';
+        console.log('Priority change:', data, '-> value:', value);
         setPriorityFilter(value);
     };
 
