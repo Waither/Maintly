@@ -433,10 +433,12 @@ export const WorkOrderForm = () => {
                                     multiple
                                     search
                                     onValueChange={(data: unknown) => {
+                                        console.log('Users onValueChange:', data);
                                         const selectedItems = Array.isArray(data) ? data : [data];
                                         const selectedIds = selectedItems
-                                            .filter((item: { value?: unknown }) => item?.value)
+                                            .filter((item: { value?: unknown }) => item?.value !== undefined && item?.value !== '' && item?.value !== 0)
                                             .map((item: { value: unknown }) => Number(item.value));
+                                        console.log('Users selectedIds:', selectedIds);
                                         handleChange('assignedUserIds', selectedIds);
                                     }}
                                 />
@@ -457,7 +459,7 @@ export const WorkOrderForm = () => {
                                         console.log('Tags onValueChange:', data);
                                         const selectedItems = Array.isArray(data) ? data : [data];
                                         const selectedIds = selectedItems
-                                            .filter((item: { value?: unknown }) => item?.value !== undefined && item?.value !== '')
+                                            .filter((item: { value?: unknown }) => item?.value !== undefined && item?.value !== '' && item?.value !== 0)
                                             .map((item: { value: unknown }) => Number(item.value));
                                         console.log('Tags selectedIds:', selectedIds);
                                         handleChange('tagIds', selectedIds);

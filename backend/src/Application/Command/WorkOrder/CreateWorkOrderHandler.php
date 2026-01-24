@@ -47,20 +47,32 @@ class CreateWorkOrderHandler {
             $workOrder->setPlannedEndDate($plannedEnd);
         }
 
-        // Add assigned users
-        foreach ($command->assignedUserIds as $userId) {
-            $user = $this->entityManager->getReference(User::class, $userId);
-            $workOrder->addAssignedUser($user);
-        }
-
-        // Add tags
-        foreach ($command->tagIds as $tagId) {
-            $tag = $this->entityManager->getReference(\App\Entity\Tag::class, $tagId);
-            $workOrder->addTag($tag);
-        }
-
         $this->entityManager->persist($workOrder);
         $this->entityManager->flush();
+
+        // Add assigned users (after flush to have workOrder ID)
+        foreach ($command->assignedUserIds as $userId) {
+            $user = $this->entityManager->getReference(User::class, $userId);
+            $assignment = new \App\Entity\WorkOrderAssignment();
+            $assignment->setWorkOrder($workOrder);
+            $assignment->setUser($user);
+            $assignment->setAssignedBy($createdBy);
+            $this->entityManager->persist($assignment);
+        }
+
+        // Add tags (after flush to have workOrder ID)
+        foreach ($command->tagIds as $tagId) {
+            $tag = $this->entityManager->getReference(\App\Entity\Tag::class, $tagId);
+            $workOrderTag = new \App\Entity\WorkOrderTag();
+            $workOrderTag->setWorkOrder($workOrder);
+            $workOrderTag->setTag($tag);
+            $workOrderTag->setAssignedBy($createdBy);
+            $this->entityManager->persist($workOrderTag);
+        }
+
+        if (!empty($command->assignedUserIds) || !empty($command->tagIds)) {
+            $this->entityManager->flush();
+        }
 
         return $workOrder;
     }
