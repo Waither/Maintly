@@ -561,6 +561,8 @@ class WorkOrderController extends AbstractController {
             createdBy: $user->getId(),
             plannedStartDate: $plannedStartDate,
             plannedEndDate: $plannedEndDate,
+            assignedUserIds: $data['assignedUserIds'] ?? [],
+            tagIds: $data['tagIds'] ?? [],
         );
 
         $envelope = $this->messageBus->dispatch($command);

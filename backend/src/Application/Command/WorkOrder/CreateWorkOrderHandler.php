@@ -47,6 +47,18 @@ class CreateWorkOrderHandler {
             $workOrder->setPlannedEndDate($plannedEnd);
         }
 
+        // Add assigned users
+        foreach ($command->assignedUserIds as $userId) {
+            $user = $this->entityManager->getReference(User::class, $userId);
+            $workOrder->addAssignedUser($user);
+        }
+
+        // Add tags
+        foreach ($command->tagIds as $tagId) {
+            $tag = $this->entityManager->getReference(\App\Entity\Tag::class, $tagId);
+            $workOrder->addTag($tag);
+        }
+
         $this->entityManager->persist($workOrder);
         $this->entityManager->flush();
 
