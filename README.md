@@ -127,9 +127,11 @@ docker exec maintly-backend php bin/console doctrine:fixtures:load --no-interact
 
 | Rola | Email | Hasło |
 |------|-------|-------|
-| Admin | admin@maintly.local | admin123 |
-| Manager | manager@maintly.local | manager123 |
-| Technician | tech@maintly.local | tech123 |
+| Admin | admin@maintly.com | MaintlyAdmin!@# |
+| Manager | manager@maintly.com | MaintlyManager!@# |
+| Technician | tech@maintly.com | MaintlyTech!@# |
+| Provider | provider@external.com | MaintlyProvider!@# |
+| Reporter | reporter@maintly.com | MaintlyReporter!@# |
 
 ---
 
