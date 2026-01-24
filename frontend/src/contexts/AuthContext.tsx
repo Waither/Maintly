@@ -9,7 +9,7 @@ import apiClient, { getAuthToken, removeAuthToken } from '../lib/axios';
 // Role hierarchy - lower number = more permissions
 export type UserRole = 'admin' | 'manager' | 'technician' | 'provider' | 'reporter';
 
-const ROLE_LEVELS: Record<UserRole, number> = {
+export const ROLE_LEVELS: Record<UserRole, number> = {
     admin: 1,
     manager: 2,
     technician: 3,

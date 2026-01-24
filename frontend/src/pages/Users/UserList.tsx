@@ -23,6 +23,7 @@ import {
 } from '../../components/ui';
 import { userService } from '../../services';
 import { User } from '../../types';
+import { useAuth, ROLE_LEVELS } from '../../contexts';
 
 // Type for MDBDatatable row data
 interface DatatableRow {
@@ -43,6 +44,7 @@ export const UserList = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { success, error } = useToast();
+    const { user: currentUser, permissions } = useAuth();
 
     // State
     const [users, setUsers] = useState<User[]>([]);
@@ -55,11 +57,22 @@ export const UserList = () => {
     });
     const [deleting, setDeleting] = useState(false);
 
-    // User permissions
-    const userPermissions = {
-        canCreate: true,
-        canEdit: true,
-        canDelete: true,
+    // Helper to check if current user can manage target user
+    const canManageUser = (targetUser: User): boolean => {
+        if (!currentUser || !permissions.canManageUsers) return false;
+        
+        const targetRole = (targetUser as any).userRole;
+        const targetRoleName = targetRole?.name || '';
+        const targetRoleLevel = ROLE_LEVELS[targetRoleName.toLowerCase() as keyof typeof ROLE_LEVELS];
+        const currentRoleLevel = ROLE_LEVELS[currentUser.role];
+        
+        // Can only manage users with LOWER privilege level
+        return targetRoleLevel > currentRoleLevel;
+    };
+
+    // Check if trying to delete self
+    const isSelf = (targetUser: User): boolean => {
+        return currentUser?.id === targetUser.id;
     };
 
     // Load data
@@ -208,7 +221,7 @@ export const UserList = () => {
                         >
                             <MDBIcon icon="eye" />
                         </MDBBtn>
-                        {userPermissions.canEdit && (
+                        {canManageUser(user) && (
                             <>
                                 <MDBBtn
                                     size="sm"
@@ -239,7 +252,7 @@ export const UserList = () => {
                                 </MDBBtn>
                             </>
                         )}
-                        {userPermissions.canDelete && (
+                        {canManageUser(user) && !isSelf(user) && (
                             <MDBBtn
                                 size="sm"
                                 color="danger"
@@ -258,7 +271,7 @@ export const UserList = () => {
                 _original: user,
             };
         });
-    }, [users, navigate, userPermissions, t, handleToggleActive]);
+    }, [users, navigate, t, handleToggleActive, canManageUser, isSelf]);
 
     return (
         <div className="p-4">
@@ -273,7 +286,7 @@ export const UserList = () => {
                     { label: t('nav.users', { defaultValue: 'Users' }) },
                 ]}
                 actions={
-                    userPermissions.canCreate && (
+                    permissions.canManageUsers && (
                         <MDBBtn color="primary" onClick={() => navigate('/users/new')}>
                             <MDBIcon icon="user-plus" className="me-2" />
                             {t('user.create', { defaultValue: 'Add User' })}

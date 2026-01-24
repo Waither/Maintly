@@ -26,12 +26,14 @@ import {
 } from '../../components/ui';
 import { userService } from '../../services';
 import { User } from '../../types';
+import { useAuth, ROLE_LEVELS } from '../../contexts';
 
 export const UserDetail = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { success, error } = useToast();
+    const { user: currentUser, permissions } = useAuth();
 
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -41,10 +43,22 @@ export const UserDetail = () => {
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
-    // User permissions
-    const userPermissions = {
-        canEdit: true,
-        canDelete: true,
+    // Helper to check if current user can manage target user
+    const canManageUser = (): boolean => {
+        if (!currentUser || !permissions.canManageUsers || !user) return false;
+        
+        const targetRole = (user as any).userRole;
+        const targetRoleName = targetRole?.name || '';
+        const targetRoleLevel = ROLE_LEVELS[targetRoleName.toLowerCase() as keyof typeof ROLE_LEVELS];
+        const currentRoleLevel = ROLE_LEVELS[currentUser.role];
+        
+        // Can only manage users with LOWER privilege level
+        return targetRoleLevel > currentRoleLevel;
+    };
+
+    // Check if trying to manage self
+    const isSelf = (): boolean => {
+        return currentUser?.id === user?.id;
     };
 
     useEffect(() => {
@@ -163,7 +177,7 @@ export const UserDetail = () => {
                 backLink="/users"
                 actions={
                     <div className="d-flex gap-2">
-                        {userPermissions.canEdit && (
+                        {canManageUser() && (
                             <>
                                 <MDBBtn 
                                     color={user.isActive ? 'secondary' : 'success'}
@@ -185,7 +199,7 @@ export const UserDetail = () => {
                                 </MDBBtn>
                             </>
                         )}
-                        {userPermissions.canDelete && (
+                        {canManageUser() && !isSelf() && (
                             <MDBBtn 
                                 color="danger" 
                                 outline
