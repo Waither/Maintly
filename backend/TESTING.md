@@ -6,16 +6,16 @@
 cd backend
 
 # All tests
-.\test.ps1
+.\scripts\test.ps1
 
 # Specific suite
-.\test.ps1 Integration
+.\scripts\test.ps1 Integration
 
 # Specific test class
-.\test.ps1 SecurityController
+.\scripts\test.ps1 SecurityController
 
 # With code coverage report
-.\test.ps1 -Coverage
+.\scripts\test.ps1 -Coverage
 ```
 
 ## Code Coverage

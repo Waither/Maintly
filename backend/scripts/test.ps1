@@ -20,7 +20,13 @@ if ($ClearCache) {
     Write-Host ""
 }
 
-$cmd = "php bin/phpunit"
+$cmd = "php"
+
+if ($Coverage) {
+    $cmd += " -d pcov.enabled=1"
+}
+
+$cmd += " bin/phpunit"
 
 if ($Filter) {
     $cmd += " --filter=$Filter"
