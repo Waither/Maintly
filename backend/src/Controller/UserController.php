@@ -94,6 +94,7 @@ class UserController extends AbstractController {
             // Transform users to array
             $data = array_map(function (User $user) {
                 $role = $user->getUserRole();
+
                 return [
                     'id' => $user->getId(),
                     'email' => $user->getEmail(),
@@ -392,7 +393,7 @@ class UserController extends AbstractController {
     }
 
     /**
-     * Toggle user active status
+     * Toggle user active status.
      */
     #[Route('/{id}/toggle-status', name: 'toggle_status', methods: ['PATCH'])]
     #[OA\Patch(

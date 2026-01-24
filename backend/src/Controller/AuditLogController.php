@@ -168,7 +168,7 @@ class AuditLogController extends AbstractController {
     #[Route('/meta/actions', name: 'actions', methods: ['GET'])]
     public function getActions(): JsonResponse {
         $actions = $this->auditLogRepository->getDistinctActions();
-        
+
         return $this->successResponse(
             data: $actions,
             message: 'audit.actions.retrieved',
@@ -181,7 +181,7 @@ class AuditLogController extends AbstractController {
     #[Route('/meta/entities', name: 'entities', methods: ['GET'])]
     public function getEntities(): JsonResponse {
         $entities = $this->auditLogRepository->getDistinctEntityTypes();
-        
+
         return $this->successResponse(
             data: $entities,
             message: 'audit.entities.retrieved',

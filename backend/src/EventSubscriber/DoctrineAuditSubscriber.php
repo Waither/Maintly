@@ -6,6 +6,8 @@ namespace App\EventSubscriber;
 
 use App\Entity\AuditLog;
 use App\Entity\User;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -13,6 +15,8 @@ use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use ReflectionClass;
+use ReflectionNamedType;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
@@ -24,8 +28,7 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 #[AsDoctrineListener(event: Events::preUpdate)]
 #[AsDoctrineListener(event: Events::postUpdate)]
 #[AsDoctrineListener(event: Events::postRemove)]
-class DoctrineAuditSubscriber
-{
+class DoctrineAuditSubscriber {
     /**
      * Entities to track for audit logging.
      */
@@ -51,6 +54,7 @@ class DoctrineAuditSubscriber
 
     /**
      * Store changes before flush for updates.
+     *
      * @var array<string, array<string, mixed>>
      */
     private array $pendingChanges = [];
@@ -61,8 +65,7 @@ class DoctrineAuditSubscriber
         private readonly Connection $connection,
     ) {}
 
-    public function postPersist(PostPersistEventArgs $args): void
-    {
+    public function postPersist(PostPersistEventArgs $args): void {
         $entity = $args->getObject();
 
         if (!$this->shouldTrack($entity)) {
@@ -77,8 +80,7 @@ class DoctrineAuditSubscriber
         );
     }
 
-    public function preUpdate(PreUpdateEventArgs $args): void
-    {
+    public function preUpdate(PreUpdateEventArgs $args): void {
         $entity = $args->getObject();
 
         if (!$this->shouldTrack($entity)) {
@@ -94,7 +96,8 @@ class DoctrineAuditSubscriber
                 continue;
             }
 
-            [$oldValue, $newValue] = $values;
+            $valuesArray = is_array($values) ? $values : $values->toArray();
+            [$oldValue, $newValue] = $valuesArray;
             $changes[$field] = [
                 'from' => $this->serializeValue($oldValue),
                 'to' => $this->serializeValue($newValue),
@@ -106,8 +109,7 @@ class DoctrineAuditSubscriber
         }
     }
 
-    public function postUpdate(PostUpdateEventArgs $args): void
-    {
+    public function postUpdate(PostUpdateEventArgs $args): void {
         $entity = $args->getObject();
 
         if (!$this->shouldTrack($entity)) {
@@ -130,8 +132,7 @@ class DoctrineAuditSubscriber
         );
     }
 
-    public function postRemove(PostRemoveEventArgs $args): void
-    {
+    public function postRemove(PostRemoveEventArgs $args): void {
         $entity = $args->getObject();
 
         if (!$this->shouldTrack($entity)) {
@@ -146,14 +147,14 @@ class DoctrineAuditSubscriber
         );
     }
 
-    private function shouldTrack(object $entity): bool
-    {
+    private function shouldTrack(object $entity): bool {
         // Don't track AuditLog itself
         if ($entity instanceof AuditLog) {
             return false;
         }
 
         $class = get_class($entity);
+
         return in_array($class, self::TRACKED_ENTITIES, true);
     }
 
@@ -191,35 +192,36 @@ class DoctrineAuditSubscriber
             'changes' => json_encode($changes),
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent ? substr($userAgent, 0, 255) : null,
-            'created_at' => (new \DateTimeImmutable())->format('Y-m-d H:i:s'),
+            'created_at' => (new DateTimeImmutable())->format('Y-m-d H:i:s'),
         ]);
     }
 
-    private function getEntityShortName(object $entity): string
-    {
+    private function getEntityShortName(object $entity): string {
         $class = get_class($entity);
         $parts = explode('\\', $class);
+
         return end($parts);
     }
 
-    private function getEntityId(object $entity): ?int
-    {
+    private function getEntityId(object $entity): ?int {
         if (method_exists($entity, 'getId')) {
             $id = $entity->getId();
+
             return is_int($id) ? $id : null;
         }
+
         return null;
     }
 
     /**
      * Get entity data for create/delete logging.
      * Uses reflection to get all entity properties.
+     *
      * @return array<string, mixed>
      */
-    private function getEntityData(object $entity): array
-    {
+    private function getEntityData(object $entity): array {
         $data = [];
-        $reflection = new \ReflectionClass($entity);
+        $reflection = new ReflectionClass($entity);
 
         foreach ($reflection->getProperties() as $property) {
             $propertyName = $property->getName();
@@ -231,10 +233,10 @@ class DoctrineAuditSubscriber
 
             // Skip collections (OneToMany, ManyToMany relationships)
             $propertyType = $property->getType();
-            if ($propertyType instanceof \ReflectionNamedType) {
+            if ($propertyType instanceof ReflectionNamedType) {
                 $typeName = $propertyType->getName();
-                if ($typeName === 'Doctrine\Common\Collections\Collection' ||
-                    is_subclass_of($typeName, 'Doctrine\Common\Collections\Collection')) {
+                if ($typeName === 'Doctrine\Common\Collections\Collection'
+                    || is_subclass_of($typeName, 'Doctrine\Common\Collections\Collection')) {
                     continue;
                 }
             }
@@ -245,9 +247,11 @@ class DoctrineAuditSubscriber
 
             if (method_exists($entity, $getterName)) {
                 $value = $entity->$getterName();
-            } elseif (method_exists($entity, $isserName)) {
+            }
+            elseif (method_exists($entity, $isserName)) {
                 $value = $entity->$isserName();
-            } else {
+            }
+            else {
                 continue;
             }
 
@@ -257,8 +261,7 @@ class DoctrineAuditSubscriber
         return $data;
     }
 
-    private function serializeValue(mixed $value): mixed
-    {
+    private function serializeValue(mixed $value): mixed {
         if ($value === null) {
             return null;
         }
@@ -267,7 +270,7 @@ class DoctrineAuditSubscriber
             return $value;
         }
 
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             return $value->format('Y-m-d H:i:s');
         }
 
@@ -279,6 +282,7 @@ class DoctrineAuditSubscriber
             if (method_exists($value, '__toString')) {
                 return (string) $value;
             }
+
             return get_class($value);
         }
 

@@ -11,19 +11,16 @@ use Doctrine\Bundle\FixturesBundle\FixtureGroupInterface;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class TranslationFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface
-{
+class TranslationFixtures extends Fixture implements FixtureGroupInterface, DependentFixtureInterface {
     public function __construct(
-        private TranslationRepository $translationRepository
+        private TranslationRepository $translationRepository,
     ) {}
 
-    public static function getGroups(): array
-    {
+    public static function getGroups(): array {
         return ['translation', 'default'];
     }
 
-    public function getDependencies(): array
-    {
+    public function getDependencies(): array {
         return [
             MasterFixtures::class,
         ];
@@ -249,7 +246,7 @@ class TranslationFixtures extends Fixture implements FixtureGroupInterface, Depe
             // Create or update English translation
             $enTranslation = $this->translationRepository->findOneBy([
                 'messageKey' => $item['key'],
-                'locale' => 'en'
+                'locale' => 'en',
             ]);
             if (!$enTranslation) {
                 $enTranslation = new Translation();
@@ -262,7 +259,7 @@ class TranslationFixtures extends Fixture implements FixtureGroupInterface, Depe
             // Create or update Polish translation
             $plTranslation = $this->translationRepository->findOneBy([
                 'messageKey' => $item['key'],
-                'locale' => 'pl'
+                'locale' => 'pl',
             ]);
             if (!$plTranslation) {
                 $plTranslation = new Translation();

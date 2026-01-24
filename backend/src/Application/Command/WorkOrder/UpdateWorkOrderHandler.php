@@ -9,9 +9,9 @@ use App\Entity\Tag;
 use App\Entity\User;
 use App\Entity\WorkOrder;
 use App\Entity\WorkOrderAssignment;
-use App\Entity\WorkOrderTag;
 use App\Entity\WorkOrderPriority;
 use App\Entity\WorkOrderStatus;
+use App\Entity\WorkOrderTag;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -105,7 +105,7 @@ class UpdateWorkOrderHandler {
         }
 
         // Handle tags
-        if ($command->tagIds !== null && is_array($command->tagIds)) {
+        if ($command->tagIds !== null) {
             // Remove existing tags first
             foreach ($workOrder->getWorkOrderTags() as $workOrderTag) {
                 $this->entityManager->remove($workOrderTag);

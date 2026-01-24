@@ -39,10 +39,12 @@ class AuditLog {
     #[Groups(['audit:read'])]
     private ?int $entityId = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: 'json', nullable: true)]
     #[Groups(['audit:read'])]
     private ?array $changes = null;
 
+    /** @var array<string, mixed>|null */
     #[ORM\Column(type: 'json', nullable: true)]
     #[Groups(['audit:read'])]
     private ?array $metadata = null;

@@ -275,7 +275,8 @@ class WorkOrder {
     }
 
     /**
-     * Get assigned users for serialization (frontend expects this format)
+     * Get assigned users for serialization (frontend expects this format).
+     *
      * @return array<int, array{userId: int, user: User, assignedAt: string}>
      */
     public function getAssignedUsers(): array {
@@ -287,6 +288,7 @@ class WorkOrder {
                 'assignedAt' => $assignment->getAssignedAt()->format('Y-m-d H:i:s'),
             ];
         }
+
         return $result;
     }
 
@@ -298,8 +300,9 @@ class WorkOrder {
     }
 
     /**
-     * Get tags for serialization (frontend expects this format)
-     * @return array<int, array{tagId: int, tag: array, assignedAt: string}>
+     * Get tags for serialization (frontend expects this format).
+     *
+     * @return array<int, array{tagId: int, tag: array<string, mixed>, assignedAt: string}>
      */
     public function getTags(): array {
         $result = [];
@@ -315,6 +318,7 @@ class WorkOrder {
                 'assignedAt' => $workOrderTag->getAssignedAt()->format('Y-m-d H:i:s'),
             ];
         }
+
         return $result;
     }
 

@@ -310,7 +310,7 @@ class SecurityController extends AbstractController {
     }
 
     /**
-     * Change current user's password
+     * Change current user's password.
      */
     #[Route('/me/password', name: 'me_password', methods: ['PATCH'])]
     #[OA\Patch(

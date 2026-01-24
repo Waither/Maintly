@@ -13,10 +13,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 /**
  * User & Role Fixtures
- * Creates all user roles and sample users for testing
+ * Creates all user roles and sample users for testing.
  */
-class AppFixtures extends Fixture implements DependentFixtureInterface
-{
+class AppFixtures extends Fixture implements DependentFixtureInterface {
     public const ADMIN_USER_REFERENCE = 'admin-user';
     public const MANAGER_USER_REFERENCE = 'manager-user';
     public const TECHNICIAN_USER_REFERENCE = 'technician-user';
@@ -33,8 +32,7 @@ class AppFixtures extends Fixture implements DependentFixtureInterface
         private UserPasswordHasherInterface $passwordHasher,
     ) {}
 
-    public function load(ObjectManager $manager): void
-    {
+    public function load(ObjectManager $manager): void {
         // ========== CREATE USER ROLES ==========
 
         $adminRole = new UserRole();
@@ -119,8 +117,7 @@ class AppFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies(): array
-    {
+    public function getDependencies(): array {
         return [
             MasterFixtures::class,
         ];

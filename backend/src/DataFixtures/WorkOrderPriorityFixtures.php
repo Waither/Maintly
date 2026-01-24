@@ -9,15 +9,13 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class WorkOrderPriorityFixtures extends Fixture implements DependentFixtureInterface
-{
+class WorkOrderPriorityFixtures extends Fixture implements DependentFixtureInterface {
     public const LOW_PRIORITY_REFERENCE = 'priority-low';
     public const MEDIUM_PRIORITY_REFERENCE = 'priority-medium';
     public const HIGH_PRIORITY_REFERENCE = 'priority-high';
     public const CRITICAL_PRIORITY_REFERENCE = 'priority-critical';
 
-    public function load(ObjectManager $manager): void
-    {
+    public function load(ObjectManager $manager): void {
         $priorities = [
             [
                 'name' => 'low',
@@ -58,8 +56,7 @@ class WorkOrderPriorityFixtures extends Fixture implements DependentFixtureInter
         $manager->flush();
     }
 
-    public function getDependencies(): array
-    {
+    public function getDependencies(): array {
         return [
             MasterFixtures::class,
         ];

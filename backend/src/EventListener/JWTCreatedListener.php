@@ -23,17 +23,17 @@ class JWTCreatedListener {
 
     public function __invoke(JWTCreatedEvent $event): void {
         $user = $event->getUser();
-        
+
         if (!$user instanceof User) {
             return;
         }
 
         // Update last login timestamp
         $user->setLastLoginAt(new DateTimeImmutable());
-        
+
         // Create audit log entry for login
         $request = $this->requestStack->getCurrentRequest();
-        
+
         $auditLog = new AuditLog();
         $auditLog->setUser($user);
         $auditLog->setAction('login');
@@ -42,7 +42,7 @@ class JWTCreatedListener {
         $auditLog->setChanges([]);
         $auditLog->setIpAddress($request?->getClientIp());
         $auditLog->setUserAgent($request?->headers->get('User-Agent'));
-        
+
         $this->em->persist($auditLog);
         $this->em->flush();
     }

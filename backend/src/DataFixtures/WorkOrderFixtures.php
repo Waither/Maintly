@@ -21,18 +21,16 @@ use Doctrine\Persistence\ObjectManager;
  * 2. Przegląd okresowy robota - MEDIUM, OPEN
  * 3. Wymiana filtrów sprężarki - LOW, COMPLETED
  * 4. Naprawa klimatyzacji - HIGH, ON_HOLD
- * 5. Kalibracja prasy - MEDIUM, OPEN
+ * 5. Kalibracja prasy - MEDIUM, OPEN.
  */
-class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
-{
+class WorkOrderFixtures extends Fixture implements DependentFixtureInterface {
     public const WO_AWARIA_POMPY = 'work-order-awaria-pompy';
     public const WO_PRZEGLAD_ROBOTA = 'work-order-przeglad-robota';
     public const WO_FILTRY_SPREZARKA = 'work-order-filtry-sprezarka';
     public const WO_NAPRAWA_KLIMA = 'work-order-naprawa-klima';
     public const WO_KALIBRACJA_PRASY = 'work-order-kalibracja-prasy';
 
-    public function load(ObjectManager $manager): void
-    {
+    public function load(ObjectManager $manager): void {
         // Get references
         /** @var User $admin */
         $admin = $this->getReference(AppFixtures::ADMIN_USER_REFERENCE, User::class);
@@ -85,7 +83,7 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
             "Wymagane działania:\n" .
             "1. Wymiana uszczelnień\n" .
             "2. Kontrola stanu łożysk\n" .
-            "3. Uzupełnienie oleju hydraulicznego"
+            '3. Uzupełnienie oleju hydraulicznego',
         );
         $wo1->setStatus($statusInProgress);
         $wo1->setPriority($priorityCritical);
@@ -108,7 +106,7 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
             "- Sprawdzenie dokładności pozycjonowania\n" .
             "- Aktualizacja oprogramowania sterującego\n" .
             "- Wymiana filtrów wentylacji szafy sterowniczej\n\n" .
-            "Uwaga: Wymagany przestój linii 2 na czas przeglądu (ok. 4h)."
+            'Uwaga: Wymagany przestój linii 2 na czas przeglądu (ok. 4h).',
         );
         $wo2->setStatus($statusOpen);
         $wo2->setPriority($priorityMedium);
@@ -129,7 +127,7 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
             "- Filtr oleju (1622 0871 00)\n" .
             "- Separator oleju\n\n" .
             "Stan po wymianie: OK\n" .
-            "Następna wymiana: za 4000h lub 12 miesięcy."
+            'Następna wymiana: za 4000h lub 12 miesięcy.',
         );
         $wo3->setStatus($statusCompleted);
         $wo3->setPriority($priorityLow);
@@ -152,7 +150,7 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
             "- Wentylator wewnętrzny OK\n" .
             "- Podejrzenie: nieszczelność układu freonowego\n\n" .
             "STATUS: WSTRZYMANE - oczekiwanie na serwis Daikin (umówiony na 15.01).\n" .
-            "Kontakt: Jan Nowak, tel. 600-123-456"
+            'Kontakt: Jan Nowak, tel. 600-123-456',
         );
         $wo4->setStatus($statusOnHold);
         $wo4->setPriority($priorityHigh);
@@ -174,7 +172,7 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
             "- Kontrola równoległości stołu\n" .
             "- Sprawdzenie czujników bezpieczeństwa\n" .
             "- Kalibracja manometrów\n\n" .
-            "Wymagane: świadectwo kalibracji od akredytowanego laboratorium."
+            'Wymagane: świadectwo kalibracji od akredytowanego laboratorium.',
         );
         $wo5->setStatus($statusOpen);
         $wo5->setPriority($priorityMedium);
@@ -188,8 +186,7 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies(): array
-    {
+    public function getDependencies(): array {
         return [
             AppFixtures::class,
             WorkOrderStatusFixtures::class,

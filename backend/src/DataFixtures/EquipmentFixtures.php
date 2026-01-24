@@ -34,10 +34,9 @@ use Doctrine\Persistence\ObjectManager;
  * - Sprężarkownia
  *   - Kompresor Atlas Copco
  *   - Osuszacz powietrza
- *   - Zbiornik ciśnieniowy
+ *   - Zbiornik ciśnieniowy.
  */
-class EquipmentFixtures extends Fixture implements DependentFixtureInterface
-{
+class EquipmentFixtures extends Fixture implements DependentFixtureInterface {
     // Main locations
     public const HALA_1_REFERENCE = 'equipment-hala-1';
     public const HALA_MAGAZYN_REFERENCE = 'equipment-hala-magazyn';
@@ -66,8 +65,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
     public const OSUSZACZ_REFERENCE = 'equipment-osuszacz';
     public const ZBIORNIK_REFERENCE = 'equipment-zbiornik';
 
-    public function load(ObjectManager $manager): void
-    {
+    public function load(ObjectManager $manager): void {
         /** @var User $admin */
         $admin = $this->getReference(AppFixtures::ADMIN_USER_REFERENCE, User::class);
 
@@ -77,7 +75,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Hala Produkcyjna #1',
             1001,
             null,
-            $admin
+            $admin,
         );
         $manager->persist($hala1);
         $this->addReference(self::HALA_1_REFERENCE, $hala1);
@@ -86,7 +84,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Hala Magazynowa',
             2001,
             null,
-            $admin
+            $admin,
         );
         $manager->persist($halaMagazyn);
         $this->addReference(self::HALA_MAGAZYN_REFERENCE, $halaMagazyn);
@@ -95,7 +93,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Budynek Administracyjny',
             3001,
             null,
-            $admin
+            $admin,
         );
         $manager->persist($budynekAdmin);
         $this->addReference(self::BUDYNEK_ADMIN_REFERENCE, $budynekAdmin);
@@ -104,7 +102,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Stacja Transformatorowa',
             4001,
             null,
-            $admin
+            $admin,
         );
         $manager->persist($stacjaTrafo);
         $this->addReference(self::STACJA_TRAFO_REFERENCE, $stacjaTrafo);
@@ -113,7 +111,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Sprężarkownia',
             5001,
             null,
-            $admin
+            $admin,
         );
         $manager->persist($sprezarkownia);
         $this->addReference(self::SPREZARKOWNIA_REFERENCE, $sprezarkownia);
@@ -127,7 +125,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Linia Produkcyjna 1',
             1101,
             $hala1,
-            $admin
+            $admin,
         );
         $manager->persist($linia1);
         $this->addReference(self::LINIA_1_REFERENCE, $linia1);
@@ -136,7 +134,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Linia Produkcyjna 2',
             1102,
             $hala1,
-            $admin
+            $admin,
         );
         $manager->persist($linia2);
         $this->addReference(self::LINIA_2_REFERENCE, $linia2);
@@ -151,7 +149,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             1111,
             $linia1,
             $admin,
-            120 // 2 hours of work time
+            120, // 2 hours of work time
         );
         $manager->persist($pompaLp1);
         $this->addReference(self::POMPA_LP1_REFERENCE, $pompaLp1);
@@ -161,7 +159,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             1112,
             $linia1,
             $admin,
-            45
+            45,
         );
         $manager->persist($silnikLp1);
         $this->addReference(self::SILNIK_LP1_REFERENCE, $silnikLp1);
@@ -171,7 +169,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             1113,
             $linia1,
             $admin,
-            30
+            30,
         );
         $manager->persist($tasmaLp1);
         $this->addReference(self::TASMA_LP1_REFERENCE, $tasmaLp1);
@@ -182,7 +180,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             1121,
             $linia2,
             $admin,
-            180
+            180,
         );
         $manager->persist($prasaLp2);
         $this->addReference(self::PRASA_LP2_REFERENCE, $prasaLp2);
@@ -192,7 +190,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             1122,
             $linia2,
             $admin,
-            90
+            90,
         );
         $manager->persist($robotLp2);
         $this->addReference(self::ROBOT_LP2_REFERENCE, $robotLp2);
@@ -203,7 +201,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             2101,
             $halaMagazyn,
             $admin,
-            60
+            60,
         );
         $manager->persist($wozek1);
         $this->addReference(self::WOZEK_1_REFERENCE, $wozek1);
@@ -213,7 +211,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             2102,
             $halaMagazyn,
             $admin,
-            45
+            45,
         );
         $manager->persist($wozek2);
         $this->addReference(self::WOZEK_2_REFERENCE, $wozek2);
@@ -222,7 +220,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Regał wysokiego składowania A1',
             2103,
             $halaMagazyn,
-            $admin
+            $admin,
         );
         $manager->persist($regal);
         $this->addReference(self::REGAL_REFERENCE, $regal);
@@ -233,7 +231,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             3101,
             $budynekAdmin,
             $admin,
-            15
+            15,
         );
         $manager->persist($klima);
         $this->addReference(self::KLIMA_REFERENCE, $klima);
@@ -243,7 +241,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             3102,
             $budynekAdmin,
             $admin,
-            30
+            30,
         );
         $manager->persist($ups);
         $this->addReference(self::UPS_REFERENCE, $ups);
@@ -253,7 +251,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Transformator 15kV/400V 1000kVA',
             4101,
             $stacjaTrafo,
-            $admin
+            $admin,
         );
         $manager->persist($trafo);
         $this->addReference(self::TRAFO_REFERENCE, $trafo);
@@ -263,7 +261,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             4102,
             $stacjaTrafo,
             $admin,
-            60
+            60,
         );
         $manager->persist($rozdzielnia);
         $this->addReference(self::ROZDZIELNIA_REFERENCE, $rozdzielnia);
@@ -274,7 +272,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             5101,
             $sprezarkownia,
             $admin,
-            240
+            240,
         );
         $manager->persist($kompresor);
         $this->addReference(self::KOMPRESOR_REFERENCE, $kompresor);
@@ -284,7 +282,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             5102,
             $sprezarkownia,
             $admin,
-            30
+            30,
         );
         $manager->persist($osuszacz);
         $this->addReference(self::OSUSZACZ_REFERENCE, $osuszacz);
@@ -293,7 +291,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
             'Zbiornik ciśnieniowy 2000L',
             5103,
             $sprezarkownia,
-            $admin
+            $admin,
         );
         $manager->persist($zbiornik);
         $this->addReference(self::ZBIORNIK_REFERENCE, $zbiornik);
@@ -306,7 +304,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
         int $costCenter,
         ?Equipment $parent,
         User $createdBy,
-        int $directWorkTime = 0
+        int $directWorkTime = 0,
     ): Equipment {
         $equipment = new Equipment();
         $equipment->setName($name);
@@ -319,8 +317,7 @@ class EquipmentFixtures extends Fixture implements DependentFixtureInterface
         return $equipment;
     }
 
-    public function getDependencies(): array
-    {
+    public function getDependencies(): array {
         return [
             AppFixtures::class,
         ];

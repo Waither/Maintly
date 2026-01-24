@@ -9,16 +9,14 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class WorkOrderStatusFixtures extends Fixture implements DependentFixtureInterface
-{
+class WorkOrderStatusFixtures extends Fixture implements DependentFixtureInterface {
     public const OPEN_STATUS_REFERENCE = 'status-open';
     public const IN_PROGRESS_STATUS_REFERENCE = 'status-in-progress';
     public const ON_HOLD_STATUS_REFERENCE = 'status-on-hold';
     public const COMPLETED_STATUS_REFERENCE = 'status-completed';
     public const CANCELLED_STATUS_REFERENCE = 'status-cancelled';
 
-    public function load(ObjectManager $manager): void
-    {
+    public function load(ObjectManager $manager): void {
         $statuses = [
             [
                 'name' => 'open',
@@ -71,8 +69,7 @@ class WorkOrderStatusFixtures extends Fixture implements DependentFixtureInterfa
         $manager->flush();
     }
 
-    public function getDependencies(): array
-    {
+    public function getDependencies(): array {
         return [
             MasterFixtures::class,
         ];
