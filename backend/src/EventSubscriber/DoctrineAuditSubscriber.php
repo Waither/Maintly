@@ -170,8 +170,11 @@ class DoctrineAuditSubscriber {
         // Get current user
         $userId = null;
         $token = $this->tokenStorage->getToken();
-        if ($token && $token->getUser() instanceof User) {
-            $userId = $token->getUser()->getId();
+        if ($token) {
+            $user = $token->getUser();
+            if ($user instanceof User) {
+                $userId = $user->getId();
+            }
         }
 
         // Get request info
