@@ -94,8 +94,8 @@ Maintly CMMS to system do zarządzania:
 
 ```bash
 # Klonowanie
-git clone https://github.com/your-username/maintly-cmms.git
-cd maintly-cmms
+git clone https://github.com/Waither/Maintly.git
+cd Maintly
 
 # Uruchomienie kontenerów
 docker-compose up -d
