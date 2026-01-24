@@ -251,8 +251,8 @@ export const WorkOrderForm = () => {
             } else {
                 const newWorkOrder = await workOrderService.createWorkOrder(payload);
                 success(t('workOrder.createSuccess', { defaultValue: 'Work order created successfully' }));
-                // For new work order, go to its detail page
-                navigate(`/work-orders/${newWorkOrder.id}`);
+                // Force full page reload to refresh state
+                window.location.href = '/work-orders';
                 return;
             }
         } catch (err: unknown) {
