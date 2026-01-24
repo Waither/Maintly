@@ -46,7 +46,6 @@ package "USER MANAGEMENT" #E8F5E9 {
     primary_key(id): int
     --
     name: varchar(50) <<unique>>
-    created_at: datetime
   }
 
   table(users) <<user>> {
@@ -56,10 +55,10 @@ package "USER MANAGEMENT" #E8F5E9 {
     password: varchar(255)
     first_name: varchar(100)
     last_name: varchar(100)
-    is_active: boolean
+    phone: varchar(20) <<nullable>>
+    is_active: boolean = true
+    last_login_at: datetime <<nullable>>
     created_at: datetime
-    updated_at: datetime
-    deleted_at: datetime
     --
     foreign_key(user_role_id): int
   }
@@ -76,16 +75,16 @@ package "EQUIPMENT MANAGEMENT" #E3F2FD {
     --
     name: varchar(255)
     cost_center: int
-    qr_code_data: varchar(255) <<unique>>
-    direct_work_time: int
-    total_work_time: int
+    qr_code_data: varchar(255) <<unique>> <<nullable>>
+    direct_work_time: int = 0
+    total_work_time: int = 0
     created_at: datetime
-    updated_at: datetime
-    deleted_at: datetime
+    updated_at: datetime <<nullable>>
+    deleted_at: datetime <<nullable>>
     --
-    foreign_key(parent_equipment_id): int
+    foreign_key(parent_equipment_id): int <<nullable>>
     foreign_key(created_by): int
-    foreign_key(updated_by): int
+    foreign_key(updated_by): int <<nullable>>
   }
 
   equipment }o--o| equipment
@@ -96,9 +95,9 @@ package "EQUIPMENT MANAGEMENT" #E3F2FD {
     primary_key(id): int
     --
     name: varchar(100) <<unique>>
-    is_required: boolean
-    is_single_choice: boolean
-    display_order: int
+    is_required: boolean = false
+    is_single_choice: boolean = false
+    display_order: int = 0
     created_at: datetime
   }
 
@@ -106,10 +105,10 @@ package "EQUIPMENT MANAGEMENT" #E3F2FD {
     primary_key(id): int
     --
     name: varchar(100) <<unique>>
-    color: varchar(7)
+    color: varchar(7) <<nullable>>
     created_at: datetime
     --
-    foreign_key(tag_group_id): int
+    foreign_key(tag_group_id): int <<nullable>>
   }
 
   tags }o--o| tag_groups
@@ -133,13 +132,13 @@ package "EQUIPMENT MANAGEMENT" #E3F2FD {
     --
     field_name: varchar(100) <<unique>>
     field_type: varchar(20)
-    field_options: json
-    is_required: boolean
-    default_value: text
-    display_order: int
-    is_active: boolean
+    field_options: json <<nullable>>
+    is_required: boolean = false
+    default_value: text <<nullable>>
+    display_order: int = 0
+    is_active: boolean = true
     created_at: datetime
-    deleted_at: datetime
+    deleted_at: datetime <<nullable>>
     --
     foreign_key(created_by): int
   }
@@ -149,9 +148,9 @@ package "EQUIPMENT MANAGEMENT" #E3F2FD {
   table(equipment_custom_values) <<equipment>> {
     primary_key(id): int
     --
-    value: text
+    value: text <<nullable>>
     created_at: datetime
-    updated_at: datetime
+    updated_at: datetime <<nullable>>
     --
     foreign_key(equipment_id): int
     foreign_key(custom_field_id): int
@@ -165,10 +164,10 @@ package "EQUIPMENT MANAGEMENT" #E3F2FD {
     --
     file_name: varchar(255)
     file_type: varchar(50)
-    file_size: bigint
-    description: text
+    file_size: bigint <<nullable>>
+    description: text <<nullable>>
     uploaded_at: datetime
-    deleted_at: datetime
+    deleted_at: datetime <<nullable>>
     --
     foreign_key(equipment_id): int
     foreign_key(uploaded_by): int
@@ -186,9 +185,9 @@ package "WORK ORDER MANAGEMENT" #FFF3E0 {
     primary_key(id): int
     --
     name: varchar(50) <<unique>>
-    color: varchar(7)
-    display_order: int
-    is_final: boolean
+    color: varchar(7) <<nullable>>
+    display_order: int = 0
+    is_final: boolean = false
     created_at: datetime
   }
 
@@ -196,30 +195,30 @@ package "WORK ORDER MANAGEMENT" #FFF3E0 {
     primary_key(id): int
     --
     name: varchar(50) <<unique>>
-    color: varchar(7)
-    display_order: int
+    color: varchar(7) <<nullable>>
+    display_order: int = 0
     created_at: datetime
   }
 
   table(work_orders) <<workorder>> {
     primary_key(id): int
     --
-    unique_code: varchar(20) <<unique>>
+    unique_code: varchar(20) <<unique>> <<nullable>>
     title: varchar(255)
     description: text
-    planned_start_date: datetime
-    planned_end_date: datetime
-    actual_start_date: datetime
-    actual_end_date: datetime
+    planned_start_date: datetime <<nullable>>
+    planned_end_date: datetime <<nullable>>
+    actual_start_date: datetime <<nullable>>
+    actual_end_date: datetime <<nullable>>
     created_at: datetime
-    updated_at: datetime
-    deleted_at: datetime
+    updated_at: datetime <<nullable>>
+    deleted_at: datetime <<nullable>>
     --
     foreign_key(status_id): int
     foreign_key(priority_id): int
     foreign_key(equipment_id): int
     foreign_key(created_by): int
-    foreign_key(updated_by): int
+    foreign_key(updated_by): int <<nullable>>
   }
 
   work_orders }o--|| work_order_statuses
@@ -260,11 +259,11 @@ package "WORK ORDER MANAGEMENT" #FFF3E0 {
     primary_key(id): int
     --
     description: text
-    time_spent: int
-    completed_at: datetime
+    time_spent: int <<nullable>>
+    completed_at: datetime <<nullable>>
     created_at: datetime
-    updated_at: datetime
-    deleted_at: datetime
+    updated_at: datetime <<nullable>>
+    deleted_at: datetime <<nullable>>
     --
     foreign_key(work_order_id): int
     foreign_key(performed_by): int
@@ -280,10 +279,10 @@ package "WORK ORDER MANAGEMENT" #FFF3E0 {
     --
     file_name: varchar(255)
     file_type: varchar(50)
-    file_size: bigint
-    description: text
+    file_size: bigint <<nullable>>
+    description: text <<nullable>>
     uploaded_at: datetime
-    deleted_at: datetime
+    deleted_at: datetime <<nullable>>
     --
     foreign_key(work_order_id): int
     foreign_key(uploaded_by): int
@@ -294,17 +293,66 @@ package "WORK ORDER MANAGEMENT" #FFF3E0 {
 }
 
 ' ============================================
-' TRANSLATIONS - 🌐 System Module
+' SYSTEM MODULE - 🌐 Module
 ' ============================================
 package "SYSTEM" #F3E5F5 {
   table(translations) <<system>> {
     primary_key(id): int
     --
-    locale: varchar(5)
     message_key: varchar(255)
-    message_value: text
-    created_at: datetime
+    locale: varchar(5)
+    text: text
   }
+
+  table(audit_logs) <<system>> {
+    primary_key(id): int
+    --
+    action: varchar(100)
+    entity_type: varchar(100) <<nullable>>
+    entity_id: int <<nullable>>
+    changes: json <<nullable>>
+    metadata: json <<nullable>>
+    ip_address: varchar(45) <<nullable>>
+    user_agent: varchar(255) <<nullable>>
+    created_at: datetime
+    --
+    foreign_key(user_id): int <<nullable>>
+  }
+
+  audit_logs }o--o| users
+
+  table(reports) <<system>> {
+    primary_key(id): int
+    --
+    report_type: varchar(50)
+    format: varchar(20)
+    filters: json
+    status: varchar(20) = 'pending'
+    file_name: varchar(255) <<nullable>>
+    error_message: text <<nullable>>
+    created_at: datetime
+    completed_at: datetime <<nullable>>
+    --
+    foreign_key(user_id): int
+  }
+
+  reports }o--|| users
+
+  table(notifications) <<system>> {
+    primary_key(id): int
+    --
+    type: varchar(50)
+    title: varchar(255)
+    message: text <<nullable>>
+    data: json <<nullable>>
+    is_read: boolean = false
+    created_at: datetime
+    read_at: datetime <<nullable>>
+    --
+    foreign_key(user_id): int
+  }
+
+  notifications }o--|| users
 }
 
 ' ============================================
@@ -313,14 +361,15 @@ package "SYSTEM" #F3E5F5 {
 legend right
   **MAINTLY CMMS - Database Schema**
   ====
-  **17 Tables** | **3NF Normalized**
+  **20 Tables** | **3NF Normalized**
   ----
   <color:#4CAF50>■</color> User Management (2 tables)
-  <color:#2196F3>■</color> Equipment Management (6 tables)
+  <color:#2196F3>■</color> Equipment Management (7 tables)
   <color:#FF9800>■</color> Work Order Management (8 tables)
-  <color:#9C27B0>■</color> System (1 table)
+  <color:#9C27B0>■</color> System (3 tables)
   ====
   Framework: Symfony 7 + Doctrine ORM
+  Database: MySQL 8.4
 endlegend
 
 @enduml

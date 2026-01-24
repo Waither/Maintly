@@ -1,14 +1,17 @@
 // MAINTLY CMMS - Database Schema
-// Generated: 11 listopada 2025
+// Generated: 24 stycznia 2026
 // Framework: Symfony 7 + Doctrine ORM
+// Database: MySQL 8.4
+// Total Tables: 20
 
 // ============================================
-// USER MANAGEMENT
+// USER MANAGEMENT (2 tables)
 // ============================================
 Table user_roles {
   id int [pk, increment]
   name varchar(50) [unique, not null]
-  created_at datetime [not null]
+  
+  Note: 'System roles: admin, manager, technician, provider, reporter'
 }
 
 Table users {
@@ -17,29 +20,33 @@ Table users {
   password varchar(255) [not null]
   first_name varchar(100) [not null]
   last_name varchar(100) [not null]
+  phone varchar(20)
   is_active boolean [not null, default: true]
+  last_login_at datetime
   created_at datetime [not null]
-  updated_at datetime
-  deleted_at datetime
   user_role_id int [not null, ref: > user_roles.id]
+  
+  Note: 'System users with JWT authentication'
 }
 
 // ============================================
-// EQUIPMENT MANAGEMENT
+// EQUIPMENT MANAGEMENT (7 tables)
 // ============================================
 Table equipment {
   id int [pk, increment]
   name varchar(255) [not null]
   cost_center int [not null]
-  qr_code_data varchar(255) [unique]
-  direct_work_time int [not null, default: 0]
-  total_work_time int [not null, default: 0]
+  qr_code_data varchar(255) [unique, note: 'Auto-generated: EQ-XXXXXX']
+  direct_work_time int [not null, default: 0, note: 'Minutes']
+  total_work_time int [not null, default: 0, note: 'Minutes (includes children)']
   created_at datetime [not null]
   updated_at datetime
-  deleted_at datetime
-  parent_equipment_id int [ref: > equipment.id]
+  deleted_at datetime [note: 'Soft delete']
+  parent_equipment_id int [ref: > equipment.id, note: 'Self-reference for hierarchy']
   created_by int [not null, ref: > users.id]
   updated_by int [ref: > users.id]
+  
+  Note: 'Equipment registry with parent-child hierarchy'
 }
 
 Table tag_groups {
@@ -49,14 +56,18 @@ Table tag_groups {
   is_single_choice boolean [not null, default: false]
   display_order int [not null, default: 0]
   created_at datetime [not null]
+  
+  Note: 'Groups for organizing tags (e.g., Location, Type, Status)'
 }
 
 Table tags {
   id int [pk, increment]
   name varchar(100) [unique, not null]
-  color varchar(7) [not null]
+  color varchar(7) [note: 'Hex color, e.g., #FF5733']
   created_at datetime [not null]
   tag_group_id int [ref: > tag_groups.id]
+  
+  Note: 'Tags for categorizing equipment and work orders'
 }
 
 Table equipment_tags {
@@ -65,13 +76,19 @@ Table equipment_tags {
   equipment_id int [not null, ref: > equipment.id]
   tag_id int [not null, ref: > tags.id]
   assigned_by int [not null, ref: > users.id]
+  
+  indexes {
+    (equipment_id, tag_id) [unique, name: 'unique_equipment_tag']
+  }
+  
+  Note: 'Many-to-many: Equipment <-> Tags'
 }
 
 Table equipment_custom_fields {
   id int [pk, increment]
   field_name varchar(100) [unique, not null]
-  field_type varchar(20) [not null]
-  field_options json
+  field_type varchar(20) [not null, note: 'text, number, date, select, boolean']
+  field_options json [note: 'Options for select type']
   is_required boolean [not null, default: false]
   default_value text
   display_order int [not null, default: 0]
@@ -79,6 +96,8 @@ Table equipment_custom_fields {
   created_at datetime [not null]
   deleted_at datetime
   created_by int [not null, ref: > users.id]
+  
+  Note: 'EAV pattern - dynamic custom fields for equipment'
 }
 
 Table equipment_custom_values {
@@ -88,57 +107,71 @@ Table equipment_custom_values {
   updated_at datetime
   equipment_id int [not null, ref: > equipment.id]
   custom_field_id int [not null, ref: > equipment_custom_fields.id]
+  
+  indexes {
+    (equipment_id, custom_field_id) [unique, name: 'unique_equipment_custom_field']
+  }
+  
+  Note: 'EAV pattern - custom field values per equipment'
 }
 
 Table equipment_files {
   id int [pk, increment]
   file_name varchar(255) [not null]
   file_type varchar(50) [not null]
-  file_size bigint [not null]
+  file_size bigint
   description text
   uploaded_at datetime [not null]
   deleted_at datetime
   equipment_id int [not null, ref: > equipment.id]
   uploaded_by int [not null, ref: > users.id]
+  
+  Note: 'File attachments for equipment (manuals, photos, etc.)'
 }
 
 // ============================================
-// WORK ORDER MANAGEMENT
+// WORK ORDER MANAGEMENT (8 tables)
 // ============================================
 Table work_order_statuses {
   id int [pk, increment]
   name varchar(50) [unique, not null]
-  color varchar(7) [not null]
-  display_order int [not null]
-  is_final boolean [not null, default: false]
+  color varchar(7) [note: 'Hex color']
+  display_order int [not null, default: 0]
+  is_final boolean [not null, default: false, note: 'Closed/Completed status']
   created_at datetime [not null]
+  
+  Note: 'Work order status dictionary (New, In Progress, Completed, etc.)'
 }
 
 Table work_order_priorities {
   id int [pk, increment]
   name varchar(50) [unique, not null]
-  color varchar(7) [not null]
-  display_order int [not null]
+  color varchar(7) [note: 'Hex color']
+  display_order int [not null, default: 0]
   created_at datetime [not null]
+  
+  Note: 'Work order priority dictionary (Low, Medium, High, Critical)'
 }
 
 Table work_orders {
   id int [pk, increment]
-  unique_code varchar(20) [unique, not null]
+  unique_code varchar(20) [unique, note: 'Auto-generated: WO-XXXXXXXX']
   title varchar(255) [not null]
-  description text
+  description text [not null]
   planned_start_date datetime
   planned_end_date datetime
   actual_start_date datetime
   actual_end_date datetime
   created_at datetime [not null]
   updated_at datetime
-  deleted_at datetime
+  deleted_at datetime [note: 'Soft delete']
   status_id int [not null, ref: > work_order_statuses.id]
   priority_id int [not null, ref: > work_order_priorities.id]
   equipment_id int [not null, ref: > equipment.id]
   created_by int [not null, ref: > users.id]
   updated_by int [ref: > users.id]
+  
+  Note: 'Maintenance work orders/tickets'
 }
 
 Table work_order_assignments {
@@ -147,6 +180,12 @@ Table work_order_assignments {
   work_order_id int [not null, ref: > work_orders.id]
   user_id int [not null, ref: > users.id]
   assigned_by int [not null, ref: > users.id]
+  
+  indexes {
+    (work_order_id, user_id) [unique, name: 'unique_work_order_user']
+  }
+  
+  Note: 'Many-to-many: Work Orders <-> Users (assigned technicians)'
 }
 
 Table work_order_tags {
@@ -155,12 +194,18 @@ Table work_order_tags {
   work_order_id int [not null, ref: > work_orders.id]
   tag_id int [not null, ref: > tags.id]
   assigned_by int [not null, ref: > users.id]
+  
+  indexes {
+    (work_order_id, tag_id) [unique, name: 'unique_work_order_tag']
+  }
+  
+  Note: 'Many-to-many: Work Orders <-> Tags'
 }
 
 Table work_order_activities {
   id int [pk, increment]
   description text [not null]
-  time_spent int [not null, default: 0]
+  time_spent int [note: 'Minutes spent on activity']
   completed_at datetime
   created_at datetime [not null]
   updated_at datetime
@@ -168,29 +213,94 @@ Table work_order_activities {
   work_order_id int [not null, ref: > work_orders.id]
   performed_by int [not null, ref: > users.id]
   created_by int [not null, ref: > users.id]
+  
+  Note: 'Activity log with time tracking for work orders'
 }
 
 Table work_order_files {
   id int [pk, increment]
   file_name varchar(255) [not null]
   file_type varchar(50) [not null]
-  file_size bigint [not null]
+  file_size bigint
   description text
   uploaded_at datetime [not null]
   deleted_at datetime
   work_order_id int [not null, ref: > work_orders.id]
   uploaded_by int [not null, ref: > users.id]
+  
+  Note: 'File attachments for work orders (photos, documents, etc.)'
 }
 
 // ============================================
-// SYSTEM
+// SYSTEM (3 tables)
 // ============================================
 Table translations {
   id int [pk, increment]
-  locale varchar(5) [not null]
   message_key varchar(255) [not null]
-  message_value text [not null]
+  locale varchar(5) [not null, note: 'pl, en, de']
+  text text [not null]
+  
+  indexes {
+    (message_key, locale) [unique, name: 'unique_key_locale']
+  }
+  
+  Note: 'i18n translations for dynamic content'
+}
+
+Table audit_logs {
+  id int [pk, increment]
+  action varchar(100) [not null, note: 'CREATE, UPDATE, DELETE, LOGIN, etc.']
+  entity_type varchar(100) [note: 'Entity class name']
+  entity_id int
+  changes json [note: 'Before/after values']
+  metadata json [note: 'Additional context']
+  ip_address varchar(45)
+  user_agent varchar(255)
   created_at datetime [not null]
+  user_id int [ref: > users.id]
+  
+  indexes {
+    user_id [name: 'idx_audit_user']
+    action [name: 'idx_audit_action']
+    entity_type [name: 'idx_audit_entity_type']
+    created_at [name: 'idx_audit_created']
+  }
+  
+  Note: 'Audit trail - tracks all system changes'
+}
+
+Table reports {
+  id int [pk, increment]
+  report_type varchar(50) [not null, note: 'work_orders, equipment, activities']
+  format varchar(20) [not null, note: 'pdf, xlsx, csv']
+  filters json [not null, note: 'Applied filters']
+  status varchar(20) [not null, default: 'pending', note: 'pending, processing, completed, failed']
+  file_name varchar(255)
+  error_message text
+  created_at datetime [not null]
+  completed_at datetime
+  user_id int [not null, ref: > users.id]
+  
+  Note: 'Async report generation queue (Symfony Messenger)'
+}
+
+Table notifications {
+  id int [pk, increment]
+  type varchar(50) [not null, note: 'report_completed, work_order_assigned, etc.']
+  title varchar(255) [not null]
+  message text
+  data json [note: 'Additional data: reportId, workOrderId, etc.']
+  is_read boolean [not null, default: false]
+  created_at datetime [not null]
+  read_at datetime
+  user_id int [not null, ref: > users.id]
+  
+  indexes {
+    (user_id, created_at) [name: 'idx_user_created']
+    (user_id, is_read) [name: 'idx_user_is_read']
+  }
+  
+  Note: 'In-app notifications for users'
 }
 
 // ============================================
@@ -219,4 +329,11 @@ TableGroup work_order_management {
   work_order_tags
   work_order_activities
   work_order_files
+}
+
+TableGroup system {
+  translations
+  audit_logs
+  reports
+  notifications
 }

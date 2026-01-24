@@ -1,174 +1,222 @@
-# 🐳 Maintly - CMMS System
+# Maintly CMMS
 
-> **Nowoczesny system zarządzania utrzymaniem ruchu** zbudowany w architekturze CQRS  
-> Backend: Symfony 7 + MySQL | Frontend: React 18 + Vite + TypeScript
+**Computerized Maintenance Management System** - system zarządzania utrzymaniem ruchu dla zakładów przemysłowych.
 
----
+## Spis treści
 
-## 📖 O projekcie
-
-**Maintly** to system CMMS (Computerized Maintenance Management System) służący do zarządzania:
-- 🔧 **Zleceniami pracy** (Work Orders) - tworzenie, przypisywanie, śledzenie statusu
-- 🏭 **Urządzeniami** (Equipment) - katalog maszyn, hierarchia, tagi
-- 👥 **Użytkownikami** - role (Admin, Manager, Technician, Provider)
-- 📊 **Raportami** - generowanie PDF/Excel/CSV w tle (async)
-- 📝 **Logami audytu** - automatyczne śledzenie zmian
-
-### Kluczowe funkcje
-- ✅ Architektura **CQRS** (Command Query Responsibility Segregation)
-- ✅ **Asynchroniczne** generowanie raportów (Symfony Messenger)
-- ✅ **JWT** authentication z refresh tokenami
-- ✅ **Role i uprawnienia** (Voters)
-- ✅ **Audit logging** - automatyczne logowanie zmian w encjach
-- ✅ **i18n** - wielojęzyczność (PL/EN)
-- ✅ **Swagger UI** - interaktywna dokumentacja API
-
----
-
-## 🚀 Jak uruchomić projekt?
-
-### Wymagania
-- **Docker Desktop** (Windows/Mac) lub **Docker + Docker Compose** (Linux)
-- **Node.js 18+** (do instalacji zależności frontendu)
-- **Git**
-
-### Krok po kroku:
-
-**1. Sklonuj repozytorium**
-```powershell
-git clone https://github.com/Waither/Maintly.git
-cd Maintly
-```
-
-**2. Zainstaluj zależności frontendu** (OBOWIĄZKOWE!)
-```powershell
-cd frontend
-npm install
-cd ..
-```
-
-**3. Zainstaluj zależności backendu** (OBOWIĄZKOWE!)
-```powershell
-cd backend
-composer install
-cd ..
-```
-
-**4. Uruchom kontenery Docker**
-```powershell
-docker-compose up -d
-```
-
-**5. Zainicjalizuj bazę danych** (tylko przy pierwszym uruchomieniu)
-```powershell
-docker exec -it maintly-backend php bin/console doctrine:migrations:migrate --no-interaction
-```
-
-**6. Gotowe! Otwórz w przeglądarce:**
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8000/api
+- [Maintly CMMS](#maintly-cmms)
+  - [Spis treści](#spis-treści)
+  - [O projekcie](#o-projekcie)
+  - [Funkcjonalności](#funkcjonalności)
+  - [Stack technologiczny](#stack-technologiczny)
+    - [Backend](#backend)
+    - [Frontend](#frontend)
+    - [DevOps](#devops)
+  - [Szybki start](#szybki-start)
+    - [Wymagania](#wymagania)
+    - [Instalacja](#instalacja)
+    - [Dostęp](#dostęp)
+    - [Domyślne konta](#domyślne-konta)
+  - [Struktura projektu](#struktura-projektu)
+  - [Dokumentacja](#dokumentacja)
+  - [Testowanie](#testowanie)
+    - [Backend (PHPUnit)](#backend-phpunit)
+    - [Jakość kodu](#jakość-kodu)
+  - [Komendy Docker](#komendy-docker)
+  - [Licencja](#licencja)
 
 ---
 
-## ✅ Sprawdzenie czy działa
+## O projekcie
 
-```powershell
-# Sprawdź status kontenerów
-docker-compose ps
+Maintly CMMS to system do zarządzania:
 
-# Powinny być 3 kontenery w stanie "Up":
-# - maintly-frontend
-# - maintly-backend  
-# - maintly-mysql
-
-# Sprawdź logi frontendu
-docker-compose logs frontend
-
-# Sprawdź logi backendu
-docker-compose logs backend
-```
-
-
-## Dostępne serwisy
-
-| Serwis | Port | URL |
-|--------|------|-----|
-| **Frontend (HTTP)** | 3000 | http://localhost:3000 |
-| **Frontend (HTTPS)** | 3000 | https://localhost:3000 (self-signed cert) |
-| **Backend API** | 8000 | http://localhost:8000/api |
-| **Backend HTTPS** | 8443 | https://localhost:8443/api |
-| **MySQL** | 3306 | localhost:3306 (user: maintly, pass: secret) |
+- **Ewidencją urządzeń** - hierarchiczna struktura, statusy, kategorie, lokalizacje
+- **Zleceniami pracy** - priorytety, typy, przypisania, śledzenie postępu
+- **Użytkownikami** - 5 poziomów ról (admin, manager, technician, provider, reporter)
+- **Raportami** - generowanie PDF/Excel, statystyki
+- **Powiadomieniami** - alerty o nowych zleceniach, zmianach statusu
+- **Logami audytu** - pełna historia zmian w systemie
 
 ---
 
-## 🔐 Dane logowania
+## Funkcjonalności
 
-| Email | Hasło | Rola |
-|-------|-------|------|
-| admin@maintly.com | MaintlyAdmin!@# | Administrator |
-| manager@maintly.com | MaintlyManager!@# | Manager |
-| tech@maintly.com | MaintlyTech!@# | Technician |
+| Moduł | Opis |
+|-------|------|
+| Uwierzytelnianie | JWT z refresh tokenami, rate limiting |
+| Użytkownicy | CRUD, role, profile |
+| Urządzenia | Hierarchia parent-child, tagi, custom fields (EAV) |
+| Zlecenia | Statusy, priorytety, typy, przypisania, aktywności |
+| Raporty | PDF/Excel, filtry dat, asynchroniczne generowanie |
+| Powiadomienia | Real-time, oznaczanie jako przeczytane |
+| Audit Log | Automatyczne logowanie operacji |
+| i18n | Polski, Angielski, Niemiecki |
 
 ---
 
-## 🛠️ Technologie
+## Stack technologiczny
 
 ### Backend
-- **Symfony 7** - PHP framework
-- **Doctrine ORM** - mapowanie obiektowo-relacyjne
-- **MySQL 8** - baza danych
-- **Symfony Messenger** - kolejki i async jobs
-- **LexikJWTBundle** - JWT authentication
+
+- Symfony 7.3 + PHP 8.4
+- Doctrine ORM 3.x + MySQL 8.4
+- CQRS Pattern (Command/Query Separation)
+- JWT Authentication (LexikJWTBundle)
+- Symfony Messenger (asynchroniczne zadania)
+- OpenAPI 3.0 / Swagger (NelmioApiDocBundle)
 
 ### Frontend
-- **React 18** - biblioteka UI
-- **TypeScript** - type safety
-- **Vite** - bundler i dev server
-- **MDB React** - Material Design Bootstrap
-- **React Router 6** - routing
-- **i18next** - internacjonalizacja
+
+- React 18 + TypeScript 5.x
+- Vite 5.x
+- MDB React UI Kit
+- React Router 7.x
+- i18next 25.x
+- Axios
 
 ### DevOps
-- **Docker** + **Docker Compose** - konteneryzacja
-- **Nginx** - reverse proxy
+
+- Docker + Docker Compose
+- Nginx (reverse proxy, SSL)
+- Mailhog (testowanie emaili)
 
 ---
 
-## 📁 Struktura projektu
+## Szybki start
+
+### Wymagania
+
+- Docker Desktop 4.x
+- Git
+
+### Instalacja
+
+```bash
+# Klonowanie
+git clone https://github.com/your-username/maintly-cmms.git
+cd maintly-cmms
+
+# Uruchomienie kontenerów
+docker-compose up -d
+
+# Instalacja zależności
+docker exec maintly-backend composer install
+
+# Klucze JWT
+docker exec maintly-backend php bin/console lexik:jwt:generate-keypair --skip-if-exists
+
+# Migracje
+docker exec maintly-backend php bin/console doctrine:migrations:migrate --no-interaction
+
+# Dane testowe (opcjonalnie)
+docker exec maintly-backend php bin/console doctrine:fixtures:load --no-interaction
+```
+
+### Dostęp
+
+| Serwis | URL |
+|--------|-----|
+| Frontend | http://localhost:3000 |
+| API | http://localhost:8000/api |
+| Swagger UI | http://localhost:8000/api/doc |
+| Mailhog | http://localhost:8025 |
+| MySQL | localhost:3306 |
+
+### Domyślne konta
+
+| Rola | Email | Hasło |
+|------|-------|-------|
+| Admin | admin@maintly.local | admin123 |
+| Manager | manager@maintly.local | manager123 |
+| Technician | tech@maintly.local | tech123 |
+
+---
+
+## Struktura projektu
 
 ```
-Maintly/
-├── backend/                 # Symfony 7 API
+maintly/
+├── backend/                    # Symfony 7 API
 │   ├── src/
-│   │   ├── Application/     # CQRS Commands & Queries
-│   │   ├── Controller/      # HTTP Controllers
-│   │   ├── Entity/          # Doctrine Entities
-│   │   ├── Message/         # Async Messages
-│   │   ├── MessageHandler/  # Async Handlers
-│   │   └── Security/        # Auth & Voters
-│   └── config/
-├── frontend/                # React + TypeScript
-│   └── src/
-│       ├── pages/           # Feature modules
-│       ├── components/      # Reusable components
-│       └── services/        # API services
-├── docs/                    # Dokumentacja
-│   ├── api/                 # API docs
-│   ├── architecture/        # Architektura
-│   └── database/            # ERD diagram
+│   │   ├── Application/        # CQRS (Command/Query)
+│   │   ├── Controller/         # API Endpoints
+│   │   ├── Entity/             # Doctrine Entities
+│   │   ├── Repository/         # Database Queries
+│   │   ├── Security/           # Voters, Authentication
+│   │   └── Service/            # Business Logic
+│   ├── config/
+│   ├── migrations/
+│   └── tests/
+│
+├── frontend/                   # React SPA
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── hooks/
+│   └── public/locales/
+│
+├── docker/
+├── docs/
 └── docker-compose.yml
 ```
 
 ---
 
-## 📚 Dokumentacja
+## Dokumentacja
 
-- **Swagger UI:** http://localhost:8000/api/doc
-- **ERD Diagram:** `/docs/database/ERD.pdf`
-- **API Reference:** `/docs/api/README.md`
+| Dokument | Opis |
+|----------|------|
+| [docs/api/README.md](docs/api/README.md) | Dokumentacja REST API |
+| [docs/architecture/README.md](docs/architecture/README.md) | Architektura, wzorce, CQRS |
+| [docs/database/README.md](docs/database/README.md) | Schemat bazy danych, ERD |
+
+Swagger UI: http://localhost:8000/api/doc
 
 ---
 
-## 👨‍💻 Autor
+## Testowanie
 
-Projekt wykonany w ramach przedmiotu **ZTPAI** (Zaawansowane Techniki Programowania Aplikacji Internetowych)
+### Backend (PHPUnit)
+
+```bash
+# Wszystkie testy
+docker exec -u www-data maintly-backend php bin/phpunit
+
+# Z coverage
+docker exec -u www-data maintly-backend php bin/phpunit --coverage-html var/coverage
+```
+
+### Jakość kodu
+
+```bash
+# PHPStan
+docker exec maintly-backend vendor/bin/phpstan analyse src -l 8
+
+# PHP CS Fixer
+docker exec maintly-backend vendor/bin/php-cs-fixer fix src
+
+# Skrypty
+.\backend\scripts\stan.ps1
+.\backend\scripts\fix.ps1
+.\backend\scripts\test.ps1
+```
+
+---
+
+## Komendy Docker
+
+```bash
+docker-compose up -d              # Start
+docker-compose down               # Stop
+docker-compose up -d --build      # Rebuild
+docker-compose logs -f backend    # Logi
+docker exec -it maintly-backend bash   # Shell
+```
+
+---
+
+## Licencja
+
+MIT License

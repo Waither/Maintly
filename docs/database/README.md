@@ -18,10 +18,10 @@
 
 ## Database Overview
 
-- **Total Tables:** 17
+- **Total Tables:** 20
 - **Normalization:** 3NF
-- **ORM:** Doctrine (Symfony 7)
-- **DBMS:** MySQL 8.0
+- **ORM:** Doctrine 3.x (Symfony 7.3)
+- **DBMS:** MySQL 8.4
 
 ---
 
@@ -29,25 +29,28 @@
 
 ### 🟢 User Management (2 tables)
 - **`user_roles`** - Role definitions (admin, manager, technician, provider, reporter)
-- **`users`** - System users with soft delete
+- **`users`** - System users with JWT authentication
 
-### 🔵 Equipment Management (6 tables)
+### 🔵 Equipment Management (7 tables)
 - **`equipment`** - Equipment registry with hierarchy (`parent_equipment_id`)
 - **`tag_groups`** / **`tags`** - Categorization system
 - **`equipment_tags`** - Equipment ↔ Tags (many-to-many)
 - **`equipment_custom_fields`** / **`equipment_custom_values`** - EAV pattern for dynamic fields
 - **`equipment_files`** - File attachments
 
-### 🟠 Work Order Management (8 tables)
+### 🟠 Work Order Management (7 tables)
 - **`work_order_statuses`** / **`work_order_priorities`** - Dictionaries
-- **`work_orders`** - Maintenance requests
+- **`work_orders`** - Maintenance requests with unique codes (WO-XXXXXXXX)
 - **`work_order_assignments`** - Users ↔ Work Orders (many-to-many)
 - **`work_order_tags`** - Work Orders ↔ Tags
 - **`work_order_activities`** - Activity log with time tracking
 - **`work_order_files`** - File attachments
 
-### 🟣 System (1 table)
-- **`translations`** - i18n messages
+### 🟣 System (4 tables)
+- **`translations`** - i18n messages (PL/EN/DE)
+- **`audit_logs`** - Audit trail for all entity changes
+- **`reports`** - Async report generation queue (Symfony Messenger)
+- **`notifications`** - In-app notifications for users
 
 ---
 
