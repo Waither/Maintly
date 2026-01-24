@@ -64,15 +64,24 @@ apiClient.interceptors.response.use(
             console.error('❌ Response Error:', error.response.status, error.response.data);
             
             // Handle 401 Unauthorized - redirect to login
+            // BUT: Skip redirect if user is already on login page (failed login attempt)
             if (error.response.status === 401) {
-                removeAuthToken();
+                const isLoginEndpoint = error.config?.url?.includes('/login');
+                const isAlreadyOnLoginPage = window.location.pathname === '/login';
                 
-                // Save current URL to return after login
-                const currentPath = window.location.pathname + window.location.search;
-                sessionStorage.setItem('returnUrl', currentPath);
-                
-                window.location.href = '/login';
-                console.warn('⚠️ Unauthorized - redirecting to login');
+                // Only redirect if:
+                // - NOT a login attempt (user is authenticated but token expired)
+                // - User is NOT already on login page
+                if (!isLoginEndpoint && !isAlreadyOnLoginPage) {
+                    removeAuthToken();
+                    
+                    // Save current URL to return after login
+                    const currentPath = window.location.pathname + window.location.search;
+                    sessionStorage.setItem('returnUrl', currentPath);
+                    
+                    window.location.href = '/login';
+                    console.warn('⚠️ Unauthorized - redirecting to login');
+                }
             }
         }
         else if (error.request) {
