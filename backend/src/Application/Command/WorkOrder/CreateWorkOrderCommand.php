@@ -9,7 +9,7 @@ use DateTimeInterface;
 class CreateWorkOrderCommand {
     public function __construct(
         public readonly string $title,
-        public readonly string $description,
+        public readonly ?string $description,
         public readonly int $statusId,
         public readonly int $priorityId,
         public readonly int $equipmentId,

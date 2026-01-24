@@ -554,7 +554,7 @@ class WorkOrderController extends AbstractController {
 
         $command = new CreateWorkOrderCommand(
             title: $data['title'],
-            description: $data['description'],
+            description: $data['description'] ?? '',
             statusId: $data['statusId'],
             priorityId: $data['priorityId'],
             equipmentId: $data['equipmentId'],
