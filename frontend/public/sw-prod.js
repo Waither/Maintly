@@ -6,6 +6,9 @@ const CACHE_VERSION = 'maintly-v1';
 const CACHE_STATIC = `${CACHE_VERSION}-static`; // CSS, images, fonts, icons
 const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`; // JS bundles (stale-while-revalidate)
 const CACHE_I18N = `${CACHE_VERSION}-i18n`; // Translation files
+const OFFLINE_DB_NAME = 'maintly-offline-db';
+const OFFLINE_DB_VERSION = 1;
+const OFFLINE_QUEUE_STORE = 'requestQueue';
 
 console.log('🚀 PROD Service Worker loaded');
 
@@ -56,6 +59,7 @@ self.addEventListener('activate', (event) => {
             })
             .then(() => {
                 console.log('✅ PROD SW: Active and ready');
+                syncQueuedRequests();
                 return self.clients.claim();
             })
     );
@@ -66,9 +70,19 @@ self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
     
-    // SKIP: API requests (backend handles these, avoid CORS issues)
-    if (url.pathname.startsWith('/api/') || url.port === '8000') {
-        return; // Pass-through to network
+    // API strategy:
+    // - GET: pass-through to network
+    // - POST/PUT/PATCH/DELETE: queue request when offline and replay later
+    const isApiRequest = url.pathname.startsWith('/api/') || url.port === '8000';
+    const isMutationRequest = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method);
+
+    if (isApiRequest && isMutationRequest) {
+        event.respondWith(handleApiMutationRequest(request));
+        return;
+    }
+
+    if (isApiRequest) {
+        return; // Pass-through for API GET and others
     }
     
     // SKIP: Chrome extensions and non-http(s)
@@ -163,6 +177,150 @@ async function networkFirst(request, cacheName) {
     }
 }
 
+async function handleApiMutationRequest(request) {
+    // Clone first: request body stream can be consumed by fetch attempt.
+    const requestForNetwork = request.clone();
+    const requestForQueue = request.clone();
+
+    try {
+        return await fetch(requestForNetwork);
+    } catch (error) {
+        await queueRequest(requestForQueue);
+        await tryScheduleBackgroundSync();
+
+        return new Response(
+            JSON.stringify({
+                queued: true,
+                offline: true,
+                message: 'Request queued offline. It will be synced automatically.'
+            }),
+            {
+                status: 202,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+    }
+}
+
+function openOfflineDb() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(OFFLINE_DB_NAME, OFFLINE_DB_VERSION);
+
+        req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains(OFFLINE_QUEUE_STORE)) {
+                db.createObjectStore(OFFLINE_QUEUE_STORE, { keyPath: 'id' });
+            }
+        };
+
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function queueRequest(request) {
+    const headers = {};
+    request.headers.forEach((value, key) => {
+        headers[key] = value;
+    });
+
+    let body = null;
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+        try {
+            body = await request.clone().text();
+        } catch {
+            body = null;
+        }
+    }
+
+    const queuedItem = {
+        id: Date.now() + Math.random(),
+        url: request.url,
+        method: request.method,
+        headers,
+        body,
+        createdAt: new Date().toISOString(),
+    };
+
+    const db = await openOfflineDb();
+
+    await new Promise((resolve, reject) => {
+        const tx = db.transaction(OFFLINE_QUEUE_STORE, 'readwrite');
+        tx.objectStore(OFFLINE_QUEUE_STORE).add(queuedItem);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+    });
+
+    db.close();
+}
+
+async function getQueuedRequests() {
+    const db = await openOfflineDb();
+
+    const items = await new Promise((resolve, reject) => {
+        const tx = db.transaction(OFFLINE_QUEUE_STORE, 'readonly');
+        const store = tx.objectStore(OFFLINE_QUEUE_STORE);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+    });
+
+    db.close();
+    return items.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+}
+
+async function removeQueuedRequest(id) {
+    const db = await openOfflineDb();
+
+    await new Promise((resolve, reject) => {
+        const tx = db.transaction(OFFLINE_QUEUE_STORE, 'readwrite');
+        tx.objectStore(OFFLINE_QUEUE_STORE).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+    });
+
+    db.close();
+}
+
+async function syncQueuedRequests() {
+    const queued = await getQueuedRequests();
+
+    for (const item of queued) {
+        try {
+            const response = await fetch(item.url, {
+                method: item.method,
+                headers: item.headers,
+                body: item.body,
+            });
+
+            if (response.ok) {
+                await removeQueuedRequest(item.id);
+            } else {
+                break;
+            }
+        } catch {
+            break;
+        }
+    }
+}
+
+async function tryScheduleBackgroundSync() {
+    if (self.registration && self.registration.sync) {
+        try {
+            await self.registration.sync.register('sync-api-queue');
+            return;
+        } catch {
+            // Continue with manual fallback below.
+        }
+    }
+
+    setTimeout(() => {
+        syncQueuedRequests();
+    }, 5000);
+}
+
 // Background i18n prefetch (your idea - fetch other languages in idle time)
 self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'PREFETCH_LANGUAGES') {
@@ -172,6 +330,17 @@ self.addEventListener('message', (event) => {
         event.waitUntil(
             prefetchLanguages(languages)
         );
+        return;
+    }
+
+    if (event.data && event.data.type === 'SYNC_NOW') {
+        event.waitUntil(syncQueuedRequests());
+    }
+});
+
+self.addEventListener('sync', (event) => {
+    if (event.tag === 'sync-api-queue') {
+        event.waitUntil(syncQueuedRequests());
     }
 });
 
@@ -238,9 +407,3 @@ self.addEventListener('notificationclick', (event) => {
     );
 });
 
-// TODO: IndexedDB sync queue for offline POST/PUT/DELETE requests
-// self.addEventListener('sync', (event) => {
-//     if (event.tag === 'sync-queue') {
-//         event.waitUntil(syncQueuedRequests());
-//     }
-// });

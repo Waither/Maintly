@@ -20,7 +20,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children, requiredPermission }: ProtectedRouteProps) => {
     const token = getAuthToken();
     const location = useLocation();
-    const { loading, permissions, user } = useAuth();
+    const { loading, permissions } = useAuth();
     
     // Not authenticated
     if (!token) {

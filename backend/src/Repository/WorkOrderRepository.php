@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\WorkOrder;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -76,5 +77,23 @@ class WorkOrderRepository extends ServiceEntityRepository {
         return $qb->orderBy('w.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
+    }
+
+    public function getLatestChangeAt(?int $userId = null): ?DateTimeImmutable {
+        $qb = $this->createQueryBuilder('w')
+            ->select('MAX(COALESCE(w.updatedAt, w.createdAt)) as latest')
+            ->where('w.deletedAt IS NULL');
+
+        if ($userId !== null) {
+            $qb->andWhere('w.createdBy = :userId')
+                ->setParameter('userId', $userId);
+        }
+
+        $result = $qb->getQuery()->getSingleScalarResult();
+        if ($result === null) {
+            return null;
+        }
+
+        return new DateTimeImmutable((string) $result);
     }
 }

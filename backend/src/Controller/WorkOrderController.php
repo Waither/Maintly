@@ -539,7 +539,29 @@ class WorkOrderController extends AbstractController {
     #[OA\Response(response: 401, description: 'Unauthorized')]
     #[OA\Response(response: 403, description: 'Access denied')]
     public function create(Request $request): JsonResponse {
-        $data = json_decode($request->getContent(), true);
+        $rawContent = $request->getContent();
+        $data = json_decode($rawContent, true);
+
+        // Backward compatibility for double-encoded JSON payloads.
+        if (is_string($data)) {
+            $data = json_decode($data, true);
+        }
+
+        if (!is_array($data)) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Invalid JSON payload',
+                'code' => 400,
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!isset($data['title'], $data['statusId'], $data['priorityId'], $data['equipmentId'])) {
+            return $this->json([
+                'status' => 'error',
+                'message' => 'Missing required fields: title, statusId, priorityId, equipmentId',
+                'code' => 400,
+            ], Response::HTTP_BAD_REQUEST);
+        }
 
         /** @var User $user */
         $user = $this->getUser();

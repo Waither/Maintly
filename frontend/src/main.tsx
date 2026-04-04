@@ -1,6 +1,7 @@
 import React, { Suspense, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './app/App';
+import { ensureOfflineQueueAutoSync } from './lib/offlineQueue';
 
 // i18next configuration
 import './lib/i18n';
@@ -55,6 +56,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </React.StrictMode>
 );
 
+// Ensure page-level fallback replay for offline queue on reconnect.
+ensureOfflineQueueAutoSync();
+
 // Service Worker registration - Auto-select DEV or PROD version
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -102,6 +106,15 @@ if ('serviceWorker' in navigator) {
                             console.warn('⚠️ SW not controller yet - refresh page to enable i18n prefetch');
                         }
                     }, 3000); // Wait 3 seconds after SW is ready
+                });
+
+                // Trigger queued offline sync once connection returns.
+                window.addEventListener('online', () => {
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'SYNC_NOW'
+                        });
+                    }
                 });
             })
             .catch((error) => {

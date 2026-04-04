@@ -9,7 +9,8 @@ import { Outlet } from 'react-router-dom';
 import { MDBContainer } from 'mdb-react-ui-kit';
 import { Sidebar } from './Sidebar';
 import { TopNavbar } from './TopNavbar';
-import { notificationService } from '../../services';
+import { notificationService, realtimeService } from '../../services';
+import { OfflineDebugPanel } from '../debug/OfflineDebugPanel';
 
 export const MainLayout = () => {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -34,6 +35,10 @@ export const MainLayout = () => {
     // Load unread notifications count
     useEffect(() => {
         const loadUnreadCount = async () => {
+            if (!navigator.onLine) {
+                return;
+            }
+
             try {
                 const count = await notificationService.getUnreadCount();
                 setUnreadNotifications(count);
@@ -43,10 +48,20 @@ export const MainLayout = () => {
         };
 
         loadUnreadCount();
+
+        const unsubscribeRealtime = realtimeService.subscribe((event) => {
+            if (event.type === 'notification.created' || event.type === 'notification.updated') {
+                loadUnreadCount();
+            }
+        });
         
-        // Poll every 60 seconds
-        const interval = setInterval(loadUnreadCount, 60000);
-        return () => clearInterval(interval);
+        // Polling fallback when WS is unavailable.
+        const interval = setInterval(loadUnreadCount, 30000);
+
+        return () => {
+            clearInterval(interval);
+            unsubscribeRealtime();
+        };
     }, []);
 
     const toggleSidebar = () => {
@@ -129,6 +144,8 @@ export const MainLayout = () => {
                     </MDBContainer>
                 </main>
             </div>
+
+            <OfflineDebugPanel />
         </div>
     );
 };

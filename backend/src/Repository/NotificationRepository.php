@@ -103,4 +103,19 @@ class NotificationRepository extends ServiceEntityRepository {
             ->getQuery()
             ->execute();
     }
+
+    public function getLatestCreatedAtByUser(User $user): ?DateTimeImmutable {
+        $result = $this->createQueryBuilder('n')
+            ->select('MAX(n.createdAt) as latest')
+            ->where('n.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($result === null) {
+            return null;
+        }
+
+        return new DateTimeImmutable((string) $result);
+    }
 }

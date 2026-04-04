@@ -66,7 +66,6 @@ function App() {
 	const [budgetRange, setBudgetRange] = useState(5000);
 	const [showModal, setShowModal] = useState(false);
 	const [showCollapse, setShowCollapse] = useState(false);
-	const [activeStep, setActiveStep] = useState(0);
 
 	return (
 		<>
@@ -1794,9 +1793,9 @@ function App() {
 							<MDBCol md='6' className='mb-3'>
 								<label className='form-label'>Maksymalny budżet: <strong>{budgetRange} PLN</strong></label>
 								<MDBRange 
-									min={0} 
-									max={50000} 
-									step={500} 
+									min={'0'} 
+									max={'50000'} 
+									step={'500'} 
 									value={budgetRange}
 									onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBudgetRange(Number(e.target.value))}
 									id='budgetRange'
@@ -1809,9 +1808,9 @@ function App() {
 							<MDBCol md='6' className='mb-3'>
 								<label className='form-label'>Procent wykonania: <strong>75%</strong></label>
 								<MDBRange 
-									min={0} 
-									max={100} 
-									step={5} 
+									min={'0'} 
+									max={'100'} 
+									step={'5'} 
 									defaultValue={75}
 									id='progressRange'
 								/>

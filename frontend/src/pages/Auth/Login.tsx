@@ -62,7 +62,18 @@ export const Login = () => {
         catch (err: any) {
             console.error('Login error:', err);
             console.error('Error response:', err.response);
-            setError(err.response?.data?.message || 'Nieprawidłowy login lub hasło');
+
+            const status = err?.response?.status;
+            const responseMessage = err?.response?.data?.message;
+            const code = err?.code;
+
+            if (!err?.response && (code === 'ERR_NETWORK' || code === 'ECONNABORTED' || code === 'ETIMEDOUT')) {
+                setError('Brak połączenia z API. Sprawdź czy backend działa i czy adres API jest poprawny.');
+            } else if (status === 401) {
+                setError(responseMessage || 'Nieprawidłowy login lub hasło');
+            } else {
+                setError(responseMessage || 'Nie udało się zalogować. Spróbuj ponownie.');
+            }
         }
         finally {
             setLoading(false);

@@ -14,6 +14,9 @@ cd backend
 # Specific test class
 .\scripts\test.ps1 SecurityController
 
+# Realtime pulse integration test (E2E flow: login -> data mutation -> pulse events)
+.\scripts\test.ps1 RealtimeController
+
 # With code coverage report
 .\scripts\test.ps1 -Coverage
 ```
@@ -36,6 +39,7 @@ Report will be generated in `backend/var/coverage/index.html` - open in browser 
 ```powershell
 docker exec -u www-data maintly-backend php bin/phpunit --testdox
 docker exec -u www-data maintly-backend php bin/phpunit tests/Integration/Controller/SecurityControllerTest.php
+docker exec -u www-data maintly-backend php bin/phpunit tests/Integration/Controller/RealtimeControllerTest.php
 docker exec -u www-data maintly-backend php bin/phpunit --coverage-html var/coverage
 ```
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MDBRow, MDBCol, MDBCard, MDBCardBody, MDBCardHeader, MDBIcon, MDBBtn } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
 import { PageHeader, StatCard, StatusBadge, PriorityBadge, ErrorState } from '../../components/ui';
-import { dashboardService, workOrderService } from '../../services';
+import { dashboardService, workOrderService, realtimeService } from '../../services';
 import { WorkOrder } from '../../types';
 
 interface DashboardStats {
@@ -39,15 +39,34 @@ export const Dashboard = () => {
     
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [recentWorkOrders, setRecentWorkOrders] = useState<WorkOrder[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadDashboardData();
     }, []);
 
+    useEffect(() => {
+        const unsubscribeRealtime = realtimeService.subscribe((event) => {
+            if (
+                event.type === 'work_order.created' ||
+                event.type === 'work_order.updated' ||
+                event.type === 'dashboard.updated' ||
+                event.type === 'notification.created'
+            ) {
+                loadDashboardData();
+            }
+        });
+
+        // Polling fallback when realtime is temporarily unavailable.
+        const interval = setInterval(loadDashboardData, 30000);
+
+        return () => {
+            clearInterval(interval);
+            unsubscribeRealtime();
+        };
+    }, []);
+
     const loadDashboardData = async () => {
-        setLoading(true);
         setError(null);
         
         try {
@@ -64,14 +83,15 @@ export const Dashboard = () => {
             
             // Map API response to our format
             if (statsData) {
-                // Backend returns: pending (open), inProgress, completed, cancelled, onHold
+                const byStatus = statsData.workOrders?.byStatus || {};
+
                 setStats({
                     workOrders: {
                         total: statsData.workOrders?.total || 0,
-                        new: statsData.workOrders?.pending || 0, // 'pending' = 'open' status
-                        inProgress: statsData.workOrders?.inProgress || 0,
-                        completed: statsData.workOrders?.completed || 0,
-                        overdue: statsData.workOrders?.onHold || 0, // Using onHold as overdue indicator
+                        new: byStatus.new || 0,
+                        inProgress: byStatus.in_progress || 0,
+                        completed: byStatus.completed || 0,
+                        overdue: statsData.workOrders?.overdueCount || 0,
                     },
                     equipment: {
                         total: statsData.equipment?.total || 0,
@@ -101,8 +121,6 @@ export const Dashboard = () => {
         } catch (err: any) {
             console.error('Dashboard load error:', err);
             setError(err.message || 'Nie udało się załadować danych');
-        } finally {
-            setLoading(false);
         }
     };
 

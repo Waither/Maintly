@@ -15,6 +15,12 @@ import {
 
 const BASE_URL = '/work-orders';
 
+export interface WorkOrderMutationResult {
+    data: unknown;
+    status: number;
+    queued: boolean;
+}
+
 /**
  * Get all work orders with pagination and filters
  */
@@ -64,17 +70,25 @@ export const getWorkOrder = async (id: number): Promise<WorkOrder> => {
 /**
  * Create new work order
  */
-export const createWorkOrder = async (data: WorkOrderFormData): Promise<WorkOrder> => {
+export const createWorkOrder = async (data: WorkOrderFormData): Promise<WorkOrderMutationResult> => {
     const response = await apiClient.post(BASE_URL, data);
-    return response.data.data || response.data;
+    return {
+        data: response.data.data || response.data,
+        status: response.status,
+        queued: Boolean(response.data?.queued),
+    };
 };
 
 /**
  * Update work order
  */
-export const updateWorkOrder = async (id: number, data: Partial<WorkOrderFormData>): Promise<WorkOrder> => {
+export const updateWorkOrder = async (id: number, data: Partial<WorkOrderFormData>): Promise<WorkOrderMutationResult> => {
     const response = await apiClient.put(`${BASE_URL}/${id}`, data);
-    return response.data.data || response.data;
+    return {
+        data: response.data.data || response.data,
+        status: response.status,
+        queued: Boolean(response.data?.queued),
+    };
 };
 
 /**

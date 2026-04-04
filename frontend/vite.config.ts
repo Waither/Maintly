@@ -38,6 +38,19 @@ export default defineConfig({
             }
         }
     },
+
+    // Local production preview (npx vite preview) - keep /api same-origin and proxy to backend.
+    preview: {
+        host: '0.0.0.0',
+        port: 4173,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false
+            }
+        }
+    },
     
     // Build optimization
     build: {

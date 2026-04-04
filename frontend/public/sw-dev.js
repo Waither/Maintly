@@ -4,10 +4,24 @@
 
 console.log('🔧 DEV Service Worker loaded');
 
+const DEV_CACHE = 'maintly-dev-shell-v1';
+const DEV_SHELL_ASSETS = [
+    '/',
+    '/index.html',
+    '/manifest.json',
+];
+
 // Install immediately without caching anything
 self.addEventListener('install', (event) => {
     console.log('🔧 DEV SW: Installing (no cache)');
-    self.skipWaiting(); // Activate immediately
+    event.waitUntil(
+        caches.open(DEV_CACHE)
+            .then((cache) => cache.addAll(DEV_SHELL_ASSETS))
+            .catch(() => {
+                // Dev mode: ignore pre-cache failures.
+            })
+            .then(() => self.skipWaiting())
+    );
 });
 
 // Activate and take control immediately
@@ -32,6 +46,25 @@ self.addEventListener('activate', (event) => {
 // Fetch: Cache only i18n translations (for prefetch testing)
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+
+    // Keep SPA shell available offline on reload/navigation.
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            fetch(event.request)
+                .then((networkResponse) => {
+                    const responseClone = networkResponse.clone();
+                    caches.open(DEV_CACHE).then((cache) => {
+                        cache.put('/index.html', responseClone);
+                    });
+                    return networkResponse;
+                })
+                .catch(async () => {
+                    const cached = await caches.match('/index.html');
+                    return cached || new Response('Offline', { status: 503, statusText: 'Offline' });
+                })
+        );
+        return;
+    }
     
     // Cache i18n translations only (for testing background prefetch)
     if (url.pathname.includes('/translations/')) {
@@ -57,7 +90,7 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Everything else: pass-through (no cache)
+    // Everything else: pass-through
     // This ensures fresh code/assets during development
 });
 

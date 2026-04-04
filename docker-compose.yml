@@ -85,8 +85,9 @@ services:
       - /app/node_modules
       - ./backend/ssl:/app/ssl:ro
     environment:
-      # Backend API URL (z perspektywy przeglądarki, nie kontenera!)
-      - VITE_API_URL=http://localhost:8000/api
+      # Backend API URL (relative path -> Vite proxy handles routing)
+      # This works both on localhost and from phone/LAN.
+      - VITE_API_URL=/api
       - VITE_API_URL_HTTPS=https://localhost:8443/api
       - VITE_WS_URL=ws://localhost:8000
       - VITE_USE_HTTPS=false

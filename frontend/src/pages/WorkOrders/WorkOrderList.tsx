@@ -23,7 +23,7 @@ import {
     useToast,
     MDBDataTable
 } from '../../components/ui';
-import { workOrderService, equipmentService } from '../../services';
+import { workOrderService, equipmentService, realtimeService } from '../../services';
 import { WorkOrder, WorkOrderStatus, WorkOrderPriority, Equipment } from '../../types';
 
 // Type for MDBDatatable row data
@@ -123,6 +123,24 @@ export const WorkOrderList = () => {
 
     useEffect(() => {
         loadWorkOrders();
+    }, [loadWorkOrders]);
+
+    useEffect(() => {
+        const unsubscribeRealtime = realtimeService.subscribe((event) => {
+            if (event.type === 'work_order.created' || event.type === 'work_order.updated') {
+                loadWorkOrders();
+            }
+        });
+
+        // Polling fallback when realtime is temporarily unavailable.
+        const interval = setInterval(() => {
+            loadWorkOrders();
+        }, 30000);
+
+        return () => {
+            clearInterval(interval);
+            unsubscribeRealtime();
+        };
     }, [loadWorkOrders]);
 
     // Update URL params

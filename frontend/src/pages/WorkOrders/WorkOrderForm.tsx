@@ -14,8 +14,7 @@ import {
     MDBCol,
     MDBInput,
     MDBTextArea,
-    MDBSelect,
-    MDBDateTimepicker
+    MDBSelect
 } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -53,7 +52,7 @@ export const WorkOrderForm = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { success, error } = useToast();
+    const { success, error, warning } = useToast();
 
     const isEdit = !!id;
 
@@ -107,23 +106,21 @@ export const WorkOrderForm = () => {
         loadReferenceData();
     }, [isEdit, t, error]);
 
-    /**
-     * Convert ISO date to Polish display format (dd.mm.yyyy, HH:MM)
-     */
-    const formatDateToPolish = (isoDate: string | null | undefined): string => {
+    // Convert backend ISO date to input[type=datetime-local] format.
+    const formatDateToInputValue = (isoDate: string | null | undefined): string => {
         if (!isoDate) return '';
         
         try {
             const date = new Date(isoDate);
             if (isNaN(date.getTime())) return '';
             
-            const day = date.getDate().toString().padStart(2, '0');
+            const year = date.getFullYear().toString();
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
+            const day = date.getDate().toString().padStart(2, '0');
             const hours = date.getHours().toString().padStart(2, '0');
             const minutes = date.getMinutes().toString().padStart(2, '0');
             
-            return `${day}.${month}.${year}, ${hours}:${minutes}`;
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
         } catch {
             return '';
         }
@@ -142,8 +139,8 @@ export const WorkOrderForm = () => {
                     statusId: workOrder.status?.id || '',
                     priorityId: workOrder.priority?.id || '',
                     equipmentId: workOrder.equipment?.id || '',
-                    plannedStartDate: formatDateToPolish(workOrder.plannedStartDate),
-                    plannedEndDate: formatDateToPolish(workOrder.plannedEndDate),
+                    plannedStartDate: formatDateToInputValue(workOrder.plannedStartDate),
+                    plannedEndDate: formatDateToInputValue(workOrder.plannedEndDate),
                     assignedUserIds: workOrder.assignedUsers?.map(a => a.userId) || [],
                     tagIds: workOrder.tags?.map(t => t.tagId) || [],
                 });
@@ -190,33 +187,19 @@ export const WorkOrderForm = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    /**
-     * Parse Polish date format (dd.mm.yyyy, HH:MM) to ISO format for backend
-     */
-    const parsePolishDateToISO = (dateStr: string): string | undefined => {
+    const normalizeDateToISO = (dateStr: string): string | undefined => {
         if (!dateStr || dateStr.trim() === '') return undefined;
-        
-        // Format from MDBDateTimepicker: "dd.mm.yyyy, HH:MM"
-        const match = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4}),?\s*(\d{2}):(\d{2})$/);
-        if (match) {
-            const [, day, month, year, hours, minutes] = match;
-            return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+
+        // datetime-local usually returns YYYY-MM-DDTHH:mm
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(dateStr)) {
+            return `${dateStr}:00`;
         }
-        
-        // Try parsing date only format: "dd.mm.yyyy"
-        const dateOnlyMatch = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-        if (dateOnlyMatch) {
-            const [, day, month, year] = dateOnlyMatch;
-            return `${year}-${month}-${day}T00:00:00`;
-        }
-        
-        // Try ISO format already (from backend)
+
+        // Already full ISO
         if (dateStr.includes('T') || dateStr.match(/^\d{4}-\d{2}-\d{2}/)) {
             return dateStr;
         }
-        
-        // Unknown format - log and return undefined
-        console.warn('Unknown date format:', dateStr);
+
         return undefined;
     };
 
@@ -233,8 +216,8 @@ export const WorkOrderForm = () => {
                 statusId: formData.statusId as number,
                 priorityId: formData.priorityId as number,
                 equipmentId: formData.equipmentId as number,
-                plannedStartDate: parsePolishDateToISO(formData.plannedStartDate),
-                plannedEndDate: parsePolishDateToISO(formData.plannedEndDate),
+                plannedStartDate: normalizeDateToISO(formData.plannedStartDate),
+                plannedEndDate: normalizeDateToISO(formData.plannedEndDate),
                 assignedUserIds: formData.assignedUserIds,
                 tagIds: formData.tagIds,
             };
@@ -243,20 +226,46 @@ export const WorkOrderForm = () => {
             console.log('formData.tagIds:', formData.tagIds);
 
             if (isEdit) {
-                await workOrderService.updateWorkOrder(parseInt(id!), payload);
-                success(t('workOrder.updateSuccess', { defaultValue: 'Work order updated successfully' }));
-                // Force navigation to view page (window.location to ensure full reload)
-                window.location.href = `/work-orders/${id}`;
+                const result = await workOrderService.updateWorkOrder(parseInt(id!), payload);
+                const isQueuedOffline = Boolean(result.queued || result.status === 202);
+
+                if (isQueuedOffline) {
+                    warning(t('workOrder.queuedOffline', { defaultValue: 'Brak sieci: zmiana została zapisana w kolejce offline i zsynchronizuje się automatycznie.' }));
+                    return;
+                } else {
+                    success(t('workOrder.updateSuccess', { defaultValue: 'Work order updated successfully' }));
+                }
+
+                window.location.assign(`/work-orders/${id}`);
                 return;
             } else {
-                const newWorkOrder = await workOrderService.createWorkOrder(payload);
-                success(t('workOrder.createSuccess', { defaultValue: 'Work order created successfully' }));
-                // Force full page reload to refresh state
-                window.location.href = '/work-orders';
+                const result = await workOrderService.createWorkOrder(payload);
+                const isQueuedOffline = Boolean(result.queued || result.status === 202);
+
+                if (isQueuedOffline) {
+                    warning(t('workOrder.queuedOffline', { defaultValue: 'Brak sieci: zlecenie zostało zapisane w kolejce offline i zsynchronizuje się automatycznie.' }));
+                    setFormData(initialFormData);
+                    return;
+                } else {
+                    success(t('workOrder.createSuccess', { defaultValue: 'Work order created successfully' }));
+                }
+
+                window.location.assign('/work-orders');
                 return;
             }
         } catch (err: unknown) {
             console.error('Failed to save work order:', err);
+
+            const isNetworkError = typeof err === 'object'
+                && err !== null
+                && 'code' in err
+                && (err as { code?: string }).code === 'ERR_NETWORK';
+
+            if (isNetworkError && !navigator.onLine) {
+                warning(t('workOrder.offlineNoQueue', { defaultValue: 'Jesteś offline. Jeśli kolejka offline jest aktywna, żądanie powinno pojawić się w IndexedDB (requestQueue).' }));
+                return;
+            }
+
             const errorMessage = err instanceof Error && 'response' in err 
                 ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
                 : undefined;
@@ -393,29 +402,23 @@ export const WorkOrderForm = () => {
                                 )}
                             </MDBCol>
 
-                            {/* Planned Start Date - MDBDatetimepicker */}
+                            {/* Planned Start Date */}
                             <MDBCol md={6}>
-                                <MDBDateTimepicker
+                                <MDBInput
+                                    type="datetime-local"
                                     label={t('workOrder.plannedStartDate', { defaultValue: 'Planned start date' })}
-                                    datepickerOptions={{ format: 'dd.mm.yyyy' }}
-                                    timepickerOptions={{ format: '24h' }}
                                     value={formData.plannedStartDate}
-                                    onChange={(date: string) => handleChange('plannedStartDate', date)}
-                                    inputToggle
-                                    appendValidationInfo={false}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('plannedStartDate', e.target.value)}
                                 />
                             </MDBCol>
 
-                            {/* Planned End Date - MDBDatepicker */}
+                            {/* Planned End Date */}
                             <MDBCol md={6}>
-                                <MDBDateTimepicker
+                                <MDBInput
+                                    type="datetime-local"
                                     label={t('workOrder.plannedEndDate', { defaultValue: 'Planned end date' })}
-                                    datepickerOptions={{ format: 'dd.mm.yyyy' }}
-                                    timepickerOptions={{ format: '24h' }}
                                     value={formData.plannedEndDate}
-                                    onChange={(date: string) => handleChange('plannedEndDate', date)}
-                                    inputToggle
-                                    appendValidationInfo={false}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleChange('plannedEndDate', e.target.value)}
                                 />
                             </MDBCol>
 

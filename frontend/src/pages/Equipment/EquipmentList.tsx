@@ -12,8 +12,7 @@ import {
     MDBBtn, 
     MDBIcon, 
     MDBRow,
-    MDBCol,
-    MDBBadge
+    MDBCol
 } from 'mdb-react-ui-kit';
 import { useTranslation } from 'react-i18next';
 import { 

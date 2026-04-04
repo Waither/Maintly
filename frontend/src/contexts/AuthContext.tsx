@@ -6,6 +6,8 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import apiClient, { getAuthToken, removeAuthToken } from '../lib/axios';
 
+const AUTH_USER_CACHE_KEY = 'auth_user_cache';
+
 // Role hierarchy - lower number = more permissions
 export type UserRole = 'admin' | 'manager' | 'technician' | 'provider' | 'reporter';
 
@@ -148,12 +150,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             
             setUser(userData);
             setPermissions(calculatePermissions(userData.role));
+            localStorage.setItem(AUTH_USER_CACHE_KEY, JSON.stringify(userData));
         } catch (err) {
             console.error('Failed to fetch user:', err);
-            // Token might be invalid
-            removeAuthToken();
-            setUser(null);
-            setPermissions(defaultPermissions);
+
+            const status = (err as { response?: { status?: number } })?.response?.status;
+            const isAuthError = status === 401 || status === 403;
+
+            if (isAuthError) {
+                removeAuthToken();
+                localStorage.removeItem(AUTH_USER_CACHE_KEY);
+                setUser(null);
+                setPermissions(defaultPermissions);
+            } else {
+                // Keep user session on transient/network errors and use cached profile if available.
+                const cachedRaw = localStorage.getItem(AUTH_USER_CACHE_KEY);
+                if (cachedRaw) {
+                    try {
+                        const cachedUser = JSON.parse(cachedRaw) as AuthUser;
+                        setUser(cachedUser);
+                        setPermissions(calculatePermissions(cachedUser.role));
+                    } catch {
+                        // Ignore invalid cache and keep current in-memory state.
+                    }
+                }
+            }
         } finally {
             setLoading(false);
         }
@@ -174,6 +195,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const logout = useCallback(() => {
         removeAuthToken();
+        localStorage.removeItem(AUTH_USER_CACHE_KEY);
         setUser(null);
         setPermissions(defaultPermissions);
         window.location.href = '/login';
