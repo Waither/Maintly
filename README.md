@@ -110,7 +110,7 @@ docker exec maintly-backend php bin/console lexik:jwt:generate-keypair --skip-if
 docker exec maintly-backend php bin/console doctrine:migrations:migrate --no-interaction
 
 # Dane testowe (opcjonalnie)
-docker exec maintly-backend php bin/console doctrine:fixtures:load --no-interaction
+docker exec maintly-backend php bin/console doctrine:fixtures:load --no-interaction  --env=dev
 ```
 
 ### Dostęp
