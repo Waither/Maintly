@@ -1,0 +1,23 @@
+import React, { ReactNode } from 'react';
+import { InputProps } from '../../../free/forms/Input/types';
+type ItemDataType = string | Record<string, string | number>;
+type AutocompleteProps = Omit<InputProps, 'onSelect' | 'onChange'> & {
+    open?: boolean;
+    autoSelect?: boolean;
+    customContent?: ReactNode;
+    data?: ItemDataType[];
+    listHeight?: string;
+    isLoading?: boolean;
+    noResults?: string;
+    ref?: React.Ref<HTMLInputElement>;
+    displayValue?: (row: Record<string, string | number>) => any;
+    itemContent?: (value: Record<string, string | number>) => ReactNode;
+    onClose?: () => void;
+    onClosed?: () => void;
+    onOpen?: () => void;
+    onOpened?: () => void;
+    onSelect?: (itemData: ItemDataType) => void;
+    onSearch?: (data: string) => void;
+    onChange?: (value: string) => void;
+};
+export type { AutocompleteProps, ItemDataType };
