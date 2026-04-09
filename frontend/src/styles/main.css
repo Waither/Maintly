@@ -1,0 +1,54 @@
+.datetimepicker-toggle-button,
+.datepicker-toggle-button,
+.timepicker-toggle-button {
+	margin-right: 0.3rem;
+}
+
+.loading-screen {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	z-index: 9999;
+}
+.loading-screen__content {
+	text-align: center;
+	padding: 2rem;
+}
+.loading-screen__icon {
+	font-size: 4rem;
+	color: #ffffff;
+	margin-bottom: 1.5rem;
+	display: block;
+	animation: spin 2s linear infinite;
+	filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+}
+.loading-screen__title {
+	color: #ffffff;
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+	letter-spacing: 2px;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.loading-screen__message {
+	color: #f0f0f0;
+	font-size: 1rem;
+	min-height: 24px;
+	transition: opacity 0.3s ease-in-out;
+	opacity: 1;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

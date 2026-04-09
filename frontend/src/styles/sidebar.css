@@ -1,0 +1,373 @@
+/**
+ * Sidebar Styles
+ * Custom styles for sidebar navigation
+ * Responsive design included
+ */
+
+.sidebar {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    color: #fff;
+    background-color: var(--mdb-primary);
+}
+
+.sidebar.collapsed .nav-link {
+    justify-content: center;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Hide scrollbar for sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Dropdown styles fix */
+.dropdown-menu {
+    z-index: 1050;
+}
+
+/* Hover effect for cards */
+.hover-shadow:hover {
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+}
+
+/* Animation for sidebar toggle */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Toast animations */
+@keyframes fadeInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.toast-enter {
+    animation: fadeInRight 0.3s ease-out;
+}
+
+/* ========== RESPONSIVE STYLES ========== */
+
+/* Mobile-first: Stack cards vertically */
+@media (max-width: 767.98px) {
+    /* Content padding adjustments */
+    .main-content main {
+        padding: 0.75rem !important;
+    }
+
+    /* Make cards full width on mobile */
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    /* Table responsive */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+
+    /* Reduce padding in table cells */
+    .table td, .table th {
+        padding: 0.5rem 0.25rem;
+    }
+
+    /* Hide less important columns on mobile */
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    /* Page header adjustments */
+    .page-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .page-header .btn-group {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Form adjustments */
+    .form-floating {
+        margin-bottom: 0.75rem;
+    }
+
+    /* Modal adjustments */
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    /* Buttons stack on mobile */
+    .btn-group-mobile {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-group-mobile .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Stats cards */
+    .stat-card {
+        margin-bottom: 0.75rem;
+    }
+
+    /* Search and filter bar */
+    .filter-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-bar > * {
+        width: 100% !important;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .main-content main {
+        padding: 1rem !important;
+    }
+}
+
+/* Large screens */
+@media (min-width: 992px) {
+    /* Sidebar backdrop not needed */
+    .sidebar-backdrop {
+        display: none !important;
+    }
+}
+
+/* ========== UTILITY CLASSES ========== */
+
+/* Truncate text with ellipsis */
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Touch-friendly buttons on mobile */
+@media (max-width: 767.98px) {
+    .btn {
+        min-height: 44px;
+        padding-top: 0.625rem;
+        padding-bottom: 0.625rem;
+    }
+
+    .btn-sm {
+        min-height: 36px;
+    }
+}
+
+/* Make action buttons more touch-friendly */
+.action-btn {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fix for MDB datatable on mobile */
+.datatable-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* MDBDatatable mobile fixes */
+@media (max-width: 767.98px) {
+    /* Make datatable scroll horizontally */
+    .datatable {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .datatable table {
+        min-width: 600px;
+    }
+    
+    /* Smaller search input */
+    .datatable-search input {
+        font-size: 0.875rem;
+    }
+    
+    /* Pagination fixes */
+    .datatable-pagination {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .datatable-select-wrapper {
+        margin: 0 !important;
+    }
+    
+    .datatable-info {
+        text-align: center;
+        width: 100%;
+    }
+    
+    /* Reduce column widths */
+    .datatable th,
+    .datatable td {
+        padding: 0.5rem 0.375rem !important;
+        font-size: 0.8125rem;
+    }
+    
+    /* Action buttons smaller */
+    .datatable .btn-floating {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .datatable .btn-floating .fa,
+    .datatable .btn-floating .fas,
+    .datatable .btn-floating .far {
+        font-size: 0.75rem;
+    }
+}
+
+/* Quick stats mobile */
+@media (max-width: 767.98px) {
+    .stat-card .card-body {
+        padding: 0.75rem !important;
+    }
+    
+    .stat-card .rounded-circle {
+        padding: 0.5rem !important;
+    }
+    
+    .stat-card h4 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Filter select dropdowns mobile */
+@media (max-width: 767.98px) {
+    .filter-section .select-wrapper {
+        width: 100% !important;
+    }
+    
+    .filter-section .form-outline {
+        width: 100% !important;
+    }
+}
+
+/* Card body padding on mobile */
+@media (max-width: 575.98px) {
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .card-header {
+        padding: 0.75rem;
+    }
+}
+
+/* Stats row responsive fix */
+@media (max-width: 767.98px) {
+    .stats-row .col-md-3 {
+        width: 50% !important;
+        flex: 0 0 50% !important;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .stats-row .col-md-3 {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+}
+
+/* Form sections mobile */
+@media (max-width: 767.98px) {
+    .form-section {
+        padding: 1rem !important;
+    }
+    
+    .form-section .row {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+    
+    .form-section .col-md-6,
+    .form-section .col-md-4 {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+}
+
+/* Floating action button position on mobile */
+@media (max-width: 767.98px) {
+    .floating-action-btn {
+        bottom: 1rem !important;
+        right: 1rem !important;
+    }
+}
+
+/* Detail page mobile */
+@media (max-width: 767.98px) {
+    .detail-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .detail-header .badge-group {
+        justify-content: center;
+    }
+    
+    .detail-actions {
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .detail-actions .btn {
+        flex: 1;
+        min-width: 120px;
+    }
+}

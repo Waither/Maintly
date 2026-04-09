@@ -44,7 +44,3 @@ coverage/
 *.temp
 *.bak
 *~
-
-# Compiled CSS from SCSS (Vite generates this)
-src/**/*.css
-src/**/*.css.map
