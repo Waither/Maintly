@@ -191,4 +191,185 @@ class SecurityControllerTest extends WebTestCase {
         // Assert response status is 403 Forbidden (standard Symfony/Lexik behavior)
         $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
     }
+
+    public function testRegisterRequiresManagerRole(): void {
+        $client = static::createClient();
+
+        $token = $this->loginAndGetToken($client, 'reporter@maintly.com', 'MaintlyReporter!@#');
+
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'email' => 'blocked+' . uniqid() . '@example.com',
+                'password' => 'SecurePass123',
+                'firstName' => 'Jan',
+                'lastName' => 'Nowak',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_FORBIDDEN);
+    }
+
+    public function testRegisterFailsWithInvalidPayload(): void {
+        $client = static::createClient();
+
+        $token = $this->loginAndGetToken($client, 'admin@maintly.com', 'MaintlyAdmin!@#');
+
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'email' => 'not-an-email',
+                'password' => 'short',
+                'firstName' => '',
+                'lastName' => '',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+    }
+
+    public function testRegisterSuccessWithManagerRole(): void {
+        $client = static::createClient();
+
+        $token = $this->loginAndGetToken($client, 'manager@maintly.com', 'MaintlyManager!@#');
+        $email = 'user+' . uniqid() . '@example.com';
+
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'email' => $email,
+                'password' => 'SecurePass123',
+                'firstName' => 'Jan',
+                'lastName' => 'Nowak',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $responseData = json_decode($client->getResponse()->getContent(), true);
+        $this->assertIsArray($responseData);
+        $this->assertSame('success', $responseData['status'] ?? null);
+        $this->assertSame($email, $responseData['data']['email'] ?? null);
+        $this->assertSame('reporter', $responseData['data']['role'] ?? null);
+    }
+
+    public function testChangePasswordWorkflow(): void {
+        $client = static::createClient();
+
+        $adminToken = $this->loginAndGetToken($client, 'admin@maintly.com', 'MaintlyAdmin!@#');
+        $email = 'pwd+' . uniqid() . '@example.com';
+        $password = 'SecurePass123';
+
+        $client->request(
+            'POST',
+            '/api/register',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $adminToken,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'email' => $email,
+                'password' => $password,
+                'firstName' => 'Anna',
+                'lastName' => 'Kowalska',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
+
+        $userToken = $this->loginAndGetToken($client, $email, $password);
+
+        $client->request(
+            'PATCH',
+            '/api/me/password',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $userToken,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'currentPassword' => 'WrongPass123',
+                'newPassword' => 'NewPass123',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+
+        $client->request(
+            'PATCH',
+            '/api/me/password',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $userToken,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'currentPassword' => $password,
+                'newPassword' => 'NewPass123',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        $client->request(
+            'POST',
+            '/api/login',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'email' => $email,
+                'password' => 'NewPass123',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    private function loginAndGetToken($client, string $email, string $password): string {
+        $client->request(
+            'POST',
+            '/api/login',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'email' => $email,
+                'password' => $password,
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+
+        $loginData = json_decode((string) $client->getResponse()->getContent(), true);
+        $this->assertIsArray($loginData);
+        $this->assertArrayHasKey('token', $loginData);
+
+        return (string) $loginData['token'];
+    }
 }
