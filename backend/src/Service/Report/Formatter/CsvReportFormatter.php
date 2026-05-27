@@ -10,7 +10,7 @@ use RuntimeException;
 /**
  * CSV report formatter using native PHP functions.
  */
-final class CsvReportFormatter implements ReportFormatterInterface {
+class CsvReportFormatter implements ReportFormatterInterface {
     public function getFormat(): string {
         return 'csv';
     }
@@ -34,39 +34,39 @@ final class CsvReportFormatter implements ReportFormatterInterface {
             fwrite($handle, "\xEF\xBB\xBF");
 
             // Write title
-            fputcsv($handle, [$data['title'] ?? 'Report']);
+            fputcsv($handle, [$data['title'] ?? 'Report'], ',', '"', '');
 
             // Write generation date
             $generatedAt = $options['generatedAt'] ?? new DateTimeImmutable();
-            fputcsv($handle, ['Generated: ' . $generatedAt->format('Y-m-d H:i:s')]);
+            fputcsv($handle, ['Generated: ' . $generatedAt->format('Y-m-d H:i:s')], ',', '"', '');
 
             // Empty line
-            fputcsv($handle, []);
+            fputcsv($handle, [], ',', '"', '');
 
             // Write column headers
             $columns = $data['columns'] ?? [];
             if (!empty($columns)) {
-                fputcsv($handle, $columns);
+                fputcsv($handle, $columns, ',', '"', '');
             }
 
             // Write data rows
             $rows = $data['rows'] ?? [];
             foreach ($rows as $row) {
-                fputcsv($handle, array_values($row));
+                fputcsv($handle, array_values($row), ',', '"', '');
             }
 
             // Add summary
             $summary = $data['summary'] ?? [];
             if (!empty($summary)) {
-                fputcsv($handle, []); // Empty line
-                fputcsv($handle, ['Summary']);
-                fputcsv($handle, ['Total Records', $summary['total'] ?? 0]);
+                fputcsv($handle, [], ',', '"', ''); // Empty line
+                fputcsv($handle, ['Summary'], ',', '"', '');
+                fputcsv($handle, ['Total Records', $summary['total'] ?? 0], ',', '"', '');
 
                 if (!empty($summary['filters'])) {
-                    fputcsv($handle, []); // Empty line
-                    fputcsv($handle, ['Applied Filters']);
+                    fputcsv($handle, [], ',', '"', ''); // Empty line
+                    fputcsv($handle, ['Applied Filters'], ',', '"', '');
                     foreach ($summary['filters'] as $key => $value) {
-                        fputcsv($handle, [$key, $value]);
+                        fputcsv($handle, [$key, $value], ',', '"', '');
                     }
                 }
             }

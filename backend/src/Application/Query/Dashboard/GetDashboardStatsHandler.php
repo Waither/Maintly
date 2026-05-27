@@ -43,6 +43,9 @@ class GetDashboardStatsHandler {
         // Recent activities
         $recentActivities = $this->getRecentActivities($query->userId);
 
+        // KPI: MTTR and MTBF
+        $kpiStats = $this->getKpiStats($query->userId);
+
         return [
             'workOrders' => $workOrderStats,
             'equipment' => $equipmentStats,
@@ -50,6 +53,7 @@ class GetDashboardStatsHandler {
             'reports' => $reportStats,
             'topEquipment' => $topEquipment,
             'recentActivities' => $recentActivities,
+            'kpi' => $kpiStats,
         ];
     }
 
@@ -188,6 +192,85 @@ class GetDashboardStatsHandler {
      *
      * @return array<int, array{id: int, workOrderId: int, workOrderTitle: string, userName: string, activityText: string, createdAt: string}>
      */
+    /**
+     * Calculate MTTR (Mean Time To Repair) and MTBF (Mean Time Between Failures) in hours.
+     * MTTR = average time from work order creation to closing (actualEndDate or updatedAt on final status).
+     * MTBF = average time between consecutive completed work orders for the same equipment.
+     *
+     * @return array{mttr: float|null, mtbf: float|null, mttrUnit: string, mtbfUnit: string}
+     */
+    private function getKpiStats(?int $userId): array {
+        // MTTR: average resolution time (hours) for completed/cancelled work orders
+        $qb = $this->workOrderRepository->createQueryBuilder('wo')
+            ->select('wo.createdAt, wo.actualEndDate, wo.updatedAt')
+            ->leftJoin('wo.status', 's')
+            ->where('s.isFinal = :final')
+            ->andWhere('wo.deletedAt IS NULL')
+            ->setParameter('final', true);
+
+        if ($userId !== null) {
+            $qb->andWhere('wo.createdBy = :userId')->setParameter('userId', $userId);
+        }
+
+        $finalOrders = $qb->getQuery()->getResult();
+
+        $mttr = null;
+        if (count($finalOrders) > 0) {
+            $totalSeconds = 0;
+            foreach ($finalOrders as $row) {
+                $end = $row['actualEndDate'] ?? $row['updatedAt'];
+                if ($end instanceof \DateTime && $row['createdAt'] instanceof \DateTime) {
+                    $totalSeconds += $end->getTimestamp() - $row['createdAt']->getTimestamp();
+                }
+            }
+            $avgSeconds = $totalSeconds / count($finalOrders);
+            $mttr = round($avgSeconds / 3600, 2); // hours
+        }
+
+        // MTBF: average time between consecutive completed work orders per equipment (hours)
+        $qb2 = $this->workOrderRepository->createQueryBuilder('wo')
+            ->select('IDENTITY(wo.equipment) as equipmentId, wo.actualEndDate, wo.updatedAt')
+            ->leftJoin('wo.status', 's')
+            ->where('s.isFinal = :final')
+            ->andWhere('wo.deletedAt IS NULL')
+            ->orderBy('IDENTITY(wo.equipment)', 'ASC')
+            ->addOrderBy('wo.createdAt', 'ASC')
+            ->setParameter('final', true);
+
+        if ($userId !== null) {
+            $qb2->andWhere('wo.createdBy = :userId')->setParameter('userId', $userId);
+        }
+
+        $orderedOrders = $qb2->getQuery()->getResult();
+
+        $mtbf = null;
+        $intervals = [];
+        $lastEndByEquipment = [];
+
+        foreach ($orderedOrders as $row) {
+            $eqId = (int) $row['equipmentId'];
+            $end = $row['actualEndDate'] ?? $row['updatedAt'];
+
+            if ($end instanceof \DateTime) {
+                if (isset($lastEndByEquipment[$eqId])) {
+                    $intervals[] = $end->getTimestamp() - $lastEndByEquipment[$eqId];
+                }
+                $lastEndByEquipment[$eqId] = $end->getTimestamp();
+            }
+        }
+
+        if (count($intervals) > 0) {
+            $mtbf = round(array_sum($intervals) / count($intervals) / 3600, 2); // hours
+        }
+
+        return [
+            'mttr' => $mttr,
+            'mtbf' => $mtbf,
+            'mttrUnit' => 'hours',
+            'mtbfUnit' => 'hours',
+        ];
+    }
+
     private function getRecentActivities(?int $userId): array {
         $queryBuilder = $this->activityRepository->createQueryBuilder('a')
             ->select('a.id, wo.id as workOrderId, wo.title as workOrderTitle, u.firstName, u.lastName, a.description as activityText, a.createdAt')

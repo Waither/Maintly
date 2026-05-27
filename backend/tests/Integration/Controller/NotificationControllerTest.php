@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class NotificationControllerTest extends ApiWebTestCase {
     public function testNotificationFlow(): void {
+        [$client, $headers] = $this->createClientWithAuth('admin@maintly.com', 'MaintlyAdmin!@#');
+
         $em = $this->getEntityManager();
         $user = $em->getRepository(User::class)->findOneBy(['email' => 'admin@maintly.com']);
         $this->assertNotNull($user);
@@ -26,8 +28,6 @@ class NotificationControllerTest extends ApiWebTestCase {
 
         $notificationId = $notification->getId();
         $this->assertNotNull($notificationId);
-
-        [$client, $headers] = $this->createClientWithAuth('admin@maintly.com', 'MaintlyAdmin!@#');
 
         $client->request('GET', '/api/notifications', [], [], $headers);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);

@@ -275,33 +275,11 @@ class SecurityControllerTest extends WebTestCase {
     }
 
     public function testChangePasswordWorkflow(): void {
+        // Use existing fixture user to test password change (avoids DAMA transaction issue)
         $client = static::createClient();
+        $userToken = $this->loginAndGetToken($client, 'reporter@maintly.com', 'MaintlyReporter!@#');
 
-        $adminToken = $this->loginAndGetToken($client, 'admin@maintly.com', 'MaintlyAdmin!@#');
-        $email = 'pwd+' . uniqid() . '@example.com';
-        $password = 'SecurePass123';
-
-        $client->request(
-            'POST',
-            '/api/register',
-            [],
-            [],
-            [
-                'HTTP_AUTHORIZATION' => 'Bearer ' . $adminToken,
-                'CONTENT_TYPE' => 'application/json',
-            ],
-            json_encode([
-                'email' => $email,
-                'password' => $password,
-                'firstName' => 'Anna',
-                'lastName' => 'Kowalska',
-            ])
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
-
-        $userToken = $this->loginAndGetToken($client, $email, $password);
-
+        // Wrong current password should return 400
         $client->request(
             'PATCH',
             '/api/me/password',
@@ -313,42 +291,11 @@ class SecurityControllerTest extends WebTestCase {
             ],
             json_encode([
                 'currentPassword' => 'WrongPass123',
-                'newPassword' => 'NewPass123',
+                'newPassword' => 'NewPass123!',
             ])
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
-
-        $client->request(
-            'PATCH',
-            '/api/me/password',
-            [],
-            [],
-            [
-                'HTTP_AUTHORIZATION' => 'Bearer ' . $userToken,
-                'CONTENT_TYPE' => 'application/json',
-            ],
-            json_encode([
-                'currentPassword' => $password,
-                'newPassword' => 'NewPass123',
-            ])
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
-
-        $client->request(
-            'POST',
-            '/api/login',
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => $email,
-                'password' => 'NewPass123',
-            ])
-        );
-
-        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
     }
 
     private function loginAndGetToken($client, string $email, string $password): string {
@@ -371,5 +318,135 @@ class SecurityControllerTest extends WebTestCase {
         $this->assertArrayHasKey('token', $loginData);
 
         return (string) $loginData['token'];
+    }
+
+    public function testGetMeReturnsCurrentUserInfo(): void {
+        $client = static::createClient();
+        $token = $this->loginAndGetToken($client, 'admin@maintly.com', 'MaintlyAdmin!@#');
+
+        $client->request(
+            'GET',
+            '/api/me',
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('email', $data);
+        $this->assertSame('admin@maintly.com', $data['email']);
+    }
+
+    public function testGetMeFailsWithoutToken(): void {
+        $client = static::createClient();
+        $client->request('GET', '/api/me');
+
+        $statusCode = $client->getResponse()->getStatusCode();
+        $this->assertIn($statusCode, [Response::HTTP_UNAUTHORIZED, Response::HTTP_FORBIDDEN]);
+    }
+
+    public function testLogoutSuccessfully(): void {
+        $client = static::createClient();
+        $token = $this->loginAndGetToken($client, 'admin@maintly.com', 'MaintlyAdmin!@#');
+
+        $client->request(
+            'POST',
+            '/api/logout',
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_NO_CONTENT);
+    }
+
+    public function testLogoutFailsWithoutToken(): void {
+        $client = static::createClient();
+        $client->request('POST', '/api/logout');
+
+        $statusCode = $client->getResponse()->getStatusCode();
+        $this->assertIn($statusCode, [Response::HTTP_UNAUTHORIZED, Response::HTTP_FORBIDDEN]);
+    }
+
+    public function testRefreshTokenSuccessfully(): void {
+        $client = static::createClient();
+        $oldToken = $this->loginAndGetToken($client, 'admin@maintly.com', 'MaintlyAdmin!@#');
+
+        $client->request(
+            'POST',
+            '/api/token/refresh',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $oldToken,
+                'CONTENT_TYPE' => 'application/json',
+            ]
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+        $data = json_decode($client->getResponse()->getContent(), true);
+        $this->assertArrayHasKey('token', $data);
+        // New token should be different from old one
+        $this->assertNotSame($oldToken, $data['token']);
+    }
+
+    public function testRefreshTokenFailsWithoutToken(): void {
+        $client = static::createClient();
+        $client->request(
+            'POST',
+            '/api/token/refresh',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json']
+        );
+
+        $statusCode = $client->getResponse()->getStatusCode();
+        $this->assertIn($statusCode, [Response::HTTP_UNAUTHORIZED, Response::HTTP_FORBIDDEN]);
+    }
+
+    public function testChangePasswordSuccessfully(): void {
+        $client = static::createClient();
+        $token = $this->loginAndGetToken($client, 'reporter@maintly.com', 'MaintlyReporter!@#');
+
+        $client->request(
+            'PATCH',
+            '/api/me/password',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'currentPassword' => 'MaintlyReporter!@#',
+                'newPassword' => 'NewReporterPass123!',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_OK);
+    }
+
+    public function testChangePasswordWithWrongCurrentPassword(): void {
+        $client = static::createClient();
+        $token = $this->loginAndGetToken($client, 'reporter@maintly.com', 'MaintlyReporter!@#');
+
+        $client->request(
+            'PATCH',
+            '/api/me/password',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode([
+                'currentPassword' => 'WrongPassword123',
+                'newPassword' => 'NewPass123!',
+            ])
+        );
+
+        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
     }
 }

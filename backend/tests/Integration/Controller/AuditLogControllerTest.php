@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuditLogControllerTest extends ApiWebTestCase {
     public function testAuditLogEndpoints(): void {
+        [$client, $headers] = $this->createClientWithAuth('admin@maintly.com', 'MaintlyAdmin!@#');
+
         $em = $this->getEntityManager();
         $user = $em->getRepository(User::class)->findOneBy(['email' => 'admin@maintly.com']);
         $this->assertNotNull($user);
@@ -29,8 +31,6 @@ class AuditLogControllerTest extends ApiWebTestCase {
 
         $logId = $log->getId();
         $this->assertNotNull($logId);
-
-        [$client, $headers] = $this->createClientWithAuth('admin@maintly.com', 'MaintlyAdmin!@#');
 
         $client->request('GET', '/api/audit-logs', [], [], $headers);
         $this->assertResponseStatusCodeSame(Response::HTTP_OK);

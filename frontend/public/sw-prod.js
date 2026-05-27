@@ -12,19 +12,12 @@ const OFFLINE_QUEUE_STORE = 'requestQueue';
 
 console.log('🚀 PROD Service Worker loaded');
 
-// Assets to cache immediately on install
+// Assets to cache immediately on install (only files guaranteed to exist)
+// Icons are cached lazily on first fetch via cache-first strategy below.
 const STATIC_ASSETS = [
     '/',
     '/index.html',
     '/manifest.json',
-    '/icons/icon-72x72.png',
-    '/icons/icon-96x96.png',
-    '/icons/icon-128x128.png',
-    '/icons/icon-144x144.png',
-    '/icons/icon-152x152.png',
-    '/icons/icon-192x192.png',
-    '/icons/icon-384x384.png',
-    '/icons/icon-512x512.png'
 ];
 
 // Install: Pre-cache static assets
@@ -349,7 +342,7 @@ async function prefetchLanguages(languages) {
     
     for (const lang of languages) {
         try {
-            const url = `http://localhost:8000/api/translations/${lang}`;
+            const url = `/api/translations/${lang}`;
             const response = await fetch(url);
             if (response.ok) {
                 await cache.put(url, response);

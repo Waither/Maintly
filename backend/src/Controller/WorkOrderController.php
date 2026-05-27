@@ -20,6 +20,7 @@ use App\Application\Query\WorkOrder\GetWorkOrderByIdQuery;
 use App\Application\Query\WorkOrder\GetWorkOrderPrioritiesQuery;
 use App\Application\Query\WorkOrder\GetWorkOrderStatusesQuery;
 use App\Entity\User;
+use App\Service\WorkOrderStatusTransitionService;
 use DateTime;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
@@ -36,6 +37,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class WorkOrderController extends AbstractController {
     public function __construct(
         private MessageBusInterface $messageBus,
+        private WorkOrderStatusTransitionService $transitionService,
     ) {}
 
     #[Route('/statuses', name: 'statuses', methods: ['GET'])]
@@ -476,7 +478,7 @@ class WorkOrderController extends AbstractController {
         $exportData = array_map(function ($workOrder) {
             $assignedUsers = [];
             foreach ($workOrder->getAssignments() as $assignment) {
-                $user = $assignment->getAssignedUser();
+                $user = $assignment->getUser();
                 $assignedUsers[] = $user->getFirstName() . ' ' . $user->getLastName();
             }
 
@@ -899,6 +901,44 @@ class WorkOrderController extends AbstractController {
 
         return $this->json($activity, Response::HTTP_CREATED, [], [
             'enable_max_depth' => true,
+        ]);
+    }
+
+    #[Route('/{id}/transitions', name: 'allowed_transitions', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/work-orders/{id}/transitions',
+        summary: 'Get allowed status transitions for a work order',
+        security: [['Bearer' => []]],
+        tags: ['WorkOrder'],
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'integer'),
+        example: 1,
+    )]
+    #[OA\Response(
+        response: 200,
+        description: 'Allowed next status names',
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: 'currentStatus', type: 'string', example: 'in_progress'),
+                new OA\Property(property: 'allowedTransitions', type: 'array', items: new OA\Items(type: 'string'), example: ['on_hold', 'completed', 'cancelled']),
+            ],
+        ),
+    )]
+    #[OA\Response(response: 401, description: 'Unauthorized')]
+    #[OA\Response(response: 404, description: 'Work order not found')]
+    public function allowedTransitions(int $id): JsonResponse {
+        $envelope = $this->messageBus->dispatch(new GetWorkOrderByIdQuery($id));
+        $workOrder = $envelope->last(HandledStamp::class)->getResult();
+
+        $this->denyAccessUnlessGranted('WORKORDER_VIEW', $workOrder);
+
+        return $this->json([
+            'currentStatus' => $workOrder->getStatus()->getName(),
+            'allowedTransitions' => $this->transitionService->getAllowedTransitions($workOrder),
         ]);
     }
 }

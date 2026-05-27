@@ -14,7 +14,7 @@ use InvalidArgumentException;
  * Main service for generating reports in various formats.
  * Coordinates data fetching and formatting delegation.
  */
-final readonly class ReportGenerator {
+class ReportGenerator {
     /** @var array<string, ReportFormatterInterface> */
     private array $formatters;
 

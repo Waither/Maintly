@@ -144,7 +144,7 @@ class ReportController extends AbstractController {
     /**
      * Get single report details.
      */
-    #[Route('/{id}', name: 'show', methods: ['GET'])]
+    #[Route('/{id}', name: 'show', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function show(int $id): JsonResponse {
         $user = $this->getUser();
         assert($user instanceof \App\Entity\User);
@@ -169,7 +169,7 @@ class ReportController extends AbstractController {
     /**
      * Download generated report file.
      */
-    #[Route('/{id}/download', name: 'download', methods: ['GET'])]
+    #[Route('/{id}/download', name: 'download', methods: ['GET'], requirements: ['id' => '\d+'])]
     public function download(int $id): BinaryFileResponse|JsonResponse {
         $user = $this->getUser();
         assert($user instanceof \App\Entity\User);
@@ -206,7 +206,7 @@ class ReportController extends AbstractController {
     /**
      * Delete report and file.
      */
-    #[Route('/{id}', name: 'delete', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'delete', methods: ['DELETE'], requirements: ['id' => '\d+'])]
     public function delete(int $id): JsonResponse {
         $user = $this->getUser();
         assert($user instanceof \App\Entity\User);

@@ -89,7 +89,7 @@ services:
       # This works both on localhost and from phone/LAN.
       - VITE_API_URL=/api
       - VITE_API_URL_HTTPS=https://localhost:8443/api
-      - VITE_WS_URL=ws://localhost:8000
+      - VITE_WS_URL=
       - VITE_USE_HTTPS=false
     depends_on:
       - nginx

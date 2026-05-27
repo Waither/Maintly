@@ -52,7 +52,7 @@ class EmailNotificationHandlerTest extends TestCase {
         $logger = $this->createMock(LoggerInterface::class);
         $mailer = $this->createMock(MailerInterface::class);
 
-        $exception = new class('fail') extends \RuntimeException implements TransportExceptionInterface {};
+        $exception = new \Symfony\Component\Mailer\Exception\TransportException('fail');
         $mailer->method('send')->willThrowException($exception);
 
         $handler = new EmailNotificationHandler($logger, $mailer, 'no-reply@example.com');

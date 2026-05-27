@@ -14,6 +14,7 @@ use App\Entity\WorkOrderStatus;
 use App\Entity\WorkOrderTag;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\WorkOrderStatusTransitionService;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -21,6 +22,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 class UpdateWorkOrderHandler {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private WorkOrderStatusTransitionService $transitionService,
     ) {}
 
     public function __invoke(UpdateWorkOrderCommand $command): WorkOrder {
@@ -39,6 +41,7 @@ class UpdateWorkOrderHandler {
         }
 
         if ($command->statusId !== null) {
+            $this->transitionService->validateTransition($workOrder, $command->statusId);
             $status = $this->entityManager->getReference(WorkOrderStatus::class, $command->statusId);
             $workOrder->setStatus($status);
         }
