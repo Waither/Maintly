@@ -131,7 +131,7 @@ export const Login = () => {
 
                         <div className="text-center mt-3">
                             <small className="text-muted">
-                                Demo: admin@maintly.com / password
+                                Demo:<br />admin@maintly.com / MaintlyAdmin!@#
                             </small>
                         </div>
                     </MDBCardBody>
