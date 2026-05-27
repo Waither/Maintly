@@ -54,6 +54,7 @@ const setCachedTranslations = (lng: string, data: any) => {
 
 const savedLocale = normalizeLocale(localStorage.getItem('locale'));
 const cachedTranslations = getCachedTranslations(savedLocale);
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
 
 i18n
     .use(HttpBackend)
@@ -77,7 +78,7 @@ i18n
         
         // Backend configuration
         backend: {
-            loadPath: 'http://localhost:8000/api/translations/{{lng}}',
+            loadPath: `${API_BASE_URL}/translations/{{lng}}`,
             
             // Parse response and cache translations
             parse: (data: string, languages: string | readonly string[]) => {
