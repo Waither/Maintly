@@ -58,8 +58,10 @@ export const QrScanner = ({ onScan, onError, onClose }: QrScannerProps) => {
     const start = async () => {
         setError(null);
         try {
-            // Dynamic import — if package missing in container, shows friendly message
-            const { Html5Qrcode } = await import('html5-qrcode').catch(() => {
+            // Dynamic import — @vite-ignore skips Vite's build-time resolution check
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const { Html5Qrcode } = await import(/* @vite-ignore */ 'html5-qrcode').catch(() => {
                 throw new Error('Biblioteka skanera niedostępna. Przebuduj kontener frontend.');
             });
 
