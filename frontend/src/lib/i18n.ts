@@ -8,8 +8,17 @@ import HttpBackend from 'i18next-http-backend';
 
 // Cache settings
 const CACHE_KEY = 'i18next_cache';
-const CACHE_VERSION = 3;
+const CACHE_VERSION = 4;
 const CACHE_EXPIRATION = 24 * 60 * 60 * 1000; // 24h
+const SUPPORTED_LANGUAGES = ['pl', 'en'] as const;
+
+const normalizeLocale = (lng: string | null | undefined): string => {
+    const baseLocale = (lng || 'pl').split(/[-_]/)[0].toLowerCase();
+
+    return SUPPORTED_LANGUAGES.includes(baseLocale as typeof SUPPORTED_LANGUAGES[number])
+        ? baseLocale
+        : 'pl';
+};
 
 const getCachedTranslations = (lng: string) => {
     try {
@@ -43,7 +52,7 @@ const setCachedTranslations = (lng: string, data: any) => {
     }
 };
 
-const savedLocale = localStorage.getItem('locale') || 'pl';
+const savedLocale = normalizeLocale(localStorage.getItem('locale'));
 const cachedTranslations = getCachedTranslations(savedLocale);
 
 i18n
@@ -52,6 +61,7 @@ i18n
     .init({
         lng: savedLocale,
         fallbackLng: 'en',
+        supportedLngs: [...SUPPORTED_LANGUAGES],
         
         // Load from cache if available
         ...(cachedTranslations && {
@@ -91,6 +101,10 @@ i18n
         interpolation: {
             escapeValue: false, // React already escapes
         },
+
+        returnNull: false,
+        returnEmptyString: false,
+        parseMissingKeyHandler: (key: string) => key,
         
         debug: false,
         
@@ -106,12 +120,15 @@ i18n
 
 // Save language to localStorage on change
 i18n.on('languageChanged', (lng) => {
-    localStorage.setItem('locale', lng);
-    console.log(`✅ Language changed to: ${lng.toUpperCase()}`);
+    const normalizedLocale = normalizeLocale(lng);
+    localStorage.setItem('locale', normalizedLocale);
+    console.log(`✅ Language changed to: ${normalizedLocale.toUpperCase()}`);
 });
 
 i18n.on('failedLoading', (lng, ns, msg) => {
     console.error('❌ Failed loading translations:', { lng, ns, msg });
 });
+
+void i18n.reloadResources([savedLocale], ['translation']);
 
 export default i18n;

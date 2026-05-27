@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getAuthToken } from '../../lib/axios';
 import { useAuth, type Permissions } from '../../contexts';
 import { MDBIcon } from 'mdb-react-ui-kit';
@@ -18,6 +19,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredPermission }: ProtectedRouteProps) => {
+    const { t } = useTranslation();
     const token = getAuthToken();
     const location = useLocation();
     const { loading, permissions } = useAuth();
@@ -33,7 +35,7 @@ export const ProtectedRoute = ({ children, requiredPermission }: ProtectedRouteP
             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
                 <div className="text-center">
                     <MDBIcon icon="spinner" spin size="3x" className="text-primary mb-3" />
-                    <p className="text-muted">Ładowanie...</p>
+                    <p className="text-muted">{t('common.loading', { defaultValue: 'Ładowanie...' })}</p>
                 </div>
             </div>
         );
@@ -45,9 +47,9 @@ export const ProtectedRoute = ({ children, requiredPermission }: ProtectedRouteP
             <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
                 <div className="text-center">
                     <MDBIcon icon="ban" size="4x" className="text-danger mb-3" />
-                    <h4>Brak dostępu</h4>
-                    <p className="text-muted">Nie masz uprawnień do tej strony.</p>
-                    <a href="/" className="btn btn-primary">Wróć do pulpitu</a>
+                    <h4>{t('auth.accessDenied.title', { defaultValue: 'Brak dostępu' })}</h4>
+                    <p className="text-muted">{t('auth.accessDenied.message', { defaultValue: 'Nie masz uprawnień do tej strony.' })}</p>
+                    <a href="/" className="btn btn-primary">{t('auth.accessDenied.back', { defaultValue: 'Wróć do pulpitu' })}</a>
                 </div>
             </div>
         );

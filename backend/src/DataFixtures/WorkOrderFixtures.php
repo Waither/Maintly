@@ -16,12 +16,8 @@ use Doctrine\Persistence\ObjectManager;
 
 /**
  * Work Order Fixtures
- * Creates 5 sample work orders for testing:
- * 1. Krytyczna awaria pompy - CRITICAL, IN_PROGRESS
- * 2. Przegląd okresowy robota - MEDIUM, OPEN
- * 3. Wymiana filtrów sprężarki - LOW, COMPLETED
- * 4. Naprawa klimatyzacji - HIGH, ON_HOLD
- * 5. Kalibracja prasy - MEDIUM, OPEN.
+ * Creates realistic demo work orders spread across the current year,
+ * so dashboard and KPI pages always have meaningful data in demo mode.
  */
 class WorkOrderFixtures extends Fixture implements DependentFixtureInterface {
     public const WO_AWARIA_POMPY = 'work-order-awaria-pompy';
@@ -31,159 +27,250 @@ class WorkOrderFixtures extends Fixture implements DependentFixtureInterface {
     public const WO_KALIBRACJA_PRASY = 'work-order-kalibracja-prasy';
 
     public function load(ObjectManager $manager): void {
-        // Get references
-        /** @var User $admin */
-        $admin = $this->getReference(AppFixtures::ADMIN_USER_REFERENCE, User::class);
-        /** @var User $managerUser */
-        $managerUser = $this->getReference(AppFixtures::MANAGER_USER_REFERENCE, User::class);
-        /** @var User $technician */
-        $technician = $this->getReference(AppFixtures::TECHNICIAN_USER_REFERENCE, User::class);
+        $currentYear = (int) date('Y');
 
-        // Statuses
-        /** @var WorkOrderStatus $statusOpen */
-        $statusOpen = $this->getReference(WorkOrderStatusFixtures::OPEN_STATUS_REFERENCE, WorkOrderStatus::class);
-        /** @var WorkOrderStatus $statusInProgress */
-        $statusInProgress = $this->getReference(WorkOrderStatusFixtures::IN_PROGRESS_STATUS_REFERENCE, WorkOrderStatus::class);
-        /** @var WorkOrderStatus $statusOnHold */
-        $statusOnHold = $this->getReference(WorkOrderStatusFixtures::ON_HOLD_STATUS_REFERENCE, WorkOrderStatus::class);
-        /** @var WorkOrderStatus $statusCompleted */
-        $statusCompleted = $this->getReference(WorkOrderStatusFixtures::COMPLETED_STATUS_REFERENCE, WorkOrderStatus::class);
+        $users = [
+            'admin' => $this->getReference(AppFixtures::ADMIN_USER_REFERENCE, User::class),
+            'manager' => $this->getReference(AppFixtures::MANAGER_USER_REFERENCE, User::class),
+            'technician' => $this->getReference(AppFixtures::TECHNICIAN_USER_REFERENCE, User::class),
+            'provider' => $this->getReference(AppFixtures::PROVIDER_USER_REFERENCE, User::class),
+            'reporter' => $this->getReference(AppFixtures::REPORTER_USER_REFERENCE, User::class),
+        ];
 
-        // Priorities
-        /** @var WorkOrderPriority $priorityLow */
-        $priorityLow = $this->getReference(WorkOrderPriorityFixtures::LOW_PRIORITY_REFERENCE, WorkOrderPriority::class);
-        /** @var WorkOrderPriority $priorityMedium */
-        $priorityMedium = $this->getReference(WorkOrderPriorityFixtures::MEDIUM_PRIORITY_REFERENCE, WorkOrderPriority::class);
-        /** @var WorkOrderPriority $priorityHigh */
-        $priorityHigh = $this->getReference(WorkOrderPriorityFixtures::HIGH_PRIORITY_REFERENCE, WorkOrderPriority::class);
-        /** @var WorkOrderPriority $priorityCritical */
-        $priorityCritical = $this->getReference(WorkOrderPriorityFixtures::CRITICAL_PRIORITY_REFERENCE, WorkOrderPriority::class);
+        $statuses = [
+            'open' => $this->getReference(WorkOrderStatusFixtures::OPEN_STATUS_REFERENCE, WorkOrderStatus::class),
+            'in_progress' => $this->getReference(WorkOrderStatusFixtures::IN_PROGRESS_STATUS_REFERENCE, WorkOrderStatus::class),
+            'on_hold' => $this->getReference(WorkOrderStatusFixtures::ON_HOLD_STATUS_REFERENCE, WorkOrderStatus::class),
+            'completed' => $this->getReference(WorkOrderStatusFixtures::COMPLETED_STATUS_REFERENCE, WorkOrderStatus::class),
+            'cancelled' => $this->getReference(WorkOrderStatusFixtures::CANCELLED_STATUS_REFERENCE, WorkOrderStatus::class),
+        ];
 
-        // Equipment
-        /** @var Equipment $pompa */
-        $pompa = $this->getReference(EquipmentFixtures::POMPA_LP1_REFERENCE, Equipment::class);
-        /** @var Equipment $robot */
-        $robot = $this->getReference(EquipmentFixtures::ROBOT_LP2_REFERENCE, Equipment::class);
-        /** @var Equipment $kompresor */
-        $kompresor = $this->getReference(EquipmentFixtures::KOMPRESOR_REFERENCE, Equipment::class);
-        /** @var Equipment $klima */
-        $klima = $this->getReference(EquipmentFixtures::KLIMA_REFERENCE, Equipment::class);
-        /** @var Equipment $prasa */
-        $prasa = $this->getReference(EquipmentFixtures::PRASA_LP2_REFERENCE, Equipment::class);
+        $priorities = [
+            'low' => $this->getReference(WorkOrderPriorityFixtures::LOW_PRIORITY_REFERENCE, WorkOrderPriority::class),
+            'medium' => $this->getReference(WorkOrderPriorityFixtures::MEDIUM_PRIORITY_REFERENCE, WorkOrderPriority::class),
+            'high' => $this->getReference(WorkOrderPriorityFixtures::HIGH_PRIORITY_REFERENCE, WorkOrderPriority::class),
+            'critical' => $this->getReference(WorkOrderPriorityFixtures::CRITICAL_PRIORITY_REFERENCE, WorkOrderPriority::class),
+        ];
 
-        // ========== WORK ORDER 1: Critical pump failure ==========
-        $wo1 = new WorkOrder();
-        $wo1->setTitle('Awaria pompy hydraulicznej - wyciek oleju');
-        $wo1->setDescription(
-            "Zgłoszenie z produkcji: wykryto wyciek oleju hydraulicznego z pompy LP1.\n" .
-            "Symptomy:\n" .
-            "- Widoczna plama oleju pod pompą\n" .
-            "- Spadek ciśnienia w układzie z 180 bar do 120 bar\n" .
-            "- Zwiększony hałas podczas pracy\n\n" .
-            "Wymagane działania:\n" .
-            "1. Wymiana uszczelnień\n" .
-            "2. Kontrola stanu łożysk\n" .
-            '3. Uzupełnienie oleju hydraulicznego',
-        );
-        $wo1->setStatus($statusInProgress);
-        $wo1->setPriority($priorityCritical);
-        $wo1->setEquipment($pompa);
-        $wo1->setCreatedBy($managerUser);
-        $wo1->setPlannedStartDate(new DateTime('-1 day'));
-        $wo1->setPlannedEndDate(new DateTime('+1 day'));
-        $wo1->setActualStartDate(new DateTime('-4 hours'));
-        $manager->persist($wo1);
-        $this->addReference(self::WO_AWARIA_POMPY, $wo1);
+        $equipment = [
+            'pompa' => $this->getReference(EquipmentFixtures::POMPA_LP1_REFERENCE, Equipment::class),
+            'robot' => $this->getReference(EquipmentFixtures::ROBOT_LP2_REFERENCE, Equipment::class),
+            'kompresor' => $this->getReference(EquipmentFixtures::KOMPRESOR_REFERENCE, Equipment::class),
+            'klima' => $this->getReference(EquipmentFixtures::KLIMA_REFERENCE, Equipment::class),
+            'prasa' => $this->getReference(EquipmentFixtures::PRASA_LP2_REFERENCE, Equipment::class),
+            'ups' => $this->getReference(EquipmentFixtures::UPS_REFERENCE, Equipment::class),
+            'wozek' => $this->getReference(EquipmentFixtures::WOZEK_1_REFERENCE, Equipment::class),
+            'silnik' => $this->getReference(EquipmentFixtures::SILNIK_LP1_REFERENCE, Equipment::class),
+            'rozdzielnia' => $this->getReference(EquipmentFixtures::ROZDZIELNIA_REFERENCE, Equipment::class),
+        ];
 
-        // ========== WORK ORDER 2: Robot periodic maintenance ==========
-        $wo2 = new WorkOrder();
-        $wo2->setTitle('Przegląd okresowy robota spawalniczego');
-        $wo2->setDescription(
-            "Planowany przegląd co 5000 motogodzin - robot KUKA LP2.\n\n" .
-            "Zakres prac:\n" .
-            "- Kontrola stanu przewodów spawalniczych\n" .
-            "- Smarowanie osi 1-6\n" .
-            "- Sprawdzenie dokładności pozycjonowania\n" .
-            "- Aktualizacja oprogramowania sterującego\n" .
-            "- Wymiana filtrów wentylacji szafy sterowniczej\n\n" .
-            'Uwaga: Wymagany przestój linii 2 na czas przeglądu (ok. 4h).',
-        );
-        $wo2->setStatus($statusOpen);
-        $wo2->setPriority($priorityMedium);
-        $wo2->setEquipment($robot);
-        $wo2->setCreatedBy($admin);
-        $wo2->setPlannedStartDate(new DateTime('+3 days'));
-        $wo2->setPlannedEndDate(new DateTime('+3 days 6 hours'));
-        $manager->persist($wo2);
-        $this->addReference(self::WO_PRZEGLAD_ROBOTA, $wo2);
+        $definitions = [
+            [
+                'reference' => self::WO_AWARIA_POMPY,
+                'title' => 'Awaria pompy hydraulicznej LP1 - spadek ciśnienia i wyciek oleju',
+                'description' => 'Zgłoszenie z linii 1. Operator zauważył wyciek oleju, spadek ciśnienia do 120 bar oraz wzrost hałasu pompy. Konieczna diagnostyka uszczelnień i łożysk.',
+                'status' => 'in_progress',
+                'priority' => 'critical',
+                'equipment' => 'pompa',
+                'creator' => 'reporter',
+                'createdAt' => $this->at($currentYear, 1, 10, 6, 45),
+                'plannedStart' => $this->at($currentYear, 1, 10, 7, 15),
+                'plannedEnd' => $this->at($currentYear, 1, 10, 14, 0),
+                'actualStart' => $this->at($currentYear, 1, 10, 7, 40),
+                'updatedAt' => $this->at($currentYear, 1, 10, 12, 20),
+            ],
+            [
+                'reference' => self::WO_FILTRY_SPREZARKA,
+                'title' => 'Wymiana filtrów i separatora oleju w sprężarce Atlas Copco',
+                'description' => 'Planowy serwis wykonany zgodnie z harmonogramem. Wymieniono filtr powietrza, filtr oleju i separator. Parametry po uruchomieniu w normie.',
+                'status' => 'completed',
+                'priority' => 'low',
+                'equipment' => 'kompresor',
+                'creator' => 'technician',
+                'createdAt' => $this->at($currentYear, 1, 18, 8, 0),
+                'plannedStart' => $this->at($currentYear, 1, 18, 8, 0),
+                'plannedEnd' => $this->at($currentYear, 1, 18, 11, 0),
+                'actualStart' => $this->at($currentYear, 1, 18, 8, 10),
+                'actualEnd' => $this->at($currentYear, 1, 18, 11, 25),
+                'updatedAt' => $this->at($currentYear, 1, 18, 11, 25),
+            ],
+            [
+                'reference' => self::WO_PRZEGLAD_ROBOTA,
+                'title' => 'Przegląd okresowy robota spawalniczego KUKA LP2',
+                'description' => 'Przegląd po 5000 motogodzinach: smarowanie osi, kontrola przewodów spawalniczych, sprawdzenie dokładności pozycjonowania i aktualizacja sterownika.',
+                'status' => 'completed',
+                'priority' => 'medium',
+                'equipment' => 'robot',
+                'creator' => 'manager',
+                'createdAt' => $this->at($currentYear, 2, 6, 7, 30),
+                'plannedStart' => $this->at($currentYear, 2, 7, 6, 0),
+                'plannedEnd' => $this->at($currentYear, 2, 7, 12, 0),
+                'actualStart' => $this->at($currentYear, 2, 7, 6, 20),
+                'actualEnd' => $this->at($currentYear, 2, 7, 12, 40),
+                'updatedAt' => $this->at($currentYear, 2, 7, 12, 40),
+            ],
+            [
+                'title' => 'Zanik zasilania na rozdzielni RG-01 - diagnostyka wyłącznika',
+                'description' => 'Krótki postój hali po zadziałaniu zabezpieczenia. Trwa diagnostyka rozdzielni i obciążenia obwodów zasilających linię 2.',
+                'status' => 'completed',
+                'priority' => 'high',
+                'equipment' => 'rozdzielnia',
+                'creator' => 'manager',
+                'createdAt' => $this->at($currentYear, 3, 12, 5, 50),
+                'plannedStart' => $this->at($currentYear, 3, 12, 6, 0),
+                'plannedEnd' => $this->at($currentYear, 3, 12, 10, 0),
+                'actualStart' => $this->at($currentYear, 3, 12, 6, 5),
+                'actualEnd' => $this->at($currentYear, 3, 12, 9, 10),
+                'updatedAt' => $this->at($currentYear, 3, 12, 9, 10),
+            ],
+            [
+                'title' => 'Drugi serwis sprężarki - podwyższona temperatura oleju',
+                'description' => 'Po wzroście temperatury oleju wykonano dodatkowy przegląd chłodnicy i układu smarowania. Wymieniono zabrudzone wkłady filtracyjne.',
+                'status' => 'completed',
+                'priority' => 'medium',
+                'equipment' => 'kompresor',
+                'creator' => 'technician',
+                'createdAt' => $this->at($currentYear, 3, 28, 9, 15),
+                'plannedStart' => $this->at($currentYear, 3, 28, 10, 0),
+                'plannedEnd' => $this->at($currentYear, 3, 28, 14, 0),
+                'actualStart' => $this->at($currentYear, 3, 28, 10, 10),
+                'actualEnd' => $this->at($currentYear, 3, 28, 13, 35),
+                'updatedAt' => $this->at($currentYear, 3, 28, 13, 35),
+            ],
+            [
+                'reference' => self::WO_NAPRAWA_KLIMA,
+                'title' => 'Naprawa klimatyzacji centralnej - brak chłodzenia w biurach',
+                'description' => 'Jednostka wewnętrzna pracuje, ale temperatura nie spada. Serwis zewnętrzny czeka na dostawę czynnika i zestawu uszczelnień.',
+                'status' => 'on_hold',
+                'priority' => 'high',
+                'equipment' => 'klima',
+                'creator' => 'provider',
+                'createdAt' => $this->at($currentYear, 4, 8, 9, 0),
+                'plannedStart' => $this->at($currentYear, 4, 8, 12, 0),
+                'plannedEnd' => $this->at($currentYear, 4, 12, 16, 0),
+                'actualStart' => $this->at($currentYear, 4, 8, 12, 30),
+                'updatedAt' => $this->at($currentYear, 4, 9, 14, 45),
+            ],
+            [
+                'title' => 'Uszkodzony czujnik ciśnienia na prasie 200T - zgłoszenie anulowane',
+                'description' => 'Po weryfikacji okazało się, że alarm pochodził z błędnej parametryzacji po poprzedniej zmianie receptury. Interwencja mechaniczna nie była wymagana.',
+                'status' => 'cancelled',
+                'priority' => 'medium',
+                'equipment' => 'prasa',
+                'creator' => 'admin',
+                'createdAt' => $this->at($currentYear, 4, 23, 10, 20),
+                'plannedStart' => $this->at($currentYear, 4, 23, 11, 0),
+                'plannedEnd' => $this->at($currentYear, 4, 23, 13, 0),
+                'updatedAt' => $this->at($currentYear, 4, 23, 11, 40),
+            ],
+            [
+                'reference' => self::WO_KALIBRACJA_PRASY,
+                'title' => 'Kalibracja prasy hydraulicznej 200T przed audytem klienta',
+                'description' => 'Roczna kalibracja siły nacisku i czujników bezpieczeństwa przed audytem klienta automotive. Wymagane potwierdzenie świadectwem wzorcowania.',
+                'status' => 'open',
+                'priority' => 'medium',
+                'equipment' => 'prasa',
+                'creator' => 'admin',
+                'createdAt' => $this->at($currentYear, 5, 6, 8, 30),
+                'plannedStart' => $this->at($currentYear, 6, 2, 6, 0),
+                'plannedEnd' => $this->at($currentYear, 6, 2, 12, 0),
+            ],
+            [
+                'title' => 'Awaria UPS w serwerowni - test baterii niezaliczony',
+                'description' => 'System monitoringu zgłosił spadek pojemności baterii poniżej progu bezpieczeństwa. Konieczna wymiana modułu bateryjnego i test pod obciążeniem.',
+                'status' => 'open',
+                'priority' => 'high',
+                'equipment' => 'ups',
+                'creator' => 'manager',
+                'createdAt' => $this->at($currentYear, 5, 9, 7, 10),
+                'plannedStart' => $this->at($currentYear, 5, 9, 8, 0),
+                'plannedEnd' => $this->at($currentYear, 5, 10, 14, 0),
+            ],
+            [
+                'title' => 'Drgania silnika głównego LP1 - analiza łożysk i osiowości',
+                'description' => 'Na linii 1 zarejestrowano wzrost drgań RMS. Technik rozpoczął pomiary drgań i kontrolę osiowania z przekładnią.',
+                'status' => 'in_progress',
+                'priority' => 'high',
+                'equipment' => 'silnik',
+                'creator' => 'reporter',
+                'createdAt' => $this->at($currentYear, 5, 15, 6, 55),
+                'plannedStart' => $this->at($currentYear, 5, 15, 7, 30),
+                'plannedEnd' => $this->at($currentYear, 5, 15, 15, 0),
+                'actualStart' => $this->at($currentYear, 5, 15, 7, 45),
+                'updatedAt' => $this->at($currentYear, 5, 15, 11, 50),
+            ],
+            [
+                'title' => 'Robot KUKA LP2 - ponowna kalibracja toru ruchu po wymianie chwytaka',
+                'description' => 'Po wymianie chwytaka konieczna jest kontrola punktów referencyjnych i dokładności toru ruchu. Zadanie zaplanowane na weekendowy przestój.',
+                'status' => 'completed',
+                'priority' => 'medium',
+                'equipment' => 'robot',
+                'creator' => 'technician',
+                'createdAt' => $this->at($currentYear, 5, 20, 8, 0),
+                'plannedStart' => $this->at($currentYear, 5, 24, 6, 0),
+                'plannedEnd' => $this->at($currentYear, 5, 24, 12, 0),
+                'actualStart' => $this->at($currentYear, 5, 24, 6, 15),
+                'actualEnd' => $this->at($currentYear, 5, 24, 11, 10),
+                'updatedAt' => $this->at($currentYear, 5, 24, 11, 10),
+            ],
+            [
+                'title' => 'Wózek widłowy Toyota #1 - nieszczelność siłownika podnoszenia',
+                'description' => 'W magazynie wykryto nieszczelność siłownika masztu. Zlecenie pozostaje otwarte do czasu dostawy kompletu uszczelnień i zaplanowania postoju.',
+                'status' => 'open',
+                'priority' => 'medium',
+                'equipment' => 'wozek',
+                'creator' => 'reporter',
+                'createdAt' => $this->at($currentYear, 5, 26, 9, 5),
+                'plannedStart' => $this->at($currentYear, 5, 27, 8, 0),
+                'plannedEnd' => $this->at($currentYear, 5, 27, 12, 0),
+            ],
+        ];
 
-        // ========== WORK ORDER 3: Compressor filter replacement (completed) ==========
-        $wo3 = new WorkOrder();
-        $wo3->setTitle('Wymiana filtrów sprężarki Atlas Copco');
-        $wo3->setDescription(
-            "Rutynowa wymiana filtrów zgodnie z harmonogramem konserwacji.\n\n" .
-            "Wymieniono:\n" .
-            "- Filtr powietrza wlotowego (DD260+)\n" .
-            "- Filtr oleju (1622 0871 00)\n" .
-            "- Separator oleju\n\n" .
-            "Stan po wymianie: OK\n" .
-            'Następna wymiana: za 4000h lub 12 miesięcy.',
-        );
-        $wo3->setStatus($statusCompleted);
-        $wo3->setPriority($priorityLow);
-        $wo3->setEquipment($kompresor);
-        $wo3->setCreatedBy($technician);
-        $wo3->setPlannedStartDate(new DateTime('-5 days'));
-        $wo3->setPlannedEndDate(new DateTime('-5 days 2 hours'));
-        $wo3->setActualStartDate(new DateTime('-5 days'));
-        $wo3->setActualEndDate(new DateTime('-5 days 3 hours'));
-        $manager->persist($wo3);
-        $this->addReference(self::WO_FILTRY_SPREZARKA, $wo3);
+        foreach ($definitions as $definition) {
+            $workOrder = new WorkOrder();
+            $workOrder->setTitle($definition['title']);
+            $workOrder->setDescription($definition['description']);
+            $workOrder->setStatus($statuses[$definition['status']]);
+            $workOrder->setPriority($priorities[$definition['priority']]);
+            $workOrder->setEquipment($equipment[$definition['equipment']]);
+            $workOrder->setCreatedBy($users[$definition['creator']]);
 
-        // ========== WORK ORDER 4: AC repair (on hold) ==========
-        $wo4 = new WorkOrder();
-        $wo4->setTitle('Naprawa klimatyzacji - brak chłodzenia');
-        $wo4->setDescription(
-            "Zgłoszenie z biura: klimatyzacja nie chłodzi pomimo ustawienia 22°C.\n\n" .
-            "Diagnoza wstępna:\n" .
-            "- Jednostka zewnętrzna działa\n" .
-            "- Wentylator wewnętrzny OK\n" .
-            "- Podejrzenie: nieszczelność układu freonowego\n\n" .
-            "STATUS: WSTRZYMANE - oczekiwanie na serwis Daikin (umówiony na 15.01).\n" .
-            'Kontakt: Jan Nowak, tel. 600-123-456',
-        );
-        $wo4->setStatus($statusOnHold);
-        $wo4->setPriority($priorityHigh);
-        $wo4->setEquipment($klima);
-        $wo4->setCreatedBy($managerUser);
-        $wo4->setPlannedStartDate(new DateTime('-2 days'));
-        $wo4->setPlannedEndDate(new DateTime('+5 days'));
-        $wo4->setActualStartDate(new DateTime('-2 days'));
-        $manager->persist($wo4);
-        $this->addReference(self::WO_NAPRAWA_KLIMA, $wo4);
+            if (isset($definition['plannedStart'])) {
+                $workOrder->setPlannedStartDate($definition['plannedStart']);
+            }
+            if (isset($definition['plannedEnd'])) {
+                $workOrder->setPlannedEndDate($definition['plannedEnd']);
+            }
+            if (isset($definition['actualStart'])) {
+                $workOrder->setActualStartDate($definition['actualStart']);
+            }
+            if (isset($definition['actualEnd'])) {
+                $workOrder->setActualEndDate($definition['actualEnd']);
+            }
+            if (isset($definition['updatedAt'])) {
+                $workOrder->setUpdatedAt($definition['updatedAt']);
+            }
 
-        // ========== WORK ORDER 5: Press calibration ==========
-        $wo5 = new WorkOrder();
-        $wo5->setTitle('Kalibracja prasy hydraulicznej 200T');
-        $wo5->setDescription(
-            "Coroczna kalibracja prasy zgodnie z wymaganiami ISO 9001.\n\n" .
-            "Zakres:\n" .
-            "- Weryfikacja siły nacisku (200T ±2%)\n" .
-            "- Kontrola równoległości stołu\n" .
-            "- Sprawdzenie czujników bezpieczeństwa\n" .
-            "- Kalibracja manometrów\n\n" .
-            'Wymagane: świadectwo kalibracji od akredytowanego laboratorium.',
-        );
-        $wo5->setStatus($statusOpen);
-        $wo5->setPriority($priorityMedium);
-        $wo5->setEquipment($prasa);
-        $wo5->setCreatedBy($admin);
-        $wo5->setPlannedStartDate(new DateTime('+7 days'));
-        $wo5->setPlannedEndDate(new DateTime('+7 days 4 hours'));
-        $manager->persist($wo5);
-        $this->addReference(self::WO_KALIBRACJA_PRASY, $wo5);
+            $this->setCreatedAt($workOrder, $definition['createdAt']);
+
+            $manager->persist($workOrder);
+
+            if (isset($definition['reference'])) {
+                $this->addReference($definition['reference'], $workOrder);
+            }
+        }
 
         $manager->flush();
+    }
+
+    private function at(int $year, int $month, int $day, int $hour = 8, int $minute = 0): DateTime {
+        return new DateTime(sprintf('%04d-%02d-%02d %02d:%02d:00', $year, $month, $day, $hour, $minute));
+    }
+
+    private function setCreatedAt(WorkOrder $workOrder, DateTime $createdAt): void {
+        $reflection = new \ReflectionProperty($workOrder, 'createdAt');
+        $reflection->setAccessible(true);
+        $reflection->setValue($workOrder, $createdAt);
     }
 
     public function getDependencies(): array {
