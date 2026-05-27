@@ -42,6 +42,12 @@ export const Sidebar = ({ isCollapsed, onToggle, isMobile = false, isOpen = fals
             label: t('nav.workOrders', { defaultValue: 'Work Orders' }),
             permissionKey: 'canAccessWorkOrders'
         },
+        {
+            path: '/preventive-maintenance',
+            icon: 'calendar-check',
+            label: t('nav.preventive', { defaultValue: 'Prewencja' }),
+            permissionKey: 'canAccessWorkOrders'
+        },
         { 
             path: '/equipment', 
             icon: 'cogs', 
@@ -52,6 +58,12 @@ export const Sidebar = ({ isCollapsed, onToggle, isMobile = false, isOpen = fals
             path: '/reports', 
             icon: 'file-alt', 
             label: t('nav.reports', { defaultValue: 'Reports' }),
+            permissionKey: 'canAccessReports'
+        },
+        { 
+            path: '/kpi', 
+            icon: 'chart-bar', 
+            label: t('nav.kpi', { defaultValue: 'KPI' }),
             permissionKey: 'canAccessReports'
         },
         { 

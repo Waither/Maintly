@@ -121,6 +121,7 @@ export const TopNavbar = ({
                         <MDBDropdownToggle 
                             tag="button" 
                             className="btn btn-link text-dark p-0 d-flex align-items-center gap-2"
+                            data-testid="profile-menu-toggle"
                             style={{ textDecoration: 'none' }}
                         >
                             {/* Avatar - always show initials for now */}
@@ -169,6 +170,7 @@ export const TopNavbar = ({
                                 link
                                 onClick={handleLogout}
                                 className="d-flex align-items-center text-danger"
+                                data-testid="logout-action"
                             >
                                 <MDBIcon icon="sign-out-alt" className="me-2" />
                                 {t('auth.logout', { defaultValue: 'Wyloguj' })}

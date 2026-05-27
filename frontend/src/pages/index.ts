@@ -11,3 +11,5 @@ export { UserList, UserForm, UserDetail } from './Users';
 export { ReportList } from './Reports';
 export { AuditLogList } from './AuditLogs';
 export { Profile } from './Profile';
+export { PreventiveMaintenancePage } from './PreventiveMaintenance';
+export { KpiPage } from './KPI/KpiPage';

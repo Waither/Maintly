@@ -10,3 +10,4 @@ export * from './equipment';
 export * from './notification';
 export * from './report';
 export * from './auditLog';
+export * from './preventive';

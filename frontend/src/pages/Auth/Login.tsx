@@ -81,7 +81,7 @@ export const Login = () => {
     };
 
     return (
-        <div style={{
+        <div data-testid="login-page" style={{
             minHeight: '100vh',
             display: 'flex',
             alignItems: 'center',
@@ -120,6 +120,7 @@ export const Login = () => {
                             )}
 
                             <MDBBtn
+                                data-testid="login-submit"
                                 type="submit"
                                 color="primary"
                                 className="w-100"

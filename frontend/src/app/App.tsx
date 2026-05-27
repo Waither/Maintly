@@ -17,7 +17,9 @@ import {
     UserDetail,
     ReportList,
     AuditLogList,
-    Profile
+    Profile,
+    PreventiveMaintenancePage,
+    KpiPage,
 } from '../pages';
 import '../styles/sidebar.css';
 
@@ -52,6 +54,8 @@ function App() {
                             <Route path="/work-orders/new" element={<WorkOrderForm />} />
                             <Route path="/work-orders/:id" element={<WorkOrderDetail />} />
                             <Route path="/work-orders/:id/edit" element={<WorkOrderForm />} />
+                            <Route path="/preventive-maintenance" element={<PreventiveMaintenancePage />} />
+                            <Route path="/kpi" element={<KpiPage />} />
                             
                             {/* Equipment - everyone can view */}
                             <Route path="/equipment" element={<EquipmentList />} />

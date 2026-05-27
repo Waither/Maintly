@@ -10,6 +10,7 @@ export * as userService from './userService';
 export * as notificationService from './notificationService';
 export * as reportService from './reportService';
 export * as auditLogService from './auditLogService';
+export * as preventiveMaintenanceService from './preventiveMaintenanceService';
 export { realtimeService } from './realtimeService';
 
 // Default exports for convenience
@@ -20,3 +21,4 @@ export { default as userApi } from './userService';
 export { default as notificationApi } from './notificationService';
 export { default as reportApi } from './reportService';
 export { default as auditLogApi } from './auditLogService';
+export { default as preventiveMaintenanceApi } from './preventiveMaintenanceService';

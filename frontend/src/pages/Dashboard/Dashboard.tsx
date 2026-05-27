@@ -129,7 +129,7 @@ export const Dashboard = () => {
     }
 
     return (
-        <div>
+        <div data-testid="dashboard-page">
             <PageHeader 
                 title={t('dashboard.title', { defaultValue: 'Dashboard' })}
                 subtitle={t('dashboard.subtitle', { defaultValue: 'CMMS Maintly system overview' })}
