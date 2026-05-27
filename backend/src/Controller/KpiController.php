@@ -45,8 +45,23 @@ class KpiController extends AbstractController
         $rawFrom = $request->query->get('dateFrom');
         $rawTo   = $request->query->get('dateTo');
 
-        $dateFrom = $rawFrom ? new DateTime((string) $rawFrom) : new DateTime('first day of January this year');
-        $dateTo   = $rawTo   ? new DateTime((string) $rawTo)   : new DateTime('today 23:59:59');
+        try {
+            $dateFrom = $rawFrom ? new DateTime((string) $rawFrom) : new DateTime('first day of January this year');
+            $dateTo   = $rawTo   ? new DateTime((string) $rawTo)   : new DateTime('today');
+        } catch (\Throwable) {
+            return $this->validationErrorResponse('Nieprawidłowy format daty', [
+                'dateFrom' => 'Use format YYYY-MM-DD',
+                'dateTo' => 'Use format YYYY-MM-DD',
+            ]);
+        }
+
+        if ($dateFrom > $dateTo) {
+            return $this->validationErrorResponse('Nieprawidłowy zakres dat', [
+                'dateFrom' => 'dateFrom must be earlier than or equal to dateTo',
+                'dateTo' => 'dateTo must be later than or equal to dateFrom',
+            ]);
+        }
+
         $dateTo->setTime(23, 59, 59);
 
         return $this->json([

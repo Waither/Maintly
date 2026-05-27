@@ -55,7 +55,11 @@ function App() {
                             <Route path="/work-orders/:id" element={<WorkOrderDetail />} />
                             <Route path="/work-orders/:id/edit" element={<WorkOrderForm />} />
                             <Route path="/preventive-maintenance" element={<PreventiveMaintenancePage />} />
-                            <Route path="/kpi" element={<KpiPage />} />
+                            <Route path="/kpi" element={
+                                <ProtectedRoute requiredPermission="canAccessReports">
+                                    <KpiPage />
+                                </ProtectedRoute>
+                            } />
                             
                             {/* Equipment - everyone can view */}
                             <Route path="/equipment" element={<EquipmentList />} />

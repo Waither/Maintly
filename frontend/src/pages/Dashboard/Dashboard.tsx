@@ -9,7 +9,7 @@ import { WorkOrder } from '../../types';
 interface DashboardStats {
     workOrders: {
         total: number;
-        new: number;
+        pending: number;
         inProgress: number;
         completed: number;
         overdue: number;
@@ -83,15 +83,16 @@ export const Dashboard = () => {
             
             // Map API response to our format
             if (statsData) {
-                const byStatus = statsData.workOrders?.byStatus || {};
+                const workOrdersStats = statsData.workOrders || {};
+                const byStatus = workOrdersStats.byStatus as Record<string, number> | undefined;
 
                 setStats({
                     workOrders: {
-                        total: statsData.workOrders?.total || 0,
-                        new: byStatus.new || 0,
-                        inProgress: byStatus.in_progress || 0,
-                        completed: byStatus.completed || 0,
-                        overdue: statsData.workOrders?.overdueCount || 0,
+                        total: workOrdersStats.total || 0,
+                        pending: workOrdersStats.pending ?? byStatus?.new ?? 0,
+                        inProgress: workOrdersStats.inProgress ?? byStatus?.in_progress ?? 0,
+                        completed: workOrdersStats.completed || 0,
+                        overdue: workOrdersStats.overdue ?? workOrdersStats.overdueCount ?? 0,
                     },
                     equipment: {
                         total: statsData.equipment?.total || 0,
@@ -110,7 +111,7 @@ export const Dashboard = () => {
             } else {
                 // API failed - show zeros instead of fake data
                 setStats({
-                    workOrders: { total: 0, new: 0, inProgress: 0, completed: 0, overdue: 0 },
+                    workOrders: { total: 0, pending: 0, inProgress: 0, completed: 0, overdue: 0 },
                     equipment: { total: 0, active: 0, maintenance: 0 },
                     users: { total: 0, active: 0 },
                     reports: { total: 0, pending: 0 },
@@ -194,7 +195,7 @@ export const Dashboard = () => {
                         </div>
                         <div>
                             <p className="text-muted small mb-0">{t('dashboard.newWorkOrders', { defaultValue: 'New orders' })}</p>
-                            <h5 className="mb-0 fw-bold text-info">{stats?.workOrders.new || 0}</h5>
+                            <h5 className="mb-0 fw-bold text-info">{stats?.workOrders.pending || 0}</h5>
                         </div>
                     </div>
                 </MDBCol>

@@ -126,8 +126,12 @@ export interface WorkOrderFilters {
 // Stats for Dashboard
 export interface WorkOrderStats {
     total: number;
-    byStatus: Record<WorkOrderStatusType, number>;
+    pending?: number;
+    inProgress?: number;
+    completed?: number;
+    overdue?: number;
+    byStatus?: Partial<Record<WorkOrderStatusType | 'new', number>>;
     byPriority: Record<WorkOrderPriorityType, number>;
-    completedThisWeek: number;
-    overdueCount: number;
+    completedThisWeek?: number;
+    overdueCount?: number;
 }

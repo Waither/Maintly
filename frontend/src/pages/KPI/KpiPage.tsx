@@ -87,6 +87,12 @@ export const KpiPage = () => {
     const [error,    setError]    = useState<string | null>(null);
 
     const load = useCallback(async () => {
+        if (dateFrom > dateTo) {
+            setError('Data początkowa musi być wcześniejsza lub równa dacie końcowej.');
+            setData(null);
+            return;
+        }
+
         setLoading(true);
         setError(null);
         try {
@@ -100,6 +106,112 @@ export const KpiPage = () => {
     }, [dateFrom, dateTo]);
 
     useEffect(() => { load(); }, [load]);
+
+    const exportCsv = () => {
+        if (!data) {
+            return;
+        }
+
+        const rows: string[] = [];
+        const pushSection = (title: string, header: string[], dataRows: Array<Array<string | number>>) => {
+            rows.push(title);
+            rows.push(header.join(';'));
+            dataRows.forEach(row => rows.push(row.map(value => String(value).replace(/;/g, ',')).join(';')));
+            rows.push('');
+        };
+
+        pushSection('Podsumowanie', ['Metryka', 'Wartość'], [
+            ['Zakres od', data.period.from],
+            ['Zakres do', data.period.to],
+            ['Wszystkich zgłoszeń', data.workOrders.total],
+            ['Zakończone', data.workOrders.completed],
+            ['W trakcie', data.workOrders.inProgress],
+            ['Otwarte', data.workOrders.open],
+            ['Zaległe', data.workOrders.overdue],
+            ['MTTR (h)', data.kpi.mttr ?? '—'],
+            ['MTBF (h)', data.kpi.mtbf ?? '—'],
+        ]);
+
+        pushSection('Statusy', ['Status', 'Ilość'], [
+            ['Otwarte', data.workOrders.open],
+            ['W trakcie', data.workOrders.inProgress],
+            ['Zakończone', data.workOrders.completed],
+            ['Wstrzymane', data.workOrders.onHold],
+            ['Anulowane', data.workOrders.cancelled],
+        ]);
+
+        pushSection('Top urządzenia', ['Nazwa', 'Liczba zgłoszeń'], data.topEquipment.map(item => [item.name, item.count]));
+
+        pushSection('Top czas pracy', ['Nazwa', 'Direct [min]', 'Total [min]'], (data.equipment.topByWorkTime ?? []).map(item => [item.name, item.directMinutes, item.totalMinutes]));
+
+        pushSection('Trend', ['Miesiąc', 'Utworzone', 'Zakończone'], data.trend.map(item => [item.month, item.created, item.completed]));
+
+        const blob = new Blob(['\ufeff' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `kpi-${data.period.from}-do-${data.period.to}.csv`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    };
+
+    const exportPdf = () => {
+        if (!data) {
+            return;
+        }
+
+        const win = window.open('', '_blank', 'width=1200,height=900');
+        if (!win) {
+            return;
+        }
+
+        const metricsHtml = [
+            ['Wszystkich zgłoszeń', data.workOrders.total],
+            ['Zakończone', data.workOrders.completed],
+            ['W trakcie', data.workOrders.inProgress],
+            ['Otwarte', data.workOrders.open],
+            ['Zaległe', data.workOrders.overdue],
+            ['MTTR', fmt(data.kpi.mttr, 'h')],
+            ['MTBF', fmt(data.kpi.mtbf, 'h')],
+            ['Skuteczność', `${data.workOrders.completionRate}%`],
+        ].map(([label, value]) => `<tr><td>${label}</td><td style="text-align:right;font-weight:700">${value}</td></tr>`).join('');
+
+        const workTimeHtml = (data.equipment.topByWorkTime ?? []).map(item => `<tr><td>${item.name}</td><td style="text-align:right">${item.directMinutes}</td><td style="text-align:right">${item.totalMinutes}</td></tr>`).join('');
+
+        win.document.write(`
+            <html>
+              <head>
+                <title>KPI ${data.period.from} - ${data.period.to}</title>
+                <style>
+                  body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
+                  h1, h2 { margin: 0 0 12px; }
+                  .muted { color: #6b7280; margin-bottom: 16px; }
+                  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+                  .card { border: 1px solid #d1d5db; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+                  table { width: 100%; border-collapse: collapse; }
+                  td, th { border-bottom: 1px solid #e5e7eb; padding: 8px 6px; font-size: 13px; }
+                  th { text-align: left; background: #f9fafb; }
+                  .page-break { page-break-after: always; }
+                </style>
+              </head>
+              <body>
+                <h1>KPI i analityka</h1>
+                <div class="muted">Zakres: ${data.period.from} - ${data.period.to}</div>
+                <div class="grid">
+                  <div class="card"><h2>Podsumowanie</h2><table>${metricsHtml}</table></div>
+                  <div class="card"><h2>Top urządzenia</h2><table><tr><th>Nazwa</th><th style="text-align:right">Zgłoszenia</th></tr>${data.topEquipment.map(item => `<tr><td>${item.name}</td><td style="text-align:right">${item.count}</td></tr>`).join('')}</table></div>
+                </div>
+                <div class="card page-break"><h2>Top czas pracy</h2><table><tr><th>Nazwa</th><th style="text-align:right">Direct [min]</th><th style="text-align:right">Total [min]</th></tr>${workTimeHtml}</table></div>
+                <div class="card"><h2>Trend miesięczny</h2><table><tr><th>Miesiąc</th><th style="text-align:right">Utworzone</th><th style="text-align:right">Zakończone</th></tr>${data.trend.map(item => `<tr><td>${item.month}</td><td style="text-align:right">${item.created}</td><td style="text-align:right">${item.completed}</td></tr>`).join('')}</table></div>
+              </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => win.print(), 250);
+    };
 
     // ── derived chart data ──────────────────────────────────────────────
 
@@ -128,6 +240,7 @@ export const KpiPage = () => {
     })) ?? [];
 
     const topEquipmentData = data?.topEquipment ?? [];
+    const topWorkTimeData = data?.equipment.topByWorkTime ?? [];
 
     // ── render ──────────────────────────────────────────────────────────
 
@@ -174,6 +287,14 @@ export const KpiPage = () => {
                             : <MDBIcon fas icon="sync-alt" className="me-1" />
                         }
                         Odśwież
+                    </MDBBtn>
+                    <MDBBtn size="sm" color="success" onClick={exportCsv} disabled={!data || loading}>
+                        <MDBIcon fas icon="file-csv" className="me-1" />
+                        CSV
+                    </MDBBtn>
+                    <MDBBtn size="sm" color="dark" onClick={exportPdf} disabled={!data || loading}>
+                        <MDBIcon fas icon="file-pdf" className="me-1" />
+                        PDF
                     </MDBBtn>
                 </div>
             </div>
@@ -408,7 +529,43 @@ export const KpiPage = () => {
                         </MDBCol>
                     </MDBRow>
 
-                    {/* ── Row 4: Summary table + overdue alert ─────── */}
+                    {/* ── Row 4: Work time table ────────────────────── */}
+                    <MDBRow className="g-3 mb-4">
+                        <MDBCol lg="12">
+                            <MDBCard className="shadow-sm h-100">
+                                <MDBCardBody>
+                                    <MDBCardTitle className="fw-semibold mb-3">
+                                        <MDBIcon fas icon="clock" className="me-2 text-success" />
+                                        Urządzenia z największym czasem pracy
+                                    </MDBCardTitle>
+                                    {topWorkTimeData.length === 0 ? (
+                                        <div className="text-muted text-center py-4">Brak danych.</div>
+                                    ) : (
+                                        <table className="table table-sm table-hover mb-0 align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nazwa</th>
+                                                    <th className="text-end">Direct [min]</th>
+                                                    <th className="text-end">Total [min]</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {topWorkTimeData.map(item => (
+                                                    <tr key={item.id}>
+                                                        <td>{item.name}</td>
+                                                        <td className="text-end">{item.directMinutes}</td>
+                                                        <td className="text-end fw-semibold">{item.totalMinutes}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    )}
+                                </MDBCardBody>
+                            </MDBCard>
+                        </MDBCol>
+                    </MDBRow>
+
+                    {/* ── Row 5: Summary table + overdue alert ─────── */}
                     <MDBRow className="g-3">
                         <MDBCol lg="6">
                             <MDBCard className="shadow-sm h-100">
