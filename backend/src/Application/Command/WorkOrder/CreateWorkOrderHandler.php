@@ -50,6 +50,14 @@ class CreateWorkOrderHandler {
         $this->entityManager->persist($workOrder);
         $this->entityManager->flush();
 
+        // Set sequential code after first flush (ID is now available)
+        if ($workOrder->getUniqueCode() === null && $workOrder->getId() !== null) {
+            $workOrder->setUniqueCode(sprintf('WO-%06d', $workOrder->getId()));
+        } elseif ($workOrder->getId() !== null) {
+            // Override any PostPersist random code with sequential format
+            $workOrder->setUniqueCode(sprintf('WO-%06d', $workOrder->getId()));
+        }
+
         // Add assigned users (after flush to have workOrder ID)
         foreach ($command->assignedUserIds as $userId) {
             $user = $this->entityManager->getReference(User::class, $userId);

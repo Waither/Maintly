@@ -24,7 +24,9 @@ import {
     PriorityBadge,
     ErrorState,
     DeleteConfirmModal,
-    useToast
+    useToast,
+    QrCodeDisplay,
+    QrScanner,
 } from '../../components/ui';
 import { workOrderService } from '../../services';
 import { WorkOrder } from '../../types';
@@ -42,6 +44,9 @@ export const WorkOrderDetail = () => {
     // Delete modal
     const [deleteModal, setDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
+
+    // QR scanner modal
+    const [scannerOpen, setScannerOpen] = useState(false);
 
     // Mock permissions - replace with auth context
     const userPermissions = {
@@ -373,6 +378,36 @@ export const WorkOrderDetail = () => {
                         </MDBCardBody>
                     </MDBCard>
 
+                    {/* QR Code Card */}
+                    {workOrder.uniqueCode && (
+                        <MDBCard className="shadow-sm border-0 mb-4">
+                            <MDBCardHeader className="bg-white border-bottom py-3">
+                                <h6 className="mb-0 fw-bold">
+                                    <MDBIcon icon="qrcode" className="me-2 text-primary" />
+                                    Kod QR
+                                </h6>
+                            </MDBCardHeader>
+                            <MDBCardBody className="text-center pb-3">
+                                <QrCodeDisplay
+                                    code={workOrder.uniqueCode}
+                                    label={workOrder.uniqueCode}
+                                    size={160}
+                                />
+                                <hr className="my-3" />
+                                <MDBBtn
+                                    color="primary"
+                                    outline
+                                    size="sm"
+                                    className="w-100"
+                                    onClick={() => setScannerOpen(true)}
+                                >
+                                    <MDBIcon icon="camera" className="me-2" />
+                                    Skanuj inny kod QR
+                                </MDBBtn>
+                            </MDBCardBody>
+                        </MDBCard>
+                    )}
+
                     {/* Planned Dates */}
                     <MDBCard className="shadow-sm border-0">
                         <MDBCardHeader className="bg-white border-bottom py-3">
@@ -415,6 +450,28 @@ export const WorkOrderDetail = () => {
                 itemName={workOrder.title}
                 loading={deleting}
             />
+
+            {/* QR Scanner Modal */}
+            {scannerOpen && (
+                <div
+                    className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+                    style={{ background: 'rgba(0,0,0,0.55)', zIndex: 1060 }}
+                    onClick={(e) => { if (e.target === e.currentTarget) setScannerOpen(false); }}
+                >
+                    <MDBCard className="shadow border-0" style={{ width: 360 }}>
+                        <MDBCardHeader className="bg-white border-0 d-flex justify-content-between align-items-center py-3">
+                            <h5 className="mb-0">
+                                <MDBIcon icon="qrcode" className="me-2 text-primary" />
+                                Skanuj kod QR
+                            </h5>
+                            <button className="btn-close" onClick={() => setScannerOpen(false)} />
+                        </MDBCardHeader>
+                        <MDBCardBody className="p-3">
+                            <QrScanner onClose={() => setScannerOpen(false)} />
+                        </MDBCardBody>
+                    </MDBCard>
+                </div>
+            )}
         </div>
     );
 };

@@ -13,3 +13,4 @@ export { AuditLogList } from './AuditLogs';
 export { Profile } from './Profile';
 export { PreventiveMaintenancePage } from './PreventiveMaintenance';
 export { KpiPage } from './KPI/KpiPage';
+export { QrRedirect } from './QrRedirect';

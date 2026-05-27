@@ -13,3 +13,5 @@ export { DataTable, Pagination, TableActions } from './DataTable';
 export { MDBDataTable } from './MDBDataTable';
 export type { DataTableColumn, NoFoundConfig, LoadingConfig, MDBDataTableProps } from './MDBDataTable';
 export { ToastProvider, useToast } from './Toast';
+export { QrCodeDisplay } from './QrCodeDisplay';
+export { QrScanner } from './QrScanner';

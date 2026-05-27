@@ -20,6 +20,7 @@ import {
     Profile,
     PreventiveMaintenancePage,
     KpiPage,
+    QrRedirect,
 } from '../pages';
 import '../styles/sidebar.css';
 
@@ -113,6 +114,9 @@ function App() {
                             
                             {/* Profile - everyone */}
                             <Route path="/profile" element={<Profile />} />
+
+                            {/* QR deep-link: /qr/EQ-000001 or /qr/WO-000001 */}
+                            <Route path="/qr/:code" element={<QrRedirect />} />
                         </Route>
                         
                         {/* Fallback - redirect to dashboard */}

@@ -80,6 +80,7 @@ export interface WorkOrderTag {
 export interface WorkOrder extends BaseEntity {
     title: string;
     description?: string;
+    uniqueCode?: string;
     status: WorkOrderStatus;
     priority: WorkOrderPriority;
     equipment?: Equipment;

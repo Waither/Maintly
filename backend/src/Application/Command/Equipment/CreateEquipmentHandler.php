@@ -37,6 +37,12 @@ final readonly class CreateEquipmentHandler {
         $this->entityManager->persist($equipment);
         $this->entityManager->flush();
 
+        // PostPersist sets qrCodeData in memory but needs second flush to persist it
+        if ($equipment->getQrCodeData() === null && $equipment->getId() !== null) {
+            $equipment->setQrCodeData(sprintf('EQ-%06d', $equipment->getId()));
+        }
+        $this->entityManager->flush();
+
         return $equipment;
     }
 }

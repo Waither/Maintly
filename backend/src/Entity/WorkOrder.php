@@ -114,8 +114,8 @@ class WorkOrder {
      */
     #[ORM\PostPersist]
     public function generateUniqueCode(): void {
-        if ($this->uniqueCode === null) {
-            $this->uniqueCode = 'WO-' . bin2hex(random_bytes(4));
+        if ($this->uniqueCode === null && $this->id !== null) {
+            $this->uniqueCode = sprintf('WO-%06d', $this->id);
         }
     }
 
