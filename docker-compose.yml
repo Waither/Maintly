@@ -91,8 +91,8 @@ services:
       # This works both on localhost and from phone/LAN.
       - VITE_API_URL=/api
       - VITE_API_URL_HTTPS=https://localhost:8443/api
-      - VITE_WS_URL=wss://localhost:3000/ws
-      - VITE_USE_HTTPS=true
+      - VITE_WS_URL=wss://${PUBLIC_HOST:-localhost}/ws
+      - VITE_USE_HTTPS=false
     depends_on:
       - nginx
     networks:
