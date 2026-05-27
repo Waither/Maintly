@@ -17,6 +17,8 @@ services:
       DATABASE_URL: "mysql://maintly:secret@mysql:3306/maintly?serverVersion=8.4"
       APP_ENV: "prod"
       APP_DEBUG: "0"
+      REALTIME_WS_BROADCAST_URL: "http://realtime-ws:8001/broadcast"
+      REALTIME_WS_BROADCAST_TOKEN: "maintly-dev-token"
       PHP_OPCACHE_ENABLE: "1"
       PHP_OPCACHE_VALIDATE_TIMESTAMPS: "0"
     depends_on:
@@ -89,14 +91,29 @@ services:
       # This works both on localhost and from phone/LAN.
       - VITE_API_URL=/api
       - VITE_API_URL_HTTPS=https://localhost:8443/api
-      - VITE_WS_URL=
-      - VITE_USE_HTTPS=false
+      - VITE_WS_URL=wss://localhost:3000/ws
+      - VITE_USE_HTTPS=true
     depends_on:
       - nginx
     networks:
       - maintly-network
     stdin_open: true
     tty: true
+
+  # Realtime WebSocket server
+  realtime-ws:
+    build:
+      context: ./realtime-ws
+    container_name: maintly-realtime-ws
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - HEARTBEAT_MS=30000
+      - BROADCAST_TOKEN=maintly-dev-token
+    networks:
+      - maintly-network
+    restart: unless-stopped
 
   # Messenger Worker - Async queue consumer (reports, emails)
   messenger-worker:

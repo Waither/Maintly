@@ -59,12 +59,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // Ensure page-level fallback replay for offline queue on reconnect.
 ensureOfflineQueueAutoSync();
 
-// Service Worker registration - Auto-select DEV or PROD version
-if ('serviceWorker' in navigator) {
+// Service Worker registration - keep dev clean of SW caching issues
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Choose SW file based on environment
-        const swFile = import.meta.env.PROD ? '/sw-prod.js' : '/sw-dev.js';
-        const envLabel = import.meta.env.PROD ? 'PRODUCTION' : 'DEVELOPMENT';
+        const swFile = '/sw-prod.js';
+        const envLabel = 'PRODUCTION';
         
         console.log(`🔧 Registering ${envLabel} Service Worker: ${swFile}`);
         
@@ -85,11 +84,9 @@ if ('serviceWorker' in navigator) {
                 console.log(`✅ ${envLabel} Service Worker registered:`, registration.scope);
                 
                 // Production: Check for updates periodically
-                if (import.meta.env.PROD) {
-                    setInterval(() => {
-                        registration.update();
-                    }, 60000); // Check every 60s
-                }
+                setInterval(() => {
+                    registration.update();
+                }, 60000); // Check every 60s
                 
                 // Background i18n prefetch (works in both DEV and PROD)
                 // Wait for SW to become controller, then prefetch all languages

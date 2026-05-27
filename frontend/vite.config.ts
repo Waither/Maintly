@@ -35,6 +35,12 @@ export default defineConfig({
                 target: 'http://nginx:80',  // Nazwa serwisu Docker (dla SSR/Vite server)
                 changeOrigin: true,
                 secure: false
+            },
+            '/ws': {
+                target: 'ws://nginx:80',
+                ws: true,
+                changeOrigin: true,
+                secure: false
             }
         }
     },
