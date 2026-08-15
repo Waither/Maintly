@@ -1,0 +1,528 @@
+/* ============================================
+   CUSTOM MAINTLY THEME - ELEGANT PROFESSIONAL DESIGN
+   Ciemny, elegancki, gotowy do obrony
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --primary-color: #1e3a5f;       /* Głęboki niebieski */
+    --primary-light: #2d5a9e;       /* Jaśniejszy niebieski */
+    --accent-color: #00d9ff;        /* Jasny cyan */
+    --accent-dark: #00a8c9;         /* Ciemniejszy cyan */
+    --success-color: #10b981;       /* Zielony */
+    --warning-color: #f59e0b;       /* Pomarańczowy */
+    --danger-color: #ef4444;        /* Czerwony */
+    --bg-dark: #0d1117;             /* Bardzo ciemne tło */
+    --bg-lighter: #161b22;          /* Lżejsze tło */
+    --bg-panel: #1c2128;            /* Panel background */
+    --text-primary: #e6edf3;        /* Główny tekst */
+    --text-secondary: #8b949e;      /* Tekst drugorzędny */
+    --border-color: #30363d;        /* Linie */
+}
+
+/* ============================================
+   REVEAL.JS OVERRIDES
+   ============================================ */
+
+.reveal {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--text-primary);
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-lighter) 100%);
+    background-attachment: fixed;
+}
+
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    letter-spacing: -0.5px;
+}
+
+.reveal h1 {
+    font-size: 3em;
+    margin-bottom: 0.5em;
+    color: var(--accent-color);
+    text-shadow: 0 4px 16px rgba(0, 217, 255, 0.2);
+    font-weight: 700;
+}
+
+.reveal h2 {
+    font-size: 2.2em;
+    margin-bottom: 1em;
+    color: var(--text-primary);
+    font-weight: 700;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.reveal table {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.reveal table th,
+.reveal table td {
+    padding: 15px 10px;
+    border: 1px solid var(--border-color);
+}
+
+.reveal h3 {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.reveal h4 {
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+    color: var(--text-primary);
+}
+
+.reveal p,
+.reveal li {
+    margin: 0.5em 0;
+    line-height: 1.8;
+    font-weight: 400;
+}
+
+.reveal a {
+    color: var(--accent-color);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+.reveal a:hover {
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+.reveal img {
+    border: none;
+    box-shadow: none;
+    background: none;
+}
+
+.reveal table {
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.reveal section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px 60px;
+}
+
+.reveal hr {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* ============================================
+   SEKCJE I SLAJDY
+   ============================================ */
+
+.reveal .slides > section > section {
+    padding: 3em 4em;
+}
+
+.reveal .slides > section {
+    text-align: left;
+    padding: 3em 4em;
+    min-height: 700px;
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-lighter) 100%);
+}
+
+.slide-title {
+    text-align: center !important;
+}
+
+/* ============================================
+   LISTY
+   ============================================ */
+
+.reveal ul,
+.reveal ol {
+    margin: 1em 0;
+    text-align: left;
+}
+
+.reveal ul li,
+.reveal ol li {
+    margin: 0.5em 0;
+    font-size: 0.95em;
+}
+
+.reveal ul ul {
+    font-size: 0.9em;
+    margin-left: 1.5em;
+}
+
+/* ============================================
+   TABELE
+   ============================================ */
+
+.reveal table {
+    margin: 1.5em auto;
+    border-collapse: collapse;
+    background: var(--bg-panel);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.reveal table tr {
+    border: none;
+}
+
+.reveal table tr:first-child {
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    color: #fff;
+}
+
+.reveal table tr:nth-child(even) {
+    background: rgba(0, 217, 255, 0.05);
+}
+
+.reveal table tr:hover {
+    background: rgba(0, 217, 255, 0.1);
+}
+
+.reveal table td,
+.reveal table th {
+    padding: 1em;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.reveal table td:first-child,
+.reveal table th:first-child {
+    text-align: left;
+    font-weight: 600;
+}
+
+/* ============================================
+   KOD I BLOKI PRE
+   ============================================ */
+
+.reveal pre {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1.5em;
+    margin: 1.5em 0;
+    font-size: 0.55em;
+    line-height: 1.4;
+    overflow: auto;
+    max-height: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.reveal code {
+    background: rgba(0, 217, 255, 0.15);
+    padding: 0.3em 0.6em;
+    border-radius: 4px;
+    color: var(--accent-color);
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-weight: 600;
+}
+
+.reveal pre code {
+    background: transparent;
+    padding: 0;
+    color: #a0aec0;
+    font-weight: 400;
+}
+
+/* ============================================
+   PRZYCISK / KONTROLKI
+   ============================================ */
+
+.reveal .controls {
+    bottom: 30px;
+    right: 30px;
+}
+
+.reveal .controls button {
+    color: var(--accent-color);
+    font-size: 16px;
+    padding: 10px;
+}
+
+.reveal .controls button:hover {
+    color: #00ffff;
+    background: rgba(0, 217, 255, 0.2);
+    border-radius: 4px;
+}
+
+/* ============================================
+   LICZNIK SLAJDÓW
+   ============================================ */
+
+.reveal .slide-number {
+    background: rgba(0, 217, 255, 0.15);
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    font-size: 0.75em;
+    color: var(--accent-color);
+    border: 1px solid var(--primary-color);
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+
+.reveal .progress {
+    background: rgba(30, 58, 95, 0.3);
+    height: 5px;
+}
+
+.reveal .progress span {
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transition: width 0.3s ease;
+}
+
+/* ============================================
+   OBRAZY
+   ============================================ */
+
+.reveal img {
+    max-width: 90%;
+    max-height: 600px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 217, 255, 0.2);
+    margin: 1.5em auto;
+    border: 2px solid var(--primary-color);
+}
+
+/* ============================================
+   SEPARATORY
+   ============================================ */
+
+.reveal hr {
+    border: none;
+    border-top: 3px solid var(--accent-color);
+    width: 50%;
+    margin: 1.5em auto;
+    opacity: 0.6;
+}
+
+/* ============================================
+   QUOTES / WYRÓŻNIENIA
+   ============================================ */
+
+.reveal blockquote {
+    background: rgba(0, 217, 255, 0.1);
+    border-left: 4px solid var(--accent-color);
+    padding: 1.2em 1.5em;
+    border-radius: 4px;
+    margin: 1.5em 0;
+    font-style: italic;
+    color: var(--text-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .reveal {
+        font-size: 20px;
+    }
+
+    .reveal h1 {
+        font-size: 1.8em;
+    }
+
+    .reveal h2 {
+        font-size: 1.4em;
+    }
+
+    .reveal table {
+        font-size: 0.8em;
+    }
+
+    .reveal pre {
+        font-size: 0.45em;
+    }
+}
+
+/* ============================================
+   ANIMACJE
+   ============================================ */
+
+.reveal .slides section {
+    animation: slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reveal ul li {
+    animation: fadeInItem 0.4s ease-in forwards;
+}
+
+.reveal ul li:nth-child(1) { animation-delay: 0.1s; }
+.reveal ul li:nth-child(2) { animation-delay: 0.2s; }
+.reveal ul li:nth-child(3) { animation-delay: 0.3s; }
+.reveal ul li:nth-child(4) { animation-delay: 0.4s; }
+.reveal ul li:nth-child(5) { animation-delay: 0.5s; }
+.reveal ul li:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes fadeInItem {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-left {
+    text-align: left !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-accent {
+    color: var(--accent-color) !important;
+}
+
+.text-success {
+    color: var(--success-color) !important;
+}
+
+.text-warning {
+    color: var(--warning-color) !important;
+}
+
+.text-danger {
+    color: var(--danger-color) !important;
+}
+
+.text-small {
+    font-size: 0.85em !important;
+}
+
+.text-large {
+    font-size: 1.3em !important;
+}
+
+.text-bold {
+    font-weight: 700 !important;
+}
+
+.m-top-1 {
+    margin-top: 1em !important;
+}
+
+.m-top-2 {
+    margin-top: 2em !important;
+}
+
+.m-bot-1 {
+    margin-bottom: 1em !important;
+}
+
+.m-bot-2 {
+    margin-bottom: 2em !important;
+}
+
+.p-1 {
+    padding: 1em !important;
+}
+
+.p-2 {
+    padding: 2em !important;
+}
+
+.highlight {
+    background: linear-gradient(120deg, transparent 0%, rgba(0, 217, 255, 0.3) 50%, transparent 100%);
+    padding: 0.3em 0.7em;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.badge {
+    display: inline-block;
+    background: var(--primary-color);
+    color: var(--accent-color);
+    padding: 0.3em 0.8em;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    margin: 0.2em 0.3em;
+    border: 1px solid var(--accent-color);
+}
+
+.badge-success {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.badge-warning {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+.badge-danger {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}

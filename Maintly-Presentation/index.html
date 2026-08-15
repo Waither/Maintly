@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <title>Maintly CMMS – Praca Inżynierska – Maciej Gąsior</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="css/custom-theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --r-main-font: 'Inter', sans-serif;
+            --r-heading-font: 'Inter', sans-serif;
+        }
+        .reveal { font-family: 'Inter', sans-serif !important; }
+
+        /* ===== GLOBAL FOOTER ===== */
+        .footer {
+            position: absolute;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.4em;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 12px;
+            z-index: 1000;
+        }
+        .reveal[data-slide-index="0"] .footer,
+        .reveal[data-slide-index="0"] .pk-logo-fixed,
+        .reveal[data-last-slide] .footer,
+        .reveal[data-last-slide] .pk-logo-fixed { display: none !important; }
+
+        /* ===== GLOBAL PK LOGO ===== */
+        .pk-logo-fixed {
+            position: absolute;
+            top: 28px;
+            right: 38px;
+            height: 65px;
+            z-index: 1001;
+            border: none !important;
+            box-shadow: none !important;
+            background: none !important;
+        }
+
+        /* ===== SLIDE NUMBER ===== */
+        .slide-number-badge {
+            position: absolute;
+            bottom: 28px;
+            right: 42px;
+            font-size: 0.38em;
+            color: rgba(255,255,255,0.25);
+            z-index: 1002;
+            letter-spacing: 1px;
+        }
+
+        /* ===== BADGES ===== */
+        .badge {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 4px;
+            font-size: 0.38em;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .badge-cyan  { background: rgba(0,217,255,0.2);  color: #00d9ff; }
+        .badge-green { background: rgba(16,185,129,0.2); color: #10b981; }
+        .badge-red   { background: rgba(239,68,68,0.2);  color: #ef4444; }
+        .badge-blue  { background: rgba(59,130,246,0.2); color: #60a5fa; }
+
+        /* ===== NUMBERED ITEM ===== */
+        .num-item {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        .num-circle {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.75em;
+        }
+
+        /* ===== TECH ICON ===== */
+        .tech-icon img {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* ===== CHALLENGE ITEM ===== */
+        .challenge {
+            background: rgba(255,255,255,0.03);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 0 10px 10px 0;
+            padding: 14px 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="reveal">
+
+    <!-- GLOBAL PK LOGO -->
+    <img src="images/pk_logo.png" class="pk-logo-fixed" alt="PK">
+
+    <!-- GLOBAL FOOTER -->
+    <div class="footer">
+        <span style="font-size:0.65em;">Maciej Gąsior&nbsp;|&nbsp;Nr albumu: 147034</span>
+        <span style="font-size:0.65em;text-align: center;">System zarządzania utrzymaniem ruchu (CMMS) z architekturą CQRS i synchronizacją w czasie rzeczywistym</span>
+        <span style="font-size:0.65em;">Politechnika Krakowska&nbsp;|&nbsp;2026</span>
+    </div>
+
+    <div class="slides">
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 1 – STRONA TYTUŁOWA
+        ════════════════════════════════════════════ -->
+        <section style="text-align: left;">
+            <img src="images/pk_logo.png"
+                 style="position:absolute;top:-80px;right:0;height:120px;border:none;box-shadow:none;background:none;"
+                 alt="PK">
+            <div style="border-left: 10px solid var(--accent-color); padding-left: 40px; margin-top: 90px;">
+                <h5 style="color:var(--text-secondary);margin-bottom:16px;font-weight:500;font-size:0.68em;text-transform:uppercase;letter-spacing:1.5px;">
+                    Politechnika Krakowska
+                    <span style="color:var(--accent-color);margin:0 10px;">|</span>
+                    Wydział Informatyki i Matematyki
+                    <span style="color:var(--accent-color);margin:0 10px;">|</span>
+                    Informatyka
+                </h5>
+                <h1 style="font-size:2.4em;margin:18px 0 10px;color:white;font-weight:800;text-transform:uppercase;">Maintly</h1>
+                <h3 style="color:var(--accent-color);font-size:1.05em;text-transform:uppercase;letter-spacing:2px;font-weight:700;line-height:1.5;">
+                    System zarządzania utrzymaniem ruchu (CMMS)<br>
+                    z architekturą CQRS i synchronizacją w czasie rzeczywistym
+                </h3>
+                <p style="font-size:0.82em;color:var(--text-secondary);margin-top:16px;font-weight:400;text-transform:uppercase;letter-spacing:3px;">
+                    Praca inżynierska
+                </p>
+            </div>
+
+            <div style="margin-top:260px;display:grid;grid-template-columns:1fr 1fr;">
+                <div>
+                    <p style="font-size:0.75em;color:var(--text-secondary);margin-bottom:0;">Autor:</p>
+                    <p style="font-size:1em;font-weight:bold;margin:0;">Maciej Gąsior</p>
+                    <p style="font-size:0.65em;color:var(--text-secondary);margin-top:4px;">Nr albumu: 147034</p>
+                </div>
+                <div>
+                    <p style="font-size:0.75em;color:var(--text-secondary);margin-bottom:0;">Promotor:</p>
+                    <p style="font-size:1em;font-weight:bold;margin:0;">dr hab. inż. Marek Stanuszek, prof. PK</p>
+                </div>
+            </div>
+            <p style="font-size:0.65em;color:var(--text-secondary);margin-top:22px;font-weight:bold;letter-spacing:2px;text-align:center;">
+                Kraków, Czerwiec 2026
+            </p>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 2 – KONTEKST I UZASADNIENIE TEMATU
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>🏭 Kontekst i Uzasadnienie Tematu</h2>
+
+            <div style="margin-top:18px;display:grid;grid-template-columns:1fr 88px 1fr;gap:16px;align-items:center;">
+                <div style="display:flex;flex-direction:column;gap:20px;">
+                    <div style="font-size:0.56em;color:#f87171;letter-spacing:1px;text-transform:uppercase;font-weight:700;text-align:center;">Problem w zakładzie</div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+                        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.28);border-radius:12px;padding:12px;text-align:center;margin: 0 40px;">
+                            <div style="font-size:1.4em;line-height:1;">📄</div>
+                            <div style="font-size:0.52em;color:#f87171;font-weight:700;margin-top:6px;">Papierowy obieg</div>
+                        </div>
+                        <div style="background:rgba(242,145,17,0.08);border:1px solid rgba(242,145,17,0.28);border-radius:12px;padding:12px;text-align:center;margin: 0 40px;">
+                            <div style="font-size:1.4em;line-height:1;">📵</div>
+                            <div style="font-size:0.52em;color:#f29111;font-weight:700;margin-top:6px;">Brak pracy mobilnej</div>
+                        </div>
+                        <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.28);border-radius:12px;padding:12px;text-align:center;margin: 0 40px;">
+                            <div style="font-size:1.4em;line-height:1;">💸</div>
+                            <div style="font-size:0.52em;color:#a78bfa;font-weight:700;margin-top:6px;">Drogi SaaS i mała kontrola</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+                    <div style="font-size:0.5em;color:#9ca3af;letter-spacing:1px;text-transform:uppercase;font-weight:700;">Transformacja</div>
+                    <div style="width:54px;height:54px;border-radius:50%;background:rgba(0,217,255,0.12);border:2px solid rgba(0,217,255,0.4);display:flex;align-items:center;justify-content:center;font-size:1.35em;color:var(--accent-color);">➜</div>
+                    <div style="font-size:0.45em;color:#aaa;text-align:center;line-height:1.3;">od chaosu<br>do CMMS</div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:20px;">
+                    <div style="font-size:0.56em;color:#10b981;letter-spacing:1px;text-transform:uppercase;font-weight:700;text-align:center;">Maintly (CMMS)</div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+                        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.28);border-radius:12px;padding:12px;text-align:center;margin: 0 40px;">
+                            <div style="font-size:1.4em;line-height:1;">🗂️</div>
+                            <div style="font-size:0.52em;color:#10b981;font-weight:700;margin-top:6px;">Cyfrowe zlecenia i historia</div>
+                        </div>
+                        <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.28);border-radius:12px;padding:12px;text-align:center;margin: 0 40px;">
+                            <div style="font-size:1.4em;line-height:1;">📱</div>
+                            <div style="font-size:0.52em;color:var(--accent-color);font-weight:700;margin-top:6px;">Offline-first + QR</div>
+                        </div>
+                        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.28);border-radius:12px;padding:12px;text-align:center;margin: 0 40px;">
+                            <div style="font-size:1.4em;line-height:1;">🔒</div>
+                            <div style="font-size:0.52em;color:#60a5fa;font-weight:700;margin-top:6px;">On-premise i pełna kontrola</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin: 30px 40px 0px 40px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.16);border-radius:10px;padding:10px 12px;text-align:center;font-size:0.5em;color:#c9d1d9;">⚙️ Planowanie PM</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.16);border-radius:10px;padding:10px 12px;text-align:center;font-size:0.5em;color:#c9d1d9;">📡 Synchronizacja real-time</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.16);border-radius:10px;padding:10px 12px;text-align:center;font-size:0.5em;color:#c9d1d9;">📊 KPI: MTTR / MTBF</div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 3 – CEL I ZAKRES PRACY
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>🎯 Cel i Zakres Pracy</h2>
+
+            <div style="margin-top:14px;padding:18px 40px;background:linear-gradient(90deg,rgba(0,217,255,0.05) 0%,rgba(0,217,255,0.1) 50%,rgba(0,217,255,0.05) 100%);border:2px solid rgba(0,217,255,0.25);border-radius:16px;text-align:center;">
+                <p style="font-size:0.78em;margin:0;font-weight:400;line-height:1.8;color:#e6edf3;">
+                    Zaprojektowanie i implementacja kompletnego systemu klasy <strong style="color:var(--accent-color);">CMMS</strong> dla zakładów przemysłowych - opartego na architekturze <strong style="color:var(--accent-color);">CQRS</strong>, z pracą w trybie <strong style="color:var(--accent-color);">offline-first (PWA)</strong> i synchronizacją w czasie rzeczywistym przez <strong style="color:var(--accent-color);">WebSocket</strong>.
+                </p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:30px;">
+                <div style="background:rgba(0,217,255,0.06);border:2px solid rgba(0,217,255,0.3);border-radius:14px;padding:16px;text-align:center;">
+                    <div style="font-size:1.6em;margin-bottom:6px;">🏗️</div>
+                    <div style="font-size:0.62em;color:var(--accent-color);font-weight:700;">Technologiczny</div>
+                    <div style="font-size:0.46em;color:#aaa;margin-top:5px;">CQRS · REST API · JWT</div>
+                </div>
+                <div style="background:rgba(16,185,129,0.06);border:2px solid rgba(16,185,129,0.3);border-radius:14px;padding:16px;text-align:center;">
+                    <div style="font-size:1.6em;margin-bottom:6px;">📱</div>
+                    <div style="font-size:0.62em;color:#10b981;font-weight:700;">Użytkowy</div>
+                    <div style="font-size:0.46em;color:#aaa;margin-top:5px;">QR · Offline · Push</div>
+                </div>
+                <div style="background:rgba(139,92,246,0.06);border:2px solid rgba(139,92,246,0.3);border-radius:14px;padding:16px;text-align:center;">
+                    <div style="font-size:1.6em;margin-bottom:6px;">📊</div>
+                    <div style="font-size:0.62em;color:#a78bfa;font-weight:700;">Analityczny</div>
+                    <div style="font-size:0.46em;color:#aaa;margin-top:5px;">MTTR · MTBF · PDF</div>
+                </div>
+            </div>
+
+            <!-- Zakres: oś czasu pozioma -->
+            <div style="margin-top:20px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:start;position:relative;margin-top:50px;">
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">1</div>
+                    <div style="position:absolute;top:18px;left:calc(50% + 18px);width:calc(100% - 36px + 6px);height:2px;background:var(--accent-color);opacity:0.35;z-index:1;pointer-events:none;"></div>
+                    <div style="position:absolute;top:19px;right:-6px;transform:translateY(-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid var(--accent-color);opacity:0.75;z-index:1;pointer-events:none;"></div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">Analiza<br>wymagań</div>
+                </div>
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">2</div>
+                    <div style="position:absolute;top:18px;left:calc(50% + 18px);width:calc(100% - 36px + 6px);height:2px;background:var(--accent-color);opacity:0.35;z-index:1;pointer-events:none;"></div>
+                    <div style="position:absolute;top:19px;right:-6px;transform:translateY(-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid var(--accent-color);opacity:0.75;z-index:1;pointer-events:none;"></div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">Architektura<br>CQRS · ERD</div>
+                </div>
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">3</div>
+                    <div style="position:absolute;top:18px;left:calc(50% + 18px);width:calc(100% - 36px + 6px);height:2px;background:var(--accent-color);opacity:0.35;z-index:1;pointer-events:none;"></div>
+                    <div style="position:absolute;top:19px;right:-6px;transform:translateY(-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid var(--accent-color);opacity:0.75;z-index:1;pointer-events:none;"></div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">Backend<br>Symfony 7.3</div>
+                </div>
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">4</div>
+                    <div style="position:absolute;top:18px;left:calc(50% + 18px);width:calc(100% - 36px + 6px);height:2px;background:var(--accent-color);opacity:0.35;z-index:1;pointer-events:none;"></div>
+                    <div style="position:absolute;top:19px;right:-6px;transform:translateY(-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid var(--accent-color);opacity:0.75;z-index:1;pointer-events:none;"></div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">Frontend<br>React PWA</div>
+                </div>
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">5</div>
+                    <div style="position:absolute;top:18px;left:calc(50% + 18px);width:calc(100% - 36px + 6px);height:2px;background:var(--accent-color);opacity:0.35;z-index:1;pointer-events:none;"></div>
+                    <div style="position:absolute;top:19px;right:-6px;transform:translateY(-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid var(--accent-color);opacity:0.75;z-index:1;pointer-events:none;"></div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">WebSocket<br>Node.js</div>
+                </div>
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">6</div>
+                    <div style="position:absolute;top:18px;left:calc(50% + 18px);width:calc(100% - 36px + 6px);height:2px;background:var(--accent-color);opacity:0.35;z-index:1;pointer-events:none;"></div>
+                    <div style="position:absolute;top:19px;right:-6px;transform:translateY(-50%);width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;border-left:7px solid var(--accent-color);opacity:0.75;z-index:1;pointer-events:none;"></div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">Wdrożenie<br>Docker</div>
+                </div>
+                <div style="text-align:center;position:relative;z-index:2;">
+                    <div style="width:36px;height:36px;background:rgba(0,217,255,0.15);border:2px solid var(--accent-color);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7em;font-weight:800;color:var(--accent-color);margin:0 auto 6px;box-shadow:0 0 0 4px rgba(12,18,31,0.95);">7</div>
+                    <div style="font-size:0.4em;color:#ccc;line-height:1.4;">Testowanie<br>PHPUnit · E2E</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 4 – IDENTYFIKACJA MODELU: AKTORZY + WYMAGANIA
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>👥 Identyfikacja Modelu – Aktorzy i Wymagania</h2>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:20px;text-align:left;">
+
+                <div>
+                    <h4 style="color:var(--accent-color);font-size:0.72em;margin-bottom:14px;border-left:4px solid var(--accent-color);padding-left:12px;text-transform:uppercase;">Aktorzy</h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.3em;line-height:1;">🔑</div><div style="font-size:0.52em;color:#f87171;font-weight:700;margin-top:6px;">Administrator</div><div style="font-size:0.42em;color:#aaa;margin-top:2px;">Bezpieczenstwo</div></div>
+                        <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.3em;line-height:1;">👔</div><div style="font-size:0.52em;color:#60a5fa;font-weight:700;margin-top:6px;">Manager UR</div><div style="font-size:0.42em;color:#aaa;margin-top:2px;">Plan i KPI</div></div>
+                        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.3em;line-height:1;">🔧</div><div style="font-size:0.52em;color:#10b981;font-weight:700;margin-top:6px;">Technik</div><div style="font-size:0.42em;color:#aaa;margin-top:2px;">WO + QR</div></div>
+                        <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.3em;line-height:1;">🏢</div><div style="font-size:0.52em;color:#a78bfa;font-weight:700;margin-top:6px;">Reporter</div><div style="font-size:0.42em;color:#aaa;margin-top:2px;">Zgloszenia</div></div>
+                    </div>
+                    <div style="margin-top:10px;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);border-radius:10px;padding:10px 12px;text-align:center;">
+                        <div style="font-size:0.5em;color:#fbbf24;font-weight:700;">👷 Operator (podstawowy dostep)</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 style="color:#10b981;font-size:0.72em;margin-bottom:14px;border-left:4px solid #10b981;padding-left:12px;text-transform:uppercase;">Wymagania</h4>
+                    <div style="font-size:0.5em;color:#10b981;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Funkcjonalne</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">🗂️</div><div style="font-size:0.5em;color:#10b981;font-weight:700;">WO + Asset Tree</div></div>
+                        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">🛠️</div><div style="font-size:0.5em;color:#10b981;font-weight:700;">PM + harmonogram</div></div>
+                        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">📊</div><div style="font-size:0.5em;color:#10b981;font-weight:700;">KPI + raporty</div></div>
+                        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">🔎</div><div style="font-size:0.5em;color:#10b981;font-weight:700;">QR + wyszukiwanie</div></div>
+                    </div>
+
+                    <div style="font-size:0.5em;color:var(--accent-color);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Niefunkcjonalne</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">📵</div><div style="font-size:0.5em;color:var(--accent-color);font-weight:700;">Offline-first</div></div>
+                        <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">🔐</div><div style="font-size:0.5em;color:var(--accent-color);font-weight:700;">JWT + RBAC</div></div>
+                        <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">📦</div><div style="font-size:0.5em;color:var(--accent-color);font-weight:700;">Docker wdrozenie</div></div>
+                        <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.25);border-radius:12px;padding:12px;text-align:center;"><div style="font-size:1.25em;margin-bottom:6px;">⚡</div><div style="font-size:0.5em;color:var(--accent-color);font-weight:700;">Wydajnosc CQRS</div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 5 – ARCHITEKTURA SYSTEMU (CQRS)
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>🧩 Architektura Systemu</h2>
+
+            <div style="display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:18px;">
+                <div style="width:88%;display:flex;flex-direction:column;gap:6px;position:relative;">
+
+                    <!-- Warstwa klienta -->
+                    <div style="background:rgba(97,218,251,0.12);padding:0px 10px;border-radius:9px;border:1px solid #61dafb;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                        <div style="display:flex;align-items:center;gap:6px; width:28%; min-width:240px; text-align:center; justify-content:space-between;">
+                            <img src="https://simpleicons.org/icons/react.svg" title="React 18" style="height:42px;width:auto;border:none;box-shadow:none;filter:invert(78%) sepia(39%) saturate(583%) hue-rotate(159deg) brightness(102%) contrast(101%);">
+                            <img src="https://simpleicons.org/icons/typescript.svg" title="TypeScript" style="height:42px;width:auto;border:none;box-shadow:none;filter:invert(41%) sepia(90%) saturate(1239%) hue-rotate(188deg) brightness(97%) contrast(93%);">
+                            <img src="https://simpleicons.org/icons/pwa.svg" title="PWA" style="height:42px;width:auto;border:none;box-shadow:none;filter:invert(1);">
+                        </div>
+                        <div style="text-align:center; width:44%;">
+                            <strong style="color:#61dafb;font-size:0.85em;">React 18 SPA (PWA)</strong><br>
+                            <small style="color:#aaa;font-size:0.48em;">TypeScript · IndexedDB · Service Worker · QR Scanner</small>
+                        </div>
+                        <div style="width:28%; min-width:240px; text-align:center; display:flex; justify-content:center;">
+                            <span style="font-size:0.45em;background:rgba(97,218,251,0.2);color:#61dafb;padding:8px 16px;border-radius:6px;font-weight:700; text-align:center;">WARSTWA KLIENTA</span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:center;"><div style="width:2px;height:8px;background:linear-gradient(to bottom,#61dafb,#8993be);"></div></div>
+                    <div style="text-align:center;font-size:0.42em;color:#666;letter-spacing:2px;">HTTPS · REST API · JSON · JWT </div>
+                    <div style="display:flex;justify-content:center;"><div style="width:2px;height:8px;background:linear-gradient(to bottom,#8993be,#00d9ff);"></div></div>
+
+                    <!-- API Layer -->
+                    <div style="background:rgba(137,147,190,0.12);padding:0px 10px;border-radius:9px;border:1px solid #8993be;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                        <div style="display:flex;align-items:center;gap:6px; width:28%; min-width:240px; text-align:center; justify-content:space-between;">
+                            <img src="https://simpleicons.org/icons/symfony.svg" title="Symfony 7.3" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(1);">
+                            <img src="https://simpleicons.org/icons/php.svg" title="PHP 8.4" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(56%) sepia(13%) saturate(1045%) hue-rotate(193deg) brightness(94%) contrast(85%);">
+                            <img src="https://simpleicons.org/icons/swagger.svg" title="OpenAPI / Swagger" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(72%) sepia(89%) saturate(415%) hue-rotate(34deg) brightness(101%) contrast(101%);">
+                            <img src="https://simpleicons.org/icons/jsonwebtokens.svg" title="JWT RS256" style="height:24px;width:auto;border:none;box-shadow:none;filter:invert(11%) sepia(98%) saturate(6144%) hue-rotate(297deg) brightness(100%) contrast(110%);">
+                        </div>
+                        <div style="text-align:center; width:44%;">
+                            <strong style="color:#8993be;font-size:0.85em;">API Layer - Symfony 7.3 / PHP 8.4</strong><br>
+                            <small style="color:#aaa;font-size:0.48em;">Kontrolery REST · DTO Mapping · Lexik JWT · OpenAPI</small>
+                        </div>
+                        <div style="width:28%; min-width:240px; text-align:center; display:flex; justify-content:center;">
+                            <span style="font-size:0.45em;background:rgba(137,147,190,0.2);color:#8993be;padding:8px 16px;border-radius:6px;font-weight:700;">WARSTWA API</span>
+                        </div>
+                    </div>
+
+                    <!-- CQRS Bus -->
+                    <div style="background:rgba(0,217,255,0.04);padding:0px 12px;border-radius:12px;border:2px solid var(--accent-color);position:relative;margin-top:12px;">
+                        <div style="position:absolute;top:-12px;left:20px;background:var(--accent-color);color:#000;font-size:0.42em;padding:3px 12px;border-radius:4px;font-weight:800;letter-spacing:1px;">WZORZEC: CQRS + BUS (Symfony Messenger)</div>
+                        <div style="display:flex;gap:6px;margin-top:16px; margin-bottom:12px;">
+                            <div style="flex:1;background:rgba(239,68,68,0.07);padding:6px 8px;border-radius:8px;border:1px dashed rgba(239,68,68,0.3);text-align:center;">
+                                <strong style="font-size:0.58em;color:#f87171;">Command Stack (Write)</strong><br>
+                                <small style="font-size:0.48em;color:#aaa;">Command → Handler → Doctrine ORM → MySQL</small>
+                            </div>
+                            <div style="flex:1;background:rgba(59,130,246,0.07);padding:6px 8px;border-radius:8px;border:1px dashed rgba(59,130,246,0.3);text-align:center;">
+                                <strong style="font-size:0.58em;color:#60a5fa;">Query Stack (Read)</strong><br>
+                                <small style="font-size:0.48em;color:#aaa;">Query → Handler → Repository → Projekcja DTO</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;justify-content:center;"><div style="width:2px;height:8px;background:linear-gradient(to bottom,#00d9ff,#f29111);"></div></div>
+
+                    <!-- Persistence -->
+                    <div style="background:rgba(242,145,17,0.12);padding:0px 10px;border-radius:9px;border:1px solid #f29111;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                        <div style="display:flex;align-items:center;gap:6px; width:28%; min-width:240px; text-align:center; justify-content:space-between;">
+                            <img src="https://simpleicons.org/icons/mysql.svg" title="MySQL 8.4" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(41%) sepia(14%) saturate(1752%) hue-rotate(162deg) brightness(94%) contrast(91%);">
+                            <img src="https://simpleicons.org/icons/nodedotjs.svg" title="Node.js WebSocket" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(55%) sepia(28%) saturate(587%) hue-rotate(75deg) brightness(95%) contrast(89%);">
+                            <img src="https://simpleicons.org/icons/docker.svg" title="Docker" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(56%) sepia(87%) saturate(3050%) hue-rotate(174deg) brightness(100%) contrast(100%);">
+                            <img src="https://simpleicons.org/icons/nginx.svg" title="Nginx" style="height:38px;width:auto;border:none;box-shadow:none;filter:invert(49%) sepia(93%) saturate(373%) hue-rotate(76deg) brightness(92%) contrast(88%);">
+                        </div>
+                        <div style="text-align:center; width:44%;">
+                            <strong style="color:#f29111;font-size:0.85em;">Persistence + Realtime + Infrastructure</strong><br>
+                            <small style="color:#aaa;font-size:0.48em;">MySQL · Node.js WS · Docker · Nginx · Doctrine ORM</small>
+                        </div>
+                        <div style="width:28%; min-width:240px; text-align:center; display:flex; justify-content:center;">
+                            <span style="font-size:0.45em;background:rgba(242,145,17,0.2);color:#f29111;padding:4px 10px;border-radius:6px;font-weight:700;">WARSTWA DANYCH</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 6 – MODEL DANYCH (ERD)
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2 style="margin-bottom:16px;">📊 Model Relacyjny Bazy Danych (ERD)</h2>
+            <div style="display:grid;grid-template-columns:1.15fr auto;gap:22px;align-items:start;">
+
+                <!-- LEWA: opis encji -->
+                <div style="display:flex;flex-direction:column;gap:12px;text-align:left;">
+                    <h4 style="color:var(--accent-color);font-size:0.76em;margin-bottom:2px;text-transform:uppercase;letter-spacing:1px;">Kluczowe encje domenowe</h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                        <div style="background:rgba(0,191,255,0.1);padding:12px;border-radius:10px;border:1px solid rgba(0,191,255,0.3);display:flex;gap:10px;align-items:center;">
+                            <div style="width:24px;height:24px;border-radius:7px;background:rgba(0,191,255,0.18);display:flex;align-items:center;justify-content:center;font-size:0.78em;flex-shrink:0;">🏭</div>
+                            <div>
+                                <div style="font-size:0.64em;color:#00bfff;font-weight:800;">Equipment</div>
+                                <div style="font-size:0.48em;color:#cbd5e1;margin-top:4px;line-height:1.35;">Maszyny, lokacje, struktura</div>
+                            </div>
+                        </div>
+                        <div style="background:rgba(156,163,175,0.1);padding:12px;border-radius:10px;border:1px solid rgba(156,163,175,0.3);display:flex;gap:10px;align-items:center;">
+                            <div style="width:24px;height:24px;border-radius:7px;background:rgba(156,163,175,0.18);display:flex;align-items:center;justify-content:center;font-size:0.78em;flex-shrink:0;">📋</div>
+                            <div>
+                                <div style="font-size:0.64em;color:#d1d5db;font-weight:800;">WorkOrder</div>
+                                <div style="font-size:0.48em;color:#cbd5e1;margin-top:4px;line-height:1.35;">Statusy, priorytety, przydzialy</div>
+                            </div>
+                        </div>
+                        <div style="background:rgba(99,102,241,0.1);padding:12px;border-radius:10px;border:1px solid rgba(99,102,241,0.3);display:flex;gap:10px;align-items:center;">
+                            <div style="width:24px;height:24px;border-radius:7px;background:rgba(99,102,241,0.18);display:flex;align-items:center;justify-content:center;font-size:0.78em;flex-shrink:0;">🗓️</div>
+                            <div>
+                                <div style="font-size:0.64em;color:#818cf8;font-weight:800;">PM Plan</div>
+                                <div style="font-size:0.48em;color:#cbd5e1;margin-top:4px;line-height:1.35;">Automatyka harmonogramu</div>
+                            </div>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.1);padding:12px;border-radius:10px;border:1px solid rgba(239,68,68,0.3);display:flex;gap:10px;align-items:center;">
+                            <div style="width:24px;height:24px;border-radius:7px;background:rgba(239,68,68,0.18);display:flex;align-items:center;justify-content:center;font-size:0.78em;flex-shrink:0;">👤</div>
+                            <div>
+                                <div style="font-size:0.64em;color:#f87171;font-weight:800;">User / Role</div>
+                                <div style="font-size:0.48em;color:#cbd5e1;margin-top:4px;line-height:1.35;">RBAC i uprawnienia</div>
+                            </div>
+                        </div>
+                        <div style="background:rgba(234,179,8,0.1);padding:12px;border-radius:10px;border:1px solid rgba(234,179,8,0.3);display:flex;gap:10px;align-items:center;">
+                            <div style="width:24px;height:24px;border-radius:7px;background:rgba(234,179,8,0.18);display:flex;align-items:center;justify-content:center;font-size:0.78em;flex-shrink:0;">🧾</div>
+                            <div>
+                                <div style="font-size:0.64em;color:#fbbf24;font-weight:800;">AuditLog</div>
+                                <div style="font-size:0.48em;color:#cbd5e1;margin-top:4px;line-height:1.35;">Pelna historia zmian</div>
+                            </div>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.1);padding:12px;border-radius:10px;border:1px solid rgba(16,185,129,0.3);display:flex;gap:10px;align-items:center;">
+                            <div style="width:24px;height:24px;border-radius:7px;background:rgba(16,185,129,0.18);display:flex;align-items:center;justify-content:center;font-size:0.78em;flex-shrink:0;">🔔</div>
+                            <div>
+                                <div style="font-size:0.64em;color:#10b981;font-weight:800;">Notification</div>
+                                <div style="font-size:0.48em;color:#cbd5e1;margin-top:4px;line-height:1.35;">Alerty i komunikaty systemowe</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:2px;background:rgba(255,255,255,0.04);padding:11px 14px;border-radius:10px;border:1px dashed rgba(255,255,255,0.16);font-size:0.58em;color:var(--text-secondary);text-align:center;line-height:1.45;">
+                        3NF · Doctrine ORM · integralnosc relacji · migracje wersjonowane
+                    </div>
+                </div>
+
+                <!-- PRAWA: SVG pionowe -->
+                <div style="position:relative;flex-shrink:0;">
+                    <div style="background:white;padding:0px;border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;height:620px;width:620px;overflow:hidden;">
+                        <img src="images/erd_schema.svg" style="height:100%;width:auto;border:none;box-shadow:none;" alt="ERD – schemat relacyjny bazy danych Maintly">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+                SLAJD 7 – ARCHITEKTURA OFFLINE-FIRST + REAL-TIME SYNC
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>🔄 Architektura Offline-First i Real-Time Sync</h2>
+
+            <div style="margin-top:16px;text-align:center;font-size:0.52em;color:#9ca3af;letter-spacing:0.6px;text-transform:uppercase;">
+                Krótki cykl danych: offline local -> sync -> real-time update
+            </div>
+
+            <div style="margin-top:22px;display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr auto 1fr;gap:10px;align-items:center;text-align:center;">
+                <div style="background:rgba(97,218,251,0.08);border:2px solid #61dafb;border-radius:14px;padding:16px 10px;min-height:132px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:1.45em;line-height:1;">📱</div>
+                    <div style="font-size:0.6em;color:#61dafb;font-weight:800;margin-top:8px;">Praca Offline</div>
+                    <div style="font-size:0.47em;color:#cbd5e1;margin-top:5px;">UI + IndexedDB</div>
+                </div>
+                <div style="font-size:1.25em;color:#61dafb;">→</div>
+
+                <div style="background:rgba(242,145,17,0.08);border:2px solid #f29111;border-radius:14px;padding:16px 10px;min-height:132px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:1.45em;line-height:1;">📦</div>
+                    <div style="font-size:0.6em;color:#f29111;font-weight:800;margin-top:8px;">Outbox</div>
+                    <div style="font-size:0.47em;color:#cbd5e1;margin-top:5px;">kolejka zmian</div>
+                </div>
+                <div style="font-size:1.25em;color:#f29111;">→</div>
+
+                <div style="background:rgba(137,147,190,0.08);border:2px solid #8993be;border-radius:14px;padding:16px 10px;min-height:132px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:1.45em;line-height:1;">🖥️</div>
+                    <div style="font-size:0.6em;color:#8993be;font-weight:800;margin-top:8px;">API + MySQL</div>
+                    <div style="font-size:0.47em;color:#cbd5e1;margin-top:5px;">Command/Query</div>
+                </div>
+                <div style="font-size:1.25em;color:#8993be;">→</div>
+
+                <div style="background:rgba(16,185,129,0.08);border:2px solid #10b981;border-radius:14px;padding:16px 10px;min-height:132px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:1.45em;line-height:1;">📡</div>
+                    <div style="font-size:0.6em;color:#10b981;font-weight:800;margin-top:8px;">WebSocket</div>
+                    <div style="font-size:0.47em;color:#cbd5e1;margin-top:5px;">broadcast zdarzeń</div>
+                </div>
+                <div style="font-size:1.25em;color:#10b981;">→</div>
+
+                <div style="background:rgba(0,217,255,0.08);border:2px solid var(--accent-color);border-radius:14px;padding:16px 10px;min-height:132px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:1.45em;line-height:1;">🔁</div>
+                    <div style="font-size:0.6em;color:var(--accent-color);font-weight:800;margin-top:8px;">Live Update</div>
+                    <div style="font-size:0.47em;color:#cbd5e1;margin-top:5px;">wszyscy klienci</div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.18);border-radius:10px;padding:10px;text-align:center;font-size:0.5em;color:#cbd5e1;">⚙ Service Worker</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.18);border-radius:10px;padding:10px;text-align:center;font-size:0.5em;color:#cbd5e1;">☁ Background Sync</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.18);border-radius:10px;padding:10px;text-align:center;font-size:0.5em;color:#cbd5e1;">🔄 WS + Polling fallback</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px dashed rgba(255,255,255,0.18);border-radius:10px;padding:10px;text-align:center;font-size:0.5em;color:#cbd5e1;">🛡 Business Continuity</div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 8 – IMPLEMENTACJA: WIDOKI SYSTEMU
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2 style="margin-bottom:8px;">📸 Implementacja – widok aplikacji</h2>
+
+            <div style="margin-top:60px;display:flex;align-items:start;justify-content:center;">
+                <div style="width:37.5%;padding:0 6px;box-sizing:border-box;">
+                    <div style="font-size:0.74em;color:#00bfff;text-transform:uppercase;letter-spacing:1px;text-align:center;font-weight:bold;">Sprzęt</div>
+                    <img src="images/screen_equipment.png" alt="Equipment List" style="width:100%;height:auto;display:block;border:2px solid rgba(0,191,255,0.28);border-radius:8px;">
+                </div>
+                <div style="width:37.5%;padding:0 6px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:0.74em;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;text-align:center;font-weight:bold;">Zlecenia</div>
+                    <img src="images/screen_workorders.png" alt="Work Orders" style="width:100%;height:auto;display:block;border:2px solid rgba(156,163,175,0.28);border-radius:8px;">
+                </div>
+                <div style="width:25%;padding:0 6px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;">
+                    <div style="font-size:0.74em;color:#61dafb;text-transform:uppercase;letter-spacing:1px;text-align:center;font-weight:bold;margin-bottom: 12px;">Mobile + QR</div>
+                    <div style="display:flex;justify-content:center;gap:10px;align-items:flex-start;">
+                        <div style="width:172px;background:#111;border-radius:30px;border:5px solid #2a2a2a;box-shadow:0 0 0 1px #444,0 12px 24px rgba(0,0,0,0.52);overflow:hidden;flex-shrink:0;padding:0 -20px;">
+                            <div style="height:14px;background:#111;display:flex;align-items:center;justify-content:center;margin-bottom:-42px;"><div style="width:42px;height:5px;background:#2a2a2a;border-radius:4px;"></div></div>
+                            <div style="line-height:0;"><img src="images/screen_mobile.png" alt="Mobilny widok" style="width:100%;display:block;box-shadow:none"></div>
+                            <div style="height:20px;background:#111;display:flex;align-items:center;justify-content:center;margin-top:-42px;"><div style="width:30px;height:4px;background:#333;border-radius:2px;"></div></div>
+                        </div>
+
+                        <div style="width:172px;background:#111;border-radius:30px;border:5px solid #2a2a2a;box-shadow:0 0 0 1px #444,0 12px 24px rgba(0,0,0,0.52);overflow:hidden;flex-shrink:0;padding:0 -20px;">
+                            <div style="height:14px;background:#111;display:flex;align-items:center;justify-content:center;margin-bottom:-42px;"><div style="width:42px;height:5px;background:#2a2a2a;border-radius:4px;"></div></div>
+                            <div style="line-height:0;"><img src="images/screen_qr.png" alt="Skaner QR" style="width:100%;display:block;box-shadow:none"></div>
+                            <div style="height:20px;background:#111;display:flex;align-items:center;justify-content:center;margin-top:-42px;"><div style="width:30px;height:4px;background:#333;border-radius:2px;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 9 – TESTOWANIE
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>🧪 Testowanie Systemu</h2>
+
+            <div style="display:grid;grid-template-columns:1fr 48px 1fr 48px 1fr;gap:8px;align-items:stretch;margin-top:26px;">
+                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:14px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:2em;line-height:1;">🔬</div>
+                    <div style="font-size:0.82em;color:#f87171;font-weight:700;margin-top:6px;">UNIT</div>
+                    <div style="font-size:0.67em;color:#bbb;margin-top:4px;">PHPUnit</div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;color:#f87171;font-size:1.5em;">→</div>
+                <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.3);border-radius:14px;padding:14px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:2em;line-height:1;">🔗</div>
+                    <div style="font-size:0.82em;color:#60a5fa;font-weight:700;margin-top:6px;">INTEGRACJA</div>
+                    <div style="font-size:0.67em;color:#bbb;margin-top:4px;">WebTestCase</div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;color:#60a5fa;font-size:1.5em;">→</div>
+                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.3);border-radius:14px;padding:14px;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="font-size:2em;line-height:1;">🎭</div>
+                    <div style="font-size:0.82em;color:#10b981;font-weight:700;margin-top:6px;">E2E</div>
+                    <div style="font-size:0.67em;color:#bbb;margin-top:4px;">Playwright</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 48px 1fr 48px 1fr;gap:8px;align-items:stretch;margin-top:26px;">
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;">
+                    <div style="font-size:0.6em;color:#f87171;font-weight:700;">LOGIKA</div>
+                    <div style="font-size:0.54em;color:#bbb;margin-top:4px;">handlery i serwisy</div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;color:#f87171;font-size:1.5em;visibility: hidden;">→</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;">
+                    <div style="font-size:0.6em;color:#60a5fa;font-weight:700;">API + RBAC</div>
+                    <div style="font-size:0.54em;color:#bbb;margin-top:4px;">kontrolery i autoryzacja</div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;color:#60a5fa;font-size:1.5em;visibility: hidden;">→</div>
+                <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px;text-align:center;">
+                    <div style="font-size:0.6em;color:#10b981;font-weight:700;">SCENARIUSZE</div>
+                    <div style="font-size:0.54em;color:#bbb;margin-top:4px;">logowanie i flow użytkownika</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 10 – WYZWANIA, WNIOSKI I PERSPEKTYWY
+        ════════════════════════════════════════════ -->
+        <section>
+            <h2>⚡ Wyzwania, Wnioski i Perspektywy</h2>
+
+            <div style="display:grid;grid-template-columns:1.12fr 0.88fr;gap:16px;margin-top:18px;align-items:start;">
+
+                <div style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:14px 14px 12px;">
+                    <div style="font-size:0.76em;color:#fca5a5;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Wyzwania i odpowiedzi</div>
+
+                    <div style="display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:stretch;">
+                        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <div style="font-size:1.15em;line-height:1;">🔀</div>
+                            <div style="font-size:0.68em;color:#f87171;font-weight:700;margin-top:6px;">Złożoność CQRS</div>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:center;font-size:1.1em;color:#8b949e;">→</div>
+                        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <div style="font-size:1.15em;line-height:1;">🧪</div>
+                            <div style="font-size:0.68em;color:#10b981;font-weight:700;margin-top:6px;">Bus + testy</div>
+                        </div>
+
+                        <div style="background:rgba(242,145,17,0.1);border:1px solid rgba(242,145,17,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <div style="font-size:1.15em;line-height:1;">📵</div>
+                            <div style="font-size:0.68em;color:#f29111;font-weight:700;margin-top:6px;">Offline i konflikty</div>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:center;font-size:1.1em;color:#8b949e;">→</div>
+                        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <div style="font-size:1.15em;line-height:1;">📤</div>
+                            <div style="font-size:0.68em;color:#10b981;font-weight:700;margin-top:6px;">Outbox + Sync</div>
+                        </div>
+
+                        <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <div style="font-size:1.15em;line-height:1;">🔐</div>
+                            <div style="font-size:0.68em;color:#a78bfa;font-weight:700;margin-top:6px;">RBAC per rekord</div>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:center;font-size:1.1em;color:#8b949e;">→</div>
+                        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:10px;padding:10px;text-align:center;">
+                            <div style="font-size:1.15em;line-height:1;">✅</div>
+                            <div style="font-size:0.68em;color:#10b981;font-weight:700;margin-top:6px;">Voters + audyt</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:12px;">
+                        <div style="font-size:0.76em;color:#10b981;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Wnioski</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <div style="background:rgba(16,185,129,0.08);border:1px dashed rgba(16,185,129,0.35);border-radius:8px;padding:9px;text-align:center;font-size:0.64em;color:#d1fae5;font-weight:700;">CMMS end-to-end</div>
+                            <div style="background:rgba(16,185,129,0.08);border:1px dashed rgba(16,185,129,0.35);border-radius:8px;padding:9px;text-align:center;font-size:0.64em;color:#d1fae5;font-weight:700;">CQRS + REST</div>
+                            <div style="background:rgba(16,185,129,0.08);border:1px dashed rgba(16,185,129,0.35);border-radius:8px;padding:9px;text-align:center;font-size:0.64em;color:#d1fae5;font-weight:700;">Offline PWA</div>
+                            <div style="background:rgba(16,185,129,0.08);border:1px dashed rgba(16,185,129,0.35);border-radius:8px;padding:9px;text-align:center;font-size:0.64em;color:#d1fae5;font-weight:700;">Realtime + RBAC</div>
+                        </div>
+                    </div>
+
+                    <div style="background:rgba(0,217,255,0.08);border:1px solid rgba(0,217,255,0.25);border-radius:12px;padding:12px;">
+                        <div style="font-size:0.76em;color:var(--accent-color);font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Perspektywy</div>
+                        <div style="display:flex;flex-direction:column;gap:7px;">
+                            <div style="background:rgba(255,255,255,0.03);border-left:3px solid #00d9ff;border-radius:0 8px 8px 0;padding:8px 10px;font-size:0.64em;color:#cbd5e1;">🔌 Integracja IoT</div>
+                            <div style="background:rgba(255,255,255,0.03);border-left:3px solid #61dafb;border-radius:0 8px 8px 0;padding:8px 10px;font-size:0.64em;color:#cbd5e1;">🤖 Predykcja awarii (ML)</div>
+                            <div style="background:rgba(255,255,255,0.03);border-left:3px solid #f29111;border-radius:0 8px 8px 0;padding:8px 10px;font-size:0.64em;color:#cbd5e1;">📦 Magazyn części</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════════════
+             SLAJD 11 – DZIĘKUJĘ ZA UWAGĘ
+        ════════════════════════════════════════════ -->
+        <section style="text-align:left;" data-last-slide="true">
+            <img src="images/pk_logo.png"
+                 style="position:absolute;top:-80px;right:0;height:120px;border:none;box-shadow:none;background:none;"
+                 alt="PK">
+            <div style="border-left: 10px solid var(--accent-color); padding-left: 40px; margin-top: 90px;">
+                <h5 style="color:var(--text-secondary);margin-bottom:16px;font-weight:500;font-size:0.68em;text-transform:uppercase;letter-spacing:1.5px;">
+                    Politechnika Krakowska
+                    <span style="color:var(--accent-color);margin:0 10px;">|</span>
+                    Wydział Informatyki i Matematyki
+                    <span style="color:var(--accent-color);margin:0 10px;">|</span>
+                    Informatyka
+                </h5>
+                <h1 style="font-size:2.4em;margin:18px 0 10px;color:white;font-weight:800;text-transform:uppercase;">Maintly</h1>
+                <h3 style="color:var(--accent-color);font-size:1.05em;text-transform:uppercase;letter-spacing:2px;font-weight:700;line-height:1.5;">
+                    System zarządzania utrzymaniem ruchu (CMMS)<br>
+                    z architekturą CQRS i synchronizacją w czasie rzeczywistym
+                </h3>
+                <p style="font-size:0.82em;color:var(--text-secondary);margin-top:16px;font-weight:400;text-transform:uppercase;letter-spacing:3px;">
+                    Praca inżynierska
+                </p>
+            </div>
+
+            <div style="height: 180px; display: flex; align-items: center; justify-content: center;">
+                <div style="font-size:3.8em;color:var(--accent-color);text-shadow:0 0 12px var(--accent-color);font-weight:800;">
+                    Dziękuję za uwagę!
+                </div>
+            </div>
+
+            <div style="margin-top:80px;display:grid;grid-template-columns:1fr 1fr;">
+                <div>
+                    <p style="font-size:0.75em;color:var(--text-secondary);margin-bottom:0;">Autor:</p>
+                    <p style="font-size:1em;font-weight:bold;margin:0;">Maciej Gąsior</p>
+                    <p style="font-size:0.65em;color:var(--text-secondary);margin-top:4px;">Nr albumu: 147034</p>
+                </div>
+                <div>
+                    <p style="font-size:0.75em;color:var(--text-secondary);margin-bottom:0;">Promotor:</p>
+                    <p style="font-size:1em;font-weight:bold;margin:0;">dr hab. inż. Marek Stanuszek, prof. PK</p>
+                </div>
+            </div>
+            <p style="font-size:0.65em;color:var(--text-secondary);margin-top:20px;font-weight:bold;letter-spacing:2px;text-align:center;">
+                Kraków, Czerwiec 2026
+            </p>
+        </section>
+
+    </div><!-- /slides -->
+</div><!-- /reveal -->
+
+<!-- Reveal.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+<script>
+    Reveal.initialize({
+        hash: true,
+        width: 1920,
+        height: 1080,
+        margin: 0.05,
+        minScale: 0.2,
+        maxScale: 2.0,
+        slideNumber: false,
+        transition: 'slide',
+        backgroundTransition: 'fade',
+        controls: true,
+        progress: true
+    });
+
+    // Ukrywanie stopki na 1. i ostatnim slajdzie
+    Reveal.on('slidechanged', event => {
+        const revealEl = document.querySelector('.reveal');
+        revealEl.setAttribute('data-slide-index', event.indexh);
+        if (Reveal.isLastSlide()) {
+            revealEl.setAttribute('data-last-slide', '');
+        } else {
+            revealEl.removeAttribute('data-last-slide');
+        }
+    });
+
+    document.querySelector('.reveal').setAttribute('data-slide-index', '0');
+</script>
+</body>
+</html>
